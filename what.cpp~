@@ -1,0 +1,18 @@
+#include <iostream>
+#include "SingleWord.h"
+#include "kurs.h"
+#include <string>
+#include <vector>
+
+using namespace std;
+
+int main() {
+	vector<Kurs*> kurs;
+	Kurs *kurs1 = new Kurs();	
+	kurs1->words.push_back(new SingleWord("a", "b"));
+	kurs1->words.push_back(new SingleWord("a", "b"));
+	kurs1->words.push_back(new SingleWord("a", "b"));
+	kurs.push_back(kurs1);	
+	SingleWord b = kurs[0]->function();
+	return 0;
+}
