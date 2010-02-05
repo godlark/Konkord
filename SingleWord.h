@@ -24,8 +24,8 @@ class SingleWord {
         string spelling;
         vector<SingleWord*> meanings;
         vector<ushort*> repetitionsOfMeanings;
-        vector<unsigned int*> lastRepetitionsOfM;
-        unsigned int time_lastud; //data ostatniego użycia
+        vector<time_t*> lastRepetitionsOfM;
+        time_t time_lastud; //data ostatniego użycia
         ushort hralev;//poziom trudności
         ushort oplev;//poziom opanowania
         ushort q_meanings;
@@ -40,20 +40,20 @@ class SingleWord {
         
         string getSound() const;
         string getSpelling() const;
-        unsigned int getTime_lastud() const;
+        time_t getTime_lastud() const;
         ushort getHralev() const;
         ushort getOplev() const;
         SingleWord * getMeaning(ushort number) const;
         ushort getNumberMeanings() const;
-        unsigned int getTimeLastRepetition(ushort number_meaning) const;
-        unsigned int getTimeNextRepetition(ushort number_meaning, vector<unsigned int> repetitionsTime) const;
+        time_t getTimeLastRepetition(ushort number_meaning) const;
+        time_t getTimeNextRepetition(ushort number_meaning, vector<time_t> repetitionsTime) const;
         ushort getWhichRepetition(ushort number_meaning) const;
         void setWhichRepetition(ushort number_meaning, ushort which_repetition) const;
-        void setTimeLastRepetition(ushort number_meaning, unsigned int lasttime);
+        void setTimeLastRepetition(ushort number_meaning, time_t lasttime);
         
         void setSound(string Asound);
         void setSpelling(string Aspelling);
-        void setTime_lastud(unsigned int time_lastud);
+        void setTime_lastud(time_t time_lastud);
         void setHralev(int hralev);
         void setOplev(ushort oplev);
         void setOplev(time_t nowTime);
@@ -63,7 +63,7 @@ class SingleWord {
         SingleWord() {}
         SingleWord(SingleWord const *sw);
         
-        static bool connectSingleWords(SingleWord *sw1, SingleWord *sw2, ushort which_repetition, unsigned int last_repetition);
+        static bool connectSingleWords(SingleWord *sw1, SingleWord *sw2, ushort which_repetition, time_t last_repetition);
         static bool disconnectSingleWords(SingleWord *sw1, SingleWord *sw2);//powiadamianie o pustych słowach
 	static const ushort MAX_OPLEV = 1000;
 	static const ushort MAX_HRALEV = 1000;

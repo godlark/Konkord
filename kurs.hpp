@@ -87,7 +87,7 @@ class Kurs
 			string filename;
                         vector<SingleWord*> wordl1;
                         vector<SingleWord*> wordl2;
-                        vector<unsigned int> repetitionsTime; //in seconds
+                        vector<time_t> repetitionsTime; //in seconds
                         vector<unsigned int> repetitionsHowMany;
                         vector<double> repetitionsGrade;
                         ushort qAllSingleWords;

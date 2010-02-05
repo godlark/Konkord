@@ -136,7 +136,6 @@ vector<ushort> Kurs::getConnectionsToRepetition(ushort &howMany) const {
     }
     vector<ushort> connectionsToRepetition;
     if(AhowMany < howMany)howMany = AhowMany;
-    cout << (unsigned int)nowTime << endl;
     for(ushort i = 0; i < howMany; i++) {
         wordl1[Q.top().nr_word]->setTimeLastRepetition(Q.top().nr_connection, nowTime);
         connectionsToRepetition.push_back(Q.top().nr_word);
@@ -253,7 +252,7 @@ void Kurs::repairSingleWord_new(ushort word_number, time_t czas, vector<double> 
     double sword_oplev = 0;
     for(ushort i = 0; i < sword->getNumberMeanings(); i++) {
         if(oplev_connections[i] > 20)oplev_connections[i] = 20;
-        temp = (double)((double)(sword->getTimeNextRepetition(i, repetitionsTime)-(unsigned int)nowTime)/(double)repetitionsTime[sword->getWhichRepetition(i)]);
+        temp = (double)((double)(sword->getTimeNextRepetition(i, repetitionsTime)-nowTime)/(double)repetitionsTime[sword->getWhichRepetition(i)]);
         if(temp < 0)oplev_connections[i] *= 1.0-temp;
         else oplev_connections[i] *= 1.0-(temp*((max_oplev-oplev_connections[i])/max_oplev));
         //ale teraz może być już większe od max_oplev
@@ -273,7 +272,7 @@ void Kurs::repairSingleWord_new(ushort word_number, time_t czas, vector<double> 
 	
     sword->setHralev((sword->getHralev()*procent)/1000+sword->getHralev());
     sword->setOplev((ushort)sword_oplev);
-    sword->setTime_lastud((unsigned int)nowTime);
+    sword->setTime_lastud(nowTime);
     
     ifChangeKurs = true;
 }
@@ -288,14 +287,14 @@ void Kurs::repairRepetition(ushort which_repetition, double oplev_connection) { 
     if(repetitionsGrade[which_repetition] > max_grade*0.95) {
         double time = (double)repetitionsTime[which_repetition];
         time *= 0.95/0.90;
-        repetitionsTime[which_repetition] = (unsigned int)time;
+        repetitionsTime[which_repetition] = (time_t)time;
         repetitionsHowMany[which_repetition] = ceil((double)qAllSingleWords/100.0);
         repetitionsGrade[which_repetition] = 90;
     }
     else if(repetitionsGrade[which_repetition] < 0.8) {
         double time = (double)repetitionsTime[which_repetition];
         time *= 0.8/0.9;
-        repetitionsTime[which_repetition] = (unsigned int)time;
+        repetitionsTime[which_repetition] = (time_t)time;
         repetitionsHowMany[which_repetition] = ceil((double)qAllSingleWords/100.0);
         repetitionsGrade[which_repetition] = 90;
     }
@@ -435,7 +434,7 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
         ushort qRepetition;
         file >> qRepetition;
         file.ignore(INT_MAX, '\n');
-        unsigned int repetitionTime;
+        time_t repetitionTime;
         ushort repetitionHowMany;
         double repetitionGrade;
         for(int i = 0; i < qRepetition; i++) {
@@ -454,7 +453,7 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
             ushort oplev;
             ushort hralev;
             string spelling;
-            unsigned int time_lastud;
+            time_t time_lastud;
             time_t nowTime = time(NULL);
             qKnownSingleWords = 0;
             ifChangeKurs = false;
@@ -489,7 +488,7 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
             ushort number1;
             ushort number2;
             ushort which_repetition;
-            unsigned int last_repetition;
+            time_t last_repetition;
             for(ushort i = 0; i < numberConnections; i++) {
                 file >> number1;
                 file >> number2;
@@ -537,7 +536,7 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
             
             //koniec wczytywania danych kursu
             ushort _hralev, _oplev;
-            unsigned int _time_lastud;
+            time_t _time_lastud;
             SingleWord sword("", "");
             time_t nowTime = time(NULL);
             for(ushort i = 0; i < numberConnections; i++) {

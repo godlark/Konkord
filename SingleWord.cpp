@@ -28,10 +28,10 @@ SingleWord::SingleWord(SingleWord const *sw) {
     q_meanings = sw->q_meanings;
     time_lastud = sw->time_lastud;
     meanings = vector<SingleWord*>(sw->meanings); // czy napewno skopiuje wektor
-    lastRepetitionsOfM = vector<unsigned int*>(sw->lastRepetitionsOfM);
+    lastRepetitionsOfM = vector<time_t*>(sw->lastRepetitionsOfM);
     repetitionsOfMeanings = vector<ushort*>(sw->repetitionsOfMeanings);
 }
-void SingleWord::setTimeLastRepetition(ushort number_meaning, unsigned int lasttime) {
+void SingleWord::setTimeLastRepetition(ushort number_meaning, time_t lasttime) {
     if(number_meaning >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
     *lastRepetitionsOfM[number_meaning] = lasttime;
 }
@@ -46,16 +46,16 @@ void SingleWord::setWhichRepetition(ushort number_meaning, ushort which_repetiti
     if(number_meaning >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
     *repetitionsOfMeanings[number_meaning] = which_repetition;
 }
-unsigned int SingleWord::getTimeLastRepetition(ushort number_meaning) const {
+time_t SingleWord::getTimeLastRepetition(ushort number_meaning) const {
     if(number_meaning >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
     return *lastRepetitionsOfM[number_meaning];
 }
-unsigned int SingleWord::getTimeNextRepetition(ushort number_meaning, vector<unsigned int> repetitionsTime) const {
+time_t SingleWord::getTimeNextRepetition(ushort number_meaning, vector<time_t> repetitionsTime) const {
     if(number_meaning >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
     if(*repetitionsOfMeanings[number_meaning] >= repetitionsTime.size())throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
     return *lastRepetitionsOfM[number_meaning] + repetitionsTime[*repetitionsOfMeanings[number_meaning]];
 }
-bool SingleWord::connectSingleWords(SingleWord *sw1, SingleWord *sw2, ushort which_repetition, unsigned int last_repetition) {
+bool SingleWord::connectSingleWords(SingleWord *sw1, SingleWord *sw2, ushort which_repetition, time_t last_repetition) {
     if(!sw1->isConnectedWith(sw2)) {
         int temp1 = sw1->meanings.size();
         sw1->meanings.push_back(sw2);
@@ -63,7 +63,7 @@ bool SingleWord::connectSingleWords(SingleWord *sw1, SingleWord *sw2, ushort whi
         sw1->repetitionsOfMeanings[temp1] = new ushort;
         *(sw1->repetitionsOfMeanings[temp1]) = which_repetition;
         sw1->lastRepetitionsOfM.push_back(NULL);
-        sw1->lastRepetitionsOfM[temp1] = new unsigned int;
+        sw1->lastRepetitionsOfM[temp1] = new time_t;
         *(sw1->lastRepetitionsOfM[temp1]) = last_repetition;
         sw1->q_meanings++;
         sw1->known = (sw1->known || last_repetition != 0);
@@ -156,7 +156,7 @@ ushort SingleWord::getHralev() const{
 ushort SingleWord::getOplev() const{
     return oplev;
 }
-unsigned int SingleWord::getTime_lastud() const{
+time_t SingleWord::getTime_lastud() const{
     return time_lastud;
 }
 void SingleWord::setSound(string Asound) {
@@ -186,7 +186,7 @@ void SingleWord::setOplev(time_t nowTime)
 	setOplev((ushort)(oplev-((way_time*hralev)/86400)));
 	if(oplev != old_oplev)setTime_lastud(nowTime);
 }
-void SingleWord::setTime_lastud(unsigned int Atime_lastud)
+void SingleWord::setTime_lastud(time_t Atime_lastud)
 {
 	time_lastud = Atime_lastud;
 }
