@@ -124,8 +124,8 @@ vector<ushort> Kurs::getConnectionsToRepetition(ushort &howMany) const {
     for(ushort i = 0; i < wordl1.size(); i++) {
         ushort howManyConnections = wordl1[i]->getNumberMeanings();
         for(ushort j = 0; j < howManyConnections; j++) {
-            ushort temp = wordl1[i]->getTimeNextRepetition(j, repetitionsTime);
-            if(temp <= (unsigned int)nowTime && wordl1[i]->getTimeLastRepetition(j) != 0) { //zmienieć na jakieś isKnown
+            time_t temp = wordl1[i]->getTimeNextRepetition(j, repetitionsTime);
+            if(temp <= nowTime && wordl1[i]->getTimeLastRepetition(j) != 0) { //zmienieć na jakieś isKnown
                 ctr.nr_word = i;
                 ctr.nr_connection = j;
                 ctr.nextTimeOfRepetition = temp;
@@ -136,6 +136,7 @@ vector<ushort> Kurs::getConnectionsToRepetition(ushort &howMany) const {
     }
     vector<ushort> connectionsToRepetition;
     if(AhowMany < howMany)howMany = AhowMany;
+    cout << (unsigned int)nowTime << endl;
     for(ushort i = 0; i < howMany; i++) {
         wordl1[Q.top().nr_word]->setTimeLastRepetition(Q.top().nr_connection, nowTime);
         connectionsToRepetition.push_back(Q.top().nr_word);
@@ -178,8 +179,8 @@ vector<ushort> Kurs::getKnownSingleWords(ushort quantityOfWords) const {
 	priority_queue<SingleWordAndIndex, vector<SingleWordAndIndex>, compareSingleWords> Q;
 	SingleWordAndIndex swani;
 	for(ushort i = 0; i < qAllSingleWords; i++)
-	{
-                if(i < wordl1.size()) {
+	{    
+            if(i < wordl1.size()) {
                     if(wordl1[i]->isKnown())
                     {
 			swani.sword = wordl1[i];
