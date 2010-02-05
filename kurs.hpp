@@ -111,7 +111,7 @@ class Kurs
                         void connectSingleWords(ushort number1, ushort number2);
                         void disconnectSingleWords(ushort number1, ushort number2);
                         void delSingleWord(ushort number);
-                        vector<ushort> findWord_new(boost::regex searched_string) const;
+                        vector<ushort> findWord(boost::regex searched_string) const;
                         vector<ushort> getKnownSingleWords(ushort quantityOfWords) const;
                         vector<ushort> getUnknownSingleWords(ushort quantityOfWords) const;
                         vector<ushort> getConnectionsToRepetition(ushort &howMany) const;

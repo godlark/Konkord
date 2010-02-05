@@ -52,11 +52,13 @@ void ServiceOfTasks::setStateActions() {
                         actionActive[3] = true;
                         actionActive[4] = true;
                         actionActive[12] = true;
+                        actionActive[19] = true;
                     }
                     else {
                         actionActive[3] = false;
                         actionActive[4] = false;
                         actionActive[12] = false;
+                        actionActive[19] = false;
                     }
                     if(courses[activ_course]->getQSingleWords_1() > 0 && courses[activ_course]->getQSingleWords_2() > 0) {
                         actionActive[5] = true;
@@ -87,6 +89,7 @@ void ServiceOfTasks::setStateActions() {
                     actionActive[16] = false;
                     actionActive[17] = false;
                     actionActive[18] = false;
+                    actionActive[19] = false;
                 }
 }
 void ServiceOfTasks::addWord() {
@@ -120,33 +123,6 @@ void ServiceOfTasks::addWords() {
     }
 }
 void ServiceOfTasks::askKnownWords() {
-	/*ushort number_words;
-        time_t _time;
-        string word;
-        ushort oplev;
-        
-        number_words = (*dialogWindow)("Podaj ilość słów, z których chcesz być przepytywany, podaj 0 dla domyślnej wartości ustawionej w kursie", 1)._ushort;
-        if(number_words == 0)number_words = courses[activ_course]->getAskQKW();
-        vector <ushort> words = courses[activ_course]->getKnownWords(number_words);
-        number_words = words.size();
-        bool krakl;
-        string word1;
-        string word2;
-        for(ushort i = 0; i < number_words; i++) {
-            srand(time(NULL));
-            krakl = (rand()%2 == 0 ? true : false);
-            _time = time(NULL);
-            word = (*askWord)((krakl ? courses[activ_course]->getWord(words[i]).getFirst() : courses[activ_course]->getWord(words[i]).getSecond()), krakl, words[i]);
-            _time = time(NULL) - _time;
-            word1 = courses[activ_course]->getWord(words[i]).getFirst();
-            word2 = courses[activ_course]->getWord(words[i]).getSecond();
-            (*printWords)("Poprawna wersja to: ", &word1, &word2, 1, 0);
-            oplev = dialogWindow("Na ile oceniasz swoją poprawność w skali od 1 do 1000", 1)._ushort;
-            if(oplev > 1000)oplev = 1000;
-            courses[activ_course]->repairWord(words[i], (ushort)krakl, _time, oplev);
-        }*/
-        
-        
         ushort number_words;
         time_t atime;
         string spellingWord;
@@ -157,16 +133,6 @@ void ServiceOfTasks::askKnownWords() {
         vector <ushort> swords = courses[activ_course]->getKnownSingleWords(number_words);
         number_words = swords.size();
         SingleWord const *sword;
-        /*for(ushort i = 0; i < number_words; i++) {
-            atime = time(NULL);
-            sword = courses[activ_course]->getSingleWord(swords[i]);
-            (*askWord)(sword, swords[i]);
-            atime = time(NULL) - atime;
-            (*printWords)("Poprawna wersja to: ", sword, &(swords[i]), 1, 0);
-            oplev = dialogWindow("Na ile oceniasz swoją poprawność w skali od 1 do 1000", 1)._ushort;
-            if(oplev > 1000)oplev = 1000;
-            courses[activ_course]->repairSingleWord(swords[i], atime, oplev);
-        }*/
         
         for(ushort i = 0; i < number_words; i++) {
             atime = time(NULL);
@@ -194,93 +160,8 @@ void ServiceOfTasks::askKnownWords() {
         }
         saved_courses[activ_course] = false;
         setStateActions();
-        
-        
-        /*system("clear");
-			
-	ushort ilosc_slow;
-	time_t _time;
-	string wyraz;
-	ushort poziom_opanowania;
-	printf("Podaj ilość słów, z których chcesz być przepytywany, podaj 0 dla domyślnej wartości ustawionej w kursie.\n");
-	scanf("%hu", &ilosc_slow);
-	if(ilosc_slow == 0)ilosc_slow = courses[activ_course)->getAskQKW();
-	vector <ushort> slowa = courses[activ_course]->getKnownWords(ilosc_slow);
-	ilosc_slow = slowa.size();
-	printf("Wpisz brakujące słowa.\n");
-	ushort krakl;
-	for(ushort i = 0; i < ilosc_slow; i++)
-	{
-		srand ( time(NULL) );//przygotowanie totalizatora
-		printf("Język:\t%s\t%s\n", courses[activ_course)->getLang1().c_str(), courses[activ_course)->getLang2().c_str());
-		krakl = rand()%2;
-		if(krakl)
-		{
-			printf("nr słowa: %d\n\t*brakujące*\t%s\n", i, courses[activ_course)->getWord(slowa[i]).getSecond().c_str());
-			_time = time(NULL);
-			getline(cin, wyraz);
-			getline(cin, wyraz);
-			_time = time(NULL) - _time;
-			printf("Prawidłowa wersja to: %s\t%s\n", courses[activ_course)->getWord(slowa[i]).getFirst().c_str(), courses[activ_course)->getWord(slowa[i]).getSecond().c_str());
-		}
-		else
-		{
-			printf("nr słowa: %d\n\t%s\t*brakujące*\n", i, activ_kurs->getWord(slowa[i]).getFirst().c_str());
-			_time = time(NULL);
-			getline(cin, wyraz);
-			getline(cin, wyraz);
-			_time = time(NULL) - _time;
-			printf("Prawidłowa wersja to: %s\t%s\n", courses[activ_course)->getWord(slowa[i]).getFirst().c_str(), courses[activ_course)->getWord(slowa[i]).getSecond().c_str());
-		}
-		printf("Na ile oceniasz od 1 do 1000 oceniasz swoje odgadnięcie słowa(nie uwzględniając czasu?\n");
-		scanf("%hu", &poziom_opanowania);
-		if(poziom_opanowania > 1000)poziom_opanowania = 1000;
-		courses[activ_course)->repairWord(slowa[i], krakl, _time, poziom_opanowania);
-	}*/
 }
 void ServiceOfTasks::askUnknownWords() {
-        /*ushort number_words;
-        time_t _time;
-        string word;
-        ushort oplev;
-        
-        number_words = (*dialogWindow)("Podaj ilość słów, których chcesz się nauczyć, podaj 0 dla domyślnej wartości ustawionej w kursie", 1)._ushort;
-        if(number_words == 0)number_words = courses[activ_course]->getAskQNW();
-        vector <ushort> words = courses[activ_course]->getUnknownWords(number_words);
-        number_words = words.size();
-        courses[activ_course]->increaseQKnownWords(number_words);
-        
-        
-        string *words1 = new string[number_words];
-        string *words2 = new string[number_words];
-        for(ushort i = 0; i < number_words; i++) {
-            words1[i] = courses[activ_course]->getWord(words[i]).getFirst();
-            words2[i] = courses[activ_course]->getWord(words[i]).getSecond();
-        }
-        
-        (*printWords)("Postaraj się zapamiętać te słowa", words1, words2, number_words, number_words*4);
-        delete [] words1;
-        delete [] words2;
-        
-        bool krakl;
-        string word1;
-        string word2;
-        for(ushort i = 0; i < number_words; i++) {
-            srand(time(NULL));
-            krakl = (rand()%2 == 0 ? true : false);
-            _time = time(NULL);
-            word = (*askWord)((krakl ? courses[activ_course]->getWord(words[i]).getFirst() : courses[activ_course]->getWord(words[i]).getSecond()), krakl, words[i]);
-            _time = time(NULL) - _time;
-            word1 = courses[activ_course]->getWord(words[i]).getFirst();
-            word2 = courses[activ_course]->getWord(words[i]).getSecond();
-            (*printWords)("Poprawna wersja to: ", &word1, &word2, 1, 0);
-            oplev = dialogWindow("Na ile oceniasz swoją poprawność w skali od 1 do 1000", 1)._ushort;
-            if(oplev > 1000)oplev = 1000;
-            courses[activ_course]->repairWord(words[i], (ushort)krakl, _time, oplev);
-        }*/
-    
-    
-    
         ushort number_words;
         time_t atime;
         string spellingWord;
@@ -333,59 +214,6 @@ void ServiceOfTasks::askUnknownWords() {
         }
         saved_courses[activ_course] = false;
         setStateActions();
-    
-        /*system("clear");
-			
-	ushort ilosc_slow;
-	time_t _time;
-	string wyraz;
-	ushort poziom_opanowania;
-	printf("Podaj ilość słów, których chcesz się nauczyć, podaj 0 dla domyślnej wartości ustawionej w kursie.\n");
-	scanf("%hu", &ilosc_slow);
-	if(ilosc_slow == 0)ilosc_slow = courses[activ_course)->getAskQNW();
-	vector <ushort> slowa = activ_kurs->getUnknownWords(ilosc_slow);
-	ilosc_slow = slowa.size();
-	courses[activ_course)->increaseQKnownWords(ilosc_slow);
-			
-	printf("Język:\t%s\t%s\n", activ_kurs->getLang1().c_str(), activ_kurs->getLang2().c_str());
-	for(ushort i = 0; i < ilosc_slow; i++)
-	{
-		printf("\t%s\t%s\n", courses[activ_course)->getWord(slowa[i]).getFirst().c_str(), courses[activ_course)->getWord(slowa[i]).getSecond().c_str());
-	}
-			
-	sleep(ilosc_slow*2);
-	system("clear");
-			
-	printf("A teraz wpisz brakujące słowa.\n");
-	ushort krakl;
-	for(ushort i = 0; i < ilosc_slow; i++)
-	{
-		srand ( time(NULL) );//przygotowanie totalizatora
-		printf("Język:\t%s\t%s\n", activ_kurs->getLang1().c_str(), courses[activ_course)->getLang2().c_str());
-		krakl = rand()%2;
-		if(krakl)
-		{
-			printf("nr słowa: %d\n\t*brakujące*\t%s\n", i, courses[activ_course)->getWord(slowa[i]).getSecond().c_str());
-			_time = time(NULL);
-			getline(cin, wyraz);
-			getline(cin, wyraz);
-			_time = time(NULL) - _time;
-			printf("Prawidłowa wersja to: %s\t%s\n", courses[activ_course)->getWord(slowa[i]).getFirst().c_str(), courses[activ_course)->getWord(slowa[i]).getSecond().c_str());
-		}
-		else
-		{
-			printf("nr słowa: %d\n\t%s\t*brakujące*\n", i, courses[activ_course)->getWord(slowa[i]).getFirst().c_str());
-			_time = time(NULL);
-			getline(cin, wyraz);
-			getline(cin, wyraz);
-			_time = time(NULL) - _time;
-			printf("Prawidłowa wersja to: %s\t%s\n", courses[activ_course)->getWord(slowa[i]).getFirst().c_str(), courses[activ_course)->getWord(slowa[i]).getSecond().c_str());
-		}
-		printf("Na ile oceniasz od 1 do 1000 oceniasz swoje odgadnięcie słowa(nie uwzględniając czasu?\n");
-		scanf("%hu", &poziom_opanowania);
-		if(poziom_opanowania > 1000)poziom_opanowania = 1000;
-		courses[activ_course)->repairWord(slowa[i], krakl, _time, poziom_opanowania);
-	}*/
 }
 void ServiceOfTasks::closeKurs() {
 	char znak;
@@ -560,6 +388,9 @@ void ServiceOfTasks::doAction(ushort number) {
             break;
         case 19:
             repeatWords();
+            break;
+        case 20:
+            findWords();
             break;
     }
 }
@@ -825,4 +656,31 @@ void ServiceOfTasks::repeatWords() {//zoptymalizować find do logarytmicznego
     (*printWords)("Naciśnij 'ENTER' jeśli się nauczyłeś się słów", aswords, const_cast<ushort* const>(numbersWords), numbersConnections, set_numbersWords.size(), -1);
     delete [] aswords;
     delete [] numbersWords;
+}
+void ServiceOfTasks::findWords() const {
+    string temp = *((*dialogWindow)("Podaj wyrażenie regularne zgodne z formatem używanym w Perlu\n", 0)._string);
+    boost::regex *searched_string;
+    try{
+        searched_string = new boost::regex(temp.c_str());
+    }
+    catch(boost::regex_error re_error){
+	Error errorek(Error::BOOST__REGEX_ERROR, "", __LINE__, __FILE__);
+        (*printMessage)("PRZECHWYCONY WYJĄTEK", errorek.toString());
+        throw;
+    }
+    vector<ushort> found_words = courses[activ_course]->findWord(*searched_string);
+    ushort number_words = found_words.size();
+        
+    SingleWord const** aswords = new SingleWord const*[number_words];
+    ushort * numbers_words = new ushort[number_words];
+    vector<ushort> numbersConnections;
+    for(ushort i = 0; i < number_words; i++) {
+        aswords[i] = courses[activ_course]->getSingleWord(found_words[i]);
+        numbers_words[i] = found_words[i];
+        for(ushort j = 0; j < aswords[i]->getNumberMeanings(); j++) {
+            numbersConnections.push_back(i);
+            numbersConnections.push_back(j);
+        }
+    }
+    (*printWords)("Aby kontynuować, naciśnij 'ENTER'", aswords, const_cast<ushort* const>(numbers_words), numbersConnections, number_words, -1);
 }

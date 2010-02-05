@@ -96,7 +96,7 @@ void Kurs::delSingleWord(ushort number) {
     qAllSingleWords = wordl1.size() + wordl2.size();
     ifChangeKurs = true;
 }
-vector<ushort> Kurs::findWord_new(boost::regex searched_string) const
+vector<ushort> Kurs::findWord(boost::regex searched_string) const
 {
 	vector<ushort> found_words;
 	for(ushort i = 0; i < wordl1.size(); i++)
