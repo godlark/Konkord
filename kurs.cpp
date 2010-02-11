@@ -82,13 +82,13 @@ void Kurs::disconnectSingleWords(ushort number1, ushort number2) {
 void Kurs::delSingleWord(ushort number) {
     if(number < wordl1.size()) {
         wordl1[number]->deleteAllMeanings();
-        if(wordl1[number]->getOplev() != 0)qKnownSingleWords--;
+        if(wordl1[number]->isKnown())qKnownSingleWords--;
         delete wordl1[number];
         wordl1.erase(wordl1.begin() + number);
     }
     else if(number < wordl1.size() + wordl2.size()) {
         wordl2[number-wordl1.size()]->deleteAllMeanings();
-        if(wordl2[number-wordl1.size()]->getOplev() != 0)qKnownSingleWords--;
+        if(wordl2[number-wordl1.size()]->isKnown())qKnownSingleWords--;
         delete wordl2[number-wordl1.size()];
         wordl2.erase(wordl2.begin() + number-wordl1.size());
     }
@@ -291,7 +291,7 @@ void Kurs::repairRepetition(ushort which_repetition, double oplev_connection) { 
         repetitionsHowMany[which_repetition] = ceil((double)qAllSingleWords/100.0);
         repetitionsGrade[which_repetition] = 90;
     }
-    else if(repetitionsGrade[which_repetition] < 0.8) {
+    else if(repetitionsGrade[which_repetition] < max_grade*0.8) {
         double time = (double)repetitionsTime[which_repetition];
         time *= 0.8/0.9;
         repetitionsTime[which_repetition] = (time_t)time;
@@ -307,8 +307,8 @@ void Kurs::setRepetitionForConnection(ushort word_number, ushort nr_connection, 
         repetition++;
         if(repetition == repetitionsTime.size()) {
             repetitionsTime.push_back(repetitionsTime[repetition-1]*2);
-            repetitionsHowMany.push_back(0);
-            repetitionsGrade.push_back(0);
+            repetitionsHowMany.push_back(ceil((double)qAllSingleWords/100.0));
+            repetitionsGrade.push_back(90);
         }
     }
     else if(oplev_connection < max_oplev*0.5){

@@ -279,12 +279,12 @@ void ServiceOfTasks::deleteWord() {
         (*printMessage)("PRZECHWYCONY WYJĄTEK", errorek.toString());
         throw;
     }
-    vector<ushort> numbersConnections;
+    vector<ushort> numbersConnections(sword->getNumberMeanings()*2);
     for(ushort j = 0; j < sword->getNumberMeanings(); j++) {
-        numbersConnections.push_back(0);
-        numbersConnections.push_back(j);
+        numbersConnections[j*2] = 0;
+        numbersConnections[j*2 + 1] = j;
     }
-    (*printWords)("Aktualnie: ", &sword, &numberWord, numbersConnections, numbersConnections.size(), 0);
+    (*printWords)("Aktualnie: ", &sword, &numberWord, numbersConnections, numbersConnections.size()/2, 0);
     char znak = Yes_No_Cancel("Czy napewno usunąć?");
     if(znak == 1) {
         courses[activ_course]->delSingleWord(numberWord);
