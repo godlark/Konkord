@@ -432,6 +432,7 @@ void ServiceOfTasks::newCourse() {
 	/* Otwarcie kursu */
 	{
 		courses.push_back(course);
+                saved_courses.push_back(false);
 		QOK++;
 		activ_course = QOK-1;
 		setStateActions();

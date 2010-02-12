@@ -403,9 +403,15 @@ Kurs::Kurs(const string &name, const string &lang1, const string &lang2, const s
 	this->askQKW = askQKW;
 	this->askQNW = askQNW;
 	this->ifChangeKurs = true;
-        repetitionsTime.push_back(3600*24);
-        repetitionsHowMany.push_back(0);
-        repetitionsGrade.push_back(0.0);
+        numberConnections = 0;
+        wordl1 = vector<SingleWord *>(0);
+        wordl2 = vector<SingleWord *>(0);
+        repetitionsTime = vector<time_t>(1);
+        repetitionsTime[0] = (time_t)3600*24;
+        repetitionsHowMany = vector<unsigned int>(1);
+        repetitionsHowMany[0] = 0;
+        repetitionsGrade = vector<double>(1);
+        repetitionsGrade[0] = 0.0;
 	ROE = &_ROE;
 }
 Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
