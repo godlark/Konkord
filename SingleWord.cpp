@@ -36,7 +36,12 @@ SingleWord::SingleWord(SingleWord const *sw) {
 }
 void SingleWord::setTimeLastRepetition(ushort number_meaning, time_t lasttime) {
     if(number_meaning >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
-    *lastRepetitionsOfM[number_meaning] = lasttime;
+    
+    //veryfying correctness data
+    time_t nowTime = time(NULL);
+    if(lasttime > nowTime)*lastRepetitionsOfM[number_meaning] = nowTime;
+    else *lastRepetitionsOfM[number_meaning] = lasttime;
+    
     known = (known || lasttime != 0);
     meanings[number_meaning]->known = (meanings[number_meaning]->known || lasttime != 0);
 }
@@ -61,6 +66,11 @@ time_t SingleWord::getTimeNextRepetition(ushort number_meaning, vector<time_t> r
     return *lastRepetitionsOfM[number_meaning] + repetitionsTime[*repetitionsOfMeanings[number_meaning]];
 }
 bool SingleWord::connectSingleWords(SingleWord *sw1, SingleWord *sw2, ushort which_repetition, time_t last_repetition) {
+    
+    //verifying correctness data
+    time_t nowTime = time(NULL);
+    if(last_repetition > nowTime)last_repetition = nowTime;
+    
     if(!sw1->isConnectedWith(sw2)) {
         int temp1 = sw1->meanings.size();
         sw1->meanings.push_back(sw2);

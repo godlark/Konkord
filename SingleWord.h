@@ -83,4 +83,3 @@ class SingleWord {
 };
 
 #endif	/* _SINGLEWORD_H */
-
