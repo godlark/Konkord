@@ -19,6 +19,9 @@ SingleWord::SingleWord(const string Aspelling, const string Asound) {
     q_meanings = 0;
     time_lastud = 0;
     known = false;
+    meanings = vector<SingleWord *>(0);
+    repetitionsOfMeanings = vector<ushort*>(0);
+    lastRepetitionsOfM = vector<time_t*>(0);
 }
 SingleWord::SingleWord(SingleWord const *sw) {
     spelling = sw->spelling;
@@ -34,6 +37,8 @@ SingleWord::SingleWord(SingleWord const *sw) {
 void SingleWord::setTimeLastRepetition(ushort number_meaning, time_t lasttime) {
     if(number_meaning >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
     *lastRepetitionsOfM[number_meaning] = lasttime;
+    known = (known || lasttime != 0);
+    meanings[number_meaning]->known = (meanings[number_meaning]->known || lasttime != 0);
 }
 bool SingleWord::isKnown() const{
     return known;

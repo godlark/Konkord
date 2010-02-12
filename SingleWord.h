@@ -60,7 +60,18 @@ class SingleWord {
         
         SingleWord(const string Aspelling, const string Asound);
         static SingleWord newSingleWord(string spelling, string sound);
-        SingleWord() {}
+        SingleWord() {
+            spelling = "";
+            sound = "";
+            oplev = MIN_OPLEV;
+            hralev = MAX_HRALEV;
+            q_meanings = 0;
+            time_lastud = 0;
+            known = false;
+            meanings = vector<SingleWord *>(0);
+            repetitionsOfMeanings = vector<ushort*>(0);
+            lastRepetitionsOfM = vector<time_t*>(0);
+        }
         SingleWord(SingleWord const *sw);
         
         static bool connectSingleWords(SingleWord *sw1, SingleWord *sw2, ushort which_repetition, time_t last_repetition);
