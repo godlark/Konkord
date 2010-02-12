@@ -172,28 +172,30 @@ void SingleWord::setSpelling(string Aspelling) {
 }
 void SingleWord::setHralev(int Ahralev)
 {
-	if(Ahralev > MAX_HRALEV)hralev = MAX_HRALEV;
-	else if(Ahralev < MIN_HRALEV)hralev = MIN_HRALEV;
-	else hralev = Ahralev;
+    if(Ahralev > MAX_HRALEV)hralev = MAX_HRALEV;
+    else if(Ahralev < MIN_HRALEV)hralev = MIN_HRALEV;
+    else hralev = Ahralev;
 }
 void SingleWord::setOplev(ushort Aoplev)
 {
-	if(Aoplev > MAX_OPLEV)oplev = MAX_OPLEV;
-	else if(Aoplev < MIN_OPLEV)oplev = MIN_OPLEV;
-	else oplev = Aoplev;
+    if(Aoplev > MAX_OPLEV)oplev = MAX_OPLEV;
+    else if(Aoplev < MIN_OPLEV)oplev = MIN_OPLEV;
+    else oplev = Aoplev;
 }
 void SingleWord::setOplev(time_t nowTime)
 {
-	unsigned int max_way_time = ceil((oplev*86400)/hralev);
-	unsigned int way_time = (unsigned int)nowTime - time_lastud;
-	ushort old_oplev = oplev;	
-	if(way_time > max_way_time)way_time = max_way_time;	
-	setOplev((ushort)(oplev-((way_time*hralev)/86400)));
-	if(oplev != old_oplev)setTime_lastud(nowTime);
+    unsigned int max_way_time = ceil((oplev*86400)/hralev);
+    unsigned int way_time = (unsigned int)nowTime - time_lastud;
+    ushort old_oplev = oplev;	
+    if(way_time > max_way_time)way_time = max_way_time;	
+    setOplev((ushort)(oplev-((way_time*hralev)/86400)));
+    if(oplev != old_oplev)setTime_lastud(nowTime);
 }
 void SingleWord::setTime_lastud(time_t Atime_lastud)
 {
-	time_lastud = Atime_lastud;
+    time_t nowTime = time(NULL);
+    if(Atime_lastud > nowTime)time_lastud = nowTime;
+    else time_lastud = Atime_lastud;
 }
 SingleWord * SingleWord::getMeaning(ushort number) const {
     if(number >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);

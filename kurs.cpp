@@ -470,9 +470,6 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
                 file >> time_lastud;
                 file.ignore(INT_MAX, '\n');
                 
-                //check correct data
-                if(time_lastud > nowTime)time_lastud = nowTime;
-                
                 sword.setSpelling(spelling);
                 sword.setHralev(hralev);
                 sword.setTime_lastud(time_lastud);
@@ -487,9 +484,6 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
                 file >> hralev;
                 file >> time_lastud;
                 file.ignore(INT_MAX, '\n');
-                
-                //check correct data
-                if(time_lastud > nowTime)time_lastud = nowTime;
                 
                 sword.setSpelling(spelling);
                 sword.setHralev(hralev);
@@ -508,9 +502,6 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
                 file >> number2;
                 file >> which_repetition;
                 file >> last_repetition;
-                
-                //check correct data
-                if(last_repetition > nowTime)last_repetition = nowTime;
                 
                 file.ignore(INT_MAX, '\n');
                 if(number1 >= wordl1.size() || (number2 >= wordl1.size()+wordl2.size() || number2 < wordl1.size()))throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
@@ -560,9 +551,6 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
             for(ushort i = 0; i < numberConnections; i++) {
 		char _first[100], _second[100];
 		fscanf(plik, "%s\t%s\t%hu %hu %u\n", _first, _second, &_hralev, &_oplev, &_time_lastud);
-                
-                //check correct data
-                if(_time_lastud > nowTime)_time_lastud = nowTime;
                 
 		sword.setSpelling(decode_text(_first));
 		sword.setHralev(_hralev);
