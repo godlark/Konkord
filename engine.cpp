@@ -657,6 +657,8 @@ void ServiceOfTasks::repeatWords() {//zoptymalizować find do logarytmicznego
     (*printWords)("Naciśnij 'ENTER' jeśli się nauczyłeś się słów", aswords, const_cast<ushort* const>(numbersWords), numbersConnections, set_numbersWords.size(), -1);
     delete [] aswords;
     delete [] numbersWords;
+
+    saved_courses[activ_course] = false;
 }
 void ServiceOfTasks::findWords() const {
     string temp = *((*dialogWindow)("Podaj wyrażenie regularne zgodne z formatem używanym w Perlu\n", 0)._string);
