@@ -659,6 +659,7 @@ void ServiceOfTasks::repeatWords() {//zoptymalizować find do logarytmicznego
     delete [] numbersWords;
 
     saved_courses[activ_course] = false;
+    setStateActions();
 }
 void ServiceOfTasks::findWords() const {
     string temp = *((*dialogWindow)("Podaj wyrażenie regularne zgodne z formatem używanym w Perlu\n", 0)._string);
