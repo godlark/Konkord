@@ -133,6 +133,7 @@ vector<ushort> Kurs::getConnectionsToRepetition(ushort &howMany) const {
     if(AhowMany < howMany)howMany = AhowMany;
     for(ushort i = 0; i < howMany; i++) {
         wordl1[Q.top().nr_word]->setTimeLastRepetition(Q.top().nr_connection, nowTime);
+	setRepetitionForConnection(Q.top().nr_word, Q.top().nr_connection, 20); //MAX_OPLEV
         connectionsToRepetition.push_back(Q.top().nr_word);
         connectionsToRepetition.push_back(Q.top().nr_connection);
         Q.pop();
