@@ -114,7 +114,7 @@ class Kurs
                         vector<ushort> findWord(boost::regex searched_string) const;
                         vector<ushort> getKnownSingleWords(ushort quantityOfWords) const;
                         vector<ushort> getUnknownSingleWords(ushort quantityOfWords) const;
-                        vector<ushort> getConnectionsToRepetition(ushort &howMany) const;
+                        vector<ushort> getConnectionsToRepetition(ushort &howMany);
 			string getName() const;
 			string getLang1() const;
 			string getLang2() const;

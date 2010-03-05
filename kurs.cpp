@@ -110,7 +110,7 @@ vector<ushort> Kurs::findWord(boost::regex searched_string) const {
     }
     return found_words;
 }
-vector<ushort> Kurs::getConnectionsToRepetition(ushort &howMany) const {
+vector<ushort> Kurs::getConnectionsToRepetition(ushort &howMany) {
     //numery słów tylko z pierwszego vectora, ponieważ gdyby się wzięło również z drugiego to połączenia by się powtarzały
     ushort AhowMany = 0;
     priority_queue<ConnectionToRepetition, vector<ConnectionToRepetition>, compareConnections> Q;
