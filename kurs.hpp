@@ -129,6 +129,7 @@ class Kurs
 			ushort getAskQNW() const;
                         SingleWord const* getSingleWord(ushort number) const;
                         vector<SingleWord const*> getSingleWords(ushort from, ushort to) const;
+			bool isSingleWordFLorSL(ushort word_number) const; //first_language - true, second_language - false
                         void repairSingleWord_new(ushort word_number, time_t czas, vector<double> oplev_connections);
                         string readSingleWordsFromFile(string file_to_open);
 			void saveKurs(string file_to_save); //zrobić na consta
@@ -141,6 +142,7 @@ class Kurs
 			void setAskQNW(ushort _askQNW);
 			void setWord(ushort number, string first, string second);
                         void setSingleWord(ushort number, string spelling, string sound);
+			void setMeaningForSingleWord(ushort number_word, ushort number_meaning, string spelling, string sound);
                         void unitSingleWords(ushort number1, ushort number2);
                         ~Kurs();
                         static void takeOutSWFromLine(vector<string> &spellings, vector<string> &sounds, string rest);

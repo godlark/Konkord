@@ -133,13 +133,16 @@ void ServiceOfTasks::askKnownWords() {
         vector <ushort> swords = courses[activ_course]->getKnownSingleWords(number_words);
         number_words = swords.size();
         SingleWord const *sword;
-        
+
         for(ushort i = 0; i < number_words; i++) {
             atime = time(NULL);
             sword = courses[activ_course]->getSingleWord(swords[i]);
             vector<ushort> numbersConnections(2*(sword->getNumberMeanings()));
             vector<double> oplevs(sword->getNumberMeanings());
-            (*printMessage)("", "Napisz znaczenia słowa:\n" + sword->getSpelling()); //dodać jeszcze wyświetlanie numeru słowa
+	    char temp1[10];
+	    sprintf(temp1, "%d/%d", number_words, i);
+	    (*printMessage)("", temp1);
+            (*printMessage)("", "Napisz znaczenia słowa" + ((courses[activ_course]->isSingleWordFLorSL(swords[i]) ? " (poniższe wyrażenie jest w pierwszym języku):\n" : " (poniższe wyrażenie jest w drugim języku):\n") + sword->getSpelling())); //dodać jeszcze wyświetlanie numeru słowa
             for(ushort j = 0; j < sword->getNumberMeanings(); j++) {
                  (*dialogWindow)("Napisz kolejne znaczenie tego słowa", 0);
                  numbersConnections[j*2] = 0;
@@ -410,10 +413,12 @@ void ServiceOfTasks::editWord() {
         numbersConnections.push_back(0);
         numbersConnections.push_back(j);
     }
-    (*printWords)("Aktualnie: ", &sword, &numberWord, numbersConnections, numbersConnections.size(), 0);
+    (*printWords)("Aktualnie: ", &sword, &numberWord, numbersConnections, numbersConnections.size()/2, 0);
+    ushort what = (*dialogWindow)("Podaj co, chcesz edytować, 0 - główne wyrażenie(po lewej stronie), 1, 2, 3… - dla kolejnych znaczeń tego wyrażenia", 1)._ushort;
     string spelling;
     spelling = (*(*dialogWindow)("Podaj pisownię wyrażenia", 0)._string);
-    courses[activ_course]->setSingleWord(numberWord, spelling, "");
+    if(what == 0)courses[activ_course]->setSingleWord(numberWord, spelling, "");
+    else courses[activ_course]->setMeaningForSingleWord(numberWord, what-1, spelling, "");
     (*printMessage)("Edytowano", "");
     saved_courses[activ_course] = false;
 }

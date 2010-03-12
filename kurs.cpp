@@ -235,6 +235,9 @@ vector<SingleWord const*> Kurs::getSingleWords(ushort from, ushort _to) const {
     }
     return _words;
 }
+bool Kurs::isSingleWordFLorSL(ushort word_number) const {
+    return word_number < wordl1.size() ? true : false; //not sesne ist throw Error for word_number > qAllSingleWords
+}
 void Kurs::repairSingleWord_new(ushort word_number, time_t czas, vector<double> oplev_connections) {
     SingleWord *sword = word_number < wordl1.size() ? wordl1[word_number] : wordl2[word_number-wordl1.size()];
     //dodać coś z czasm i pisaniem na komputerze
@@ -316,6 +319,13 @@ void Kurs::setSingleWord(ushort number, string spelling, string sound) {
     SingleWord *sword = number < wordl1.size() ? wordl1[number] : wordl2[number-wordl1.size()];
     sword->setSpelling(spelling);
     sword->setSound(sound);
+}
+void Kurs::setMeaningForSingleWord(ushort number_word, ushort number_meaning, string spelling, string sound) {
+    if(number_word >= qAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
+    SingleWord *sword = number_word < wordl1.size() ? wordl1[number_word] : wordl2[number_word-wordl1.size()];
+    if(number_meaning >= sword->getNumberMeanings())throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
+    sword->getMeaning(number_meaning)->setSpelling(spelling);
+    sword->getMeaning(number_meaning)->setSound(sound);
 }
 void Kurs::takeOutSWFromLine(vector<string> &spellings, vector<string> &sounds, string rest) {
     size_t found=rest.find('|');
