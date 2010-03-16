@@ -5,22 +5,22 @@
 #	This program was created for learning words									#
 #	 		from different languages.											#
 #																				#
-#    Copyright(C) 2009 Sławomir Domagała										#
+#	Copyright(C) 2009 Sławomir Domagała										#
 #																				#
-#    This program is free software: you can redistribute it and/or modify		#
-#    it under the terms of the GNU General Public License as published by		#
-#    the Free Software Foundation, either version 3 of the License, or			#
-#    (at your option) any later version.										#
+#	This program is free software: you can redistribute it and/or modify		#
+#	it under the terms of the GNU General Public License as published by		#
+#	the Free Software Foundation, either version 3 of the License, or			#
+#	(at your option) any later version.										#
 #																				#
-#    This program is distributed in the hope that it will be useful,			#
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of				#
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				#
-#    GNU General Public License for more details.								#
+#	This program is distributed in the hope that it will be useful,			#
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of				#
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				#
+#	GNU General Public License for more details.								#
 #																				#
-#    You should have received a copy of the GNU General Public License			#
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>		#
+#	You should have received a copy of the GNU General Public License			#
+#	along with this program.  If not, see <http://www.gnu.org/licenses/>		#
 #																				#
-#    E-mail: godlark@gmail.com													#
+#	E-mail: godlark@gmail.com													#
 #################################################################################		
 */
 #ifndef RegisterOfErrors_hpp
@@ -51,8 +51,8 @@ class Error {
 		static const ushort BAD_ARGUMENT = 6;
 		static const ushort IGNORED_LINE_IN_FILE = 7; // warning
 		static const ushort BOOST__REGEX_ERROR = 8;
-                static const ushort IMPOSSIBLE = 9;
-                static const ushort CANCELLED = 10;
+				static const ushort IMPOSSIBLE = 9;
+				static const ushort CANCELLED = 10;
 		//przy dodaniu kolejnych błędów i ostrzeżeń trzeba zmienić funkcję "isWarning()"
 		Error(ushort _kindOfError, string _nameOfFunction, ushort _numberOfLine, string _filename);
 		string getDescription() const;
@@ -61,11 +61,11 @@ class Error {
 		ushort getNumberOfLine() const;
 		string getFilname() const;
 		static void setDescriptionOfErrors();
-                static void eraseDerscriptionOfErros();
+				static void eraseDerscriptionOfErros();
 		static Error newError(ushort _kindOfError, string _nameOfFunction, ushort _numberOfLine, string _filename);
 		void addNextFunction(string _nameOfFunction);
 		bool isWarning() const;
-                string toString() const;
+				string toString() const;
 };
 class RegisterOfErrors {
 	private:
