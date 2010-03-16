@@ -59,7 +59,7 @@ int main() {
     numberOfActionsM2[3] = 14;
     numberOfActionsM2[4] = 15;
     numberOfActionsM2[5] = 17;
-    numberOfActionsM2[6] = -1;
+  	numberOfActionsM2[6] = -1;
     numberOfActionsM2[7] = 0;
     string *describesOptionsM2 = new string[numberOptionsM2];
     describesOptionsM2[0] = "Zamknij kurs";

@@ -279,6 +279,7 @@ void Kurs::repairRepetition(ushort which_repetition, double oplev_connection) { 
     repetitionsGrade[which_repetition] *= (double)repetitionsHowMany[which_repetition];
     repetitionsGrade[which_repetition] += oplev_connection;
     repetitionsHowMany[which_repetition]++;
+    if(repetitionsHowMany[which_repetition] > qAllSingleWords)repetitionsHowMany[which_repetition] = qAllSingleWords;
     repetitionsGrade[which_repetition] /= (double)repetitionsHowMany[which_repetition];
     if(repetitionsGrade[which_repetition] > max_grade*0.95) {
         double time = (double)repetitionsTime[which_repetition];
@@ -689,55 +690,56 @@ void Kurs::increaseQKnownWords(short int quantity)
 }
 void Kurs::saveKurs(string file_to_save)
 {
-   ofstream file;
-        file.open(file_to_save.c_str());
-        if(!file.is_open())throw Error::newError(Error::ERROR_OPEN_FILE, "", __LINE__, __FILE__);
-        file << "new version" << endl;
-        file << name << endl;
-        file << wordl1.size() << endl;
-        file << wordl2.size() << endl;
-        file << numberConnections << endl;
-        file << askQKW << endl;
-        file << askQNW << endl;
-        file << repetitionsTime.size() << endl; //dać zmienną rozmiaru
-        for(int i = 0; i < repetitionsTime.size(); i++) {
-            file << repetitionsTime[i] << "\t";
-            file << repetitionsHowMany[i] << "\t";
-            file << repetitionsGrade[i];
-            file << endl;
-        }
-        for(ushort i = 0; i < wordl1.size(); i++) {
-            file << wordl1[i]->getSpelling() << endl;
-            file << wordl1[i]->getOplev() << "\t";
-            file << wordl1[i]->getHralev() << "\t";
-            file << wordl1[i]->getTime_lastud() << endl;
-        }
-        for(ushort i = 0; i < wordl2.size(); i++) {
-            file << wordl2[i]->getSpelling() << endl;
-            file << wordl2[i]->getOplev() << "\t";
-            file << wordl2[i]->getHralev() << "\t";
-            file << wordl2[i]->getTime_lastud() << endl;
-            wordl2[i]->id = i+wordl1.size();
-        }
-        for(ushort i = 0; i < wordl1.size(); i++) {
-            for(ushort j = 0; j < wordl1[i]->getNumberMeanings(); j++) {
-                file << i << "\t";
-                file << wordl1[i]->getMeaning(j)->id << "\t";
-                file << wordl1[i]->getWhichRepetition(j) << "\t";
-                file << wordl1[i]->getTimeLastRepetition(j) << endl;
-            }
-        }
-        file.close();
+	ofstream file;
+	file.open(file_to_save.c_str());
+    if(!file.is_open())throw Error::newError(Error::ERROR_OPEN_FILE, "", __LINE__, __FILE__);
+	file << "new version" << endl;
+	file << name << endl;
+	file << wordl1.size() << endl;
+	file << wordl2.size() << endl;
+	file << numberConnections << endl;
+	file << askQKW << endl;
+	file << askQNW << endl;
+	file << repetitionsTime.size() << endl; //dać zmienną rozmiaru
+    for(int i = 0; i < repetitionsTime.size(); i++) {
+		file << repetitionsTime[i] << "\t";
+		file << repetitionsHowMany[i] << "\t";
+		file.precision(INT_MAX);
+		file << repetitionsGrade[i];
+		file << endl;
+    }
+    for(ushort i = 0; i < wordl1.size(); i++) {
+		file << wordl1[i]->getSpelling() << endl;
+		file << wordl1[i]->getOplev() << "\t";
+		file << wordl1[i]->getHralev() << "\t";
+		file << wordl1[i]->getTime_lastud() << endl;
+	}
+	for(ushort i = 0; i < wordl2.size(); i++) {
+		file << wordl2[i]->getSpelling() << endl;
+		file << wordl2[i]->getOplev() << "\t";
+		file << wordl2[i]->getHralev() << "\t";
+		file << wordl2[i]->getTime_lastud() << endl;
+		wordl2[i]->id = i+wordl1.size();
+	}
+	for(ushort i = 0; i < wordl1.size(); i++) {
+	for(ushort j = 0; j < wordl1[i]->getNumberMeanings(); j++) {
+		file << i << "\t";
+		file << wordl1[i]->getMeaning(j)->id << "\t";
+		file << wordl1[i]->getWhichRepetition(j) << "\t";
+		file << wordl1[i]->getTimeLastRepetition(j) << endl;
+	}
+	}
+	file.close();
 }
 void Kurs::setName(string _name)
 {
-	name = _name;
-	ifChangeKurs = true;
+    name = _name;
+    ifChangeKurs = true;
 }
 void Kurs::setLang1(string _lang1)
 {
-	lang1 = _lang1;
-	ifChangeKurs = true;
+    lang1 = _lang1;
+    ifChangeKurs = true;
 }
 void Kurs::setLang2(string _lang2)
 {
