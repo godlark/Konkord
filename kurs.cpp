@@ -261,8 +261,8 @@ void Kurs::repairSingleWord_new(ushort word_number, time_t czas, vector<double> 
 	
 	if(sword_oplev > 1000)sword_oplev = 1000;
 	
-	if(sword_oplev == 0 && sword->getOplev() != 0)increaseQKnownSingleWords(-1);
-	if(sword_oplev != 0 && sword->getOplev() == 0)increaseQKnownSingleWords(1);
+	if(sword_oplev == 0 && sword->getOplev() != 0)increaseQKnownSingleWords(-1-sword->getNumberMeanings());
+	if(sword_oplev != 0 && sword->getOplev() == 0)increaseQKnownSingleWords(1+sword->getNumberMeanings());
 		
 	int procent = (((sword->getOplev()*1000)/sword_oplev)-1000)/2;
 	
