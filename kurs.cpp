@@ -67,6 +67,14 @@ void Kurs::connectSingleWords(ushort number1, ushort number2) {
 	if(number1 >= wordl1.size() || (number2 >= wordl1.size()+wordl2.size() || number2 < wordl1.size()))throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	if(SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], 0, 0)) {
 		numberConnections++;
+		if (binary_search (disconnectedWords.begin(), disconnectedWords.end(), number1)) {
+			vector<unsigned int>::iterator position = (int)(lower_bound(disconnectedWords.begin(), disconnectedWords.end(), number1));
+			disconnectedWords.erase(position);
+		}
+		if (binary_search (disconnectedWords.begin(), disconnectedWords.end(), number2)) {
+			vector<unsigned int>::iterator position = lower_bound(disconnectedWords.begin(), disconnectedWords.end(), number2);
+			disconnectedWords.erase(position);
+		}
 		ifChangeKurs = true;
 	}
 	//else jakieś powiadomienie
@@ -75,6 +83,8 @@ void Kurs::disconnectSingleWords(ushort number1, ushort number2) {
 	if(number1 >= wordl1.size() || (number2 >= wordl1.size()+wordl2.size() || number2 < wordl1.size()))throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	if(SingleWord::disconnectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()])) {
 		numberConnections--;
+		if(wordl1[number1]->getNumberMeanings() == 0)addToSortedVector<unsigned int>(disconnectedWords, number1, 0, disconnectedWords.size()-1);
+		if(wordl1[number2-wordl1.size()]->getNumberMeanings() == 0)addToSortedVector<unsigned int>(disconnectedWords, number2, 0, disconnectedWords.size()-1);
 		ifChangeKurs = true;
 	}
 	//else jakieś powiadomienie
@@ -380,17 +390,27 @@ string Kurs::readSingleWordsFromFile(string file_to_open)
 	plik.close();
 	return message;
 }
-void Kurs::unitSingleWords(ushort number1, ushort number2) {
+void Kurs::unitSingleWords(ushort number1, ushort number2) {//ulepszyć
+	if (binary_search (disconnectedWords.begin(), disconnectedWords.end(), number1)) {
+		vector<unsigned int>::iterator position = (int)(lower_bound(disconnectedWords.begin(), disconnectedWords.end(), number1));
+		disconnectedWords.erase(position);
+	}
+	if (binary_search (disconnectedWords.begin(), disconnectedWords.end(), number2)) {
+		vector<unsigned int>::iterator position = lower_bound(disconnectedWords.begin(), disconnectedWords.end(), number2);
+		disconnectedWords.erase(position);
+	}
 	if(number1 >= qAllSingleWords || number2 >= qAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "",__LINE__, __FILE__);
 	if(number1 >= wordl1.size() && number2 >= wordl1.size()) {
-		wordl2[number1]->joinOtherSingleWord(wordl2[number2]);
-		if(wordl2[number2]->getOplev() != 0)qKnownSingleWords--;
-		wordl2.erase(wordl2.begin() + number2);
+		wordl2[number1-wordl1.size()]->joinOtherSingleWord(wordl2[number2-wordl1.size()]);
+		if(wordl2[number2-wordl1.size()]->getOplev() != 0)qKnownSingleWords--;
+		wordl2.erase(wordl2.begin() + number2 - wordl1.size());
+		if(wordl1[number1-wordl1.size()]->getNumberMeanings() == 0)addToSortedVector<unsigned int>(disconnectedWords, number1, 0, disconnectedWords.size()-1);
 	}
 	else if(number1 < wordl1.size() && number2 < wordl1.size()) {
 		wordl1[number1]->joinOtherSingleWord(wordl1[number2]);
 		if(wordl1[number2]->getOplev() != 0)qKnownSingleWords--;
 		wordl1.erase(wordl1.begin() + number2);
+		if(wordl1[number1]->getNumberMeanings() == 0)addToSortedVector<unsigned int>(disconnectedWords, number1, 0, disconnectedWords.size()-1);
 	}
 	qAllSingleWords = wordl1.size() + wordl2.size();
 }
@@ -414,6 +434,7 @@ Kurs::Kurs(const string &name, const string &lang1, const string &lang2, const s
 	repetitionsGrade = vector<double>(1);
 	repetitionsGrade[0] = 0.0;
 	ROE = &_ROE;
+	disconnectedWords = vector<unsigned int>(0);
 }
 Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
 {
@@ -456,119 +477,131 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
 		}
 		filename = file_to_open;
 		qAllSingleWords = numberWordsFL + numberWordsSL;
+		disconnectedWords = vector<unsigned int>(qAllSingleWords);
 			
-			SingleWord sword("", "");
-			ushort oplev;
-			ushort hralev;
-			string spelling;
-			time_t time_lastud;
-			qKnownSingleWords = 0;
-			ifChangeKurs = false;
-			for(ushort i = 0; i < numberWordsFL; i++) {
-				getline(file, spelling);
-				file >> oplev;
-				file >> hralev;
-				file >> time_lastud;
-				file.ignore(INT_MAX, '\n');
+		SingleWord sword("", "");
+		ushort oplev;
+		ushort hralev;
+		string spelling;
+		time_t time_lastud;
+		qKnownSingleWords = 0;
+		ifChangeKurs = false;
+		for(ushort i = 0; i < numberWordsFL; i++) {
+			getline(file, spelling);
+			file >> oplev;
+			file >> hralev;
+			file >> time_lastud;
+			file.ignore(INT_MAX, '\n');
 				
-				sword.setSpelling(spelling);
-				sword.setHralev(hralev);
-				sword.setTime_lastud(time_lastud);
-				sword.setOplev(oplev);
-				sword.setOplev(nowTime);
-				if(oplev != sword.getOplev())ifChangeKurs = true;
-				wordl1.push_back(new SingleWord(sword));
-			}
-			for(ushort i = 0; i < numberWordsSL; i++) {
-				getline(file, spelling);
-				file >> oplev;
-				file >> hralev;
-				file >> time_lastud;
-				file.ignore(INT_MAX, '\n');
-				
-				sword.setSpelling(spelling);
-				sword.setHralev(hralev);
-				sword.setTime_lastud(time_lastud);
-				sword.setOplev(oplev);
-				sword.setOplev(nowTime);
-				if(oplev != sword.getOplev())ifChangeKurs = true;
-				wordl2.push_back(new SingleWord(sword));
-			}
-			ushort number1;
-			ushort number2;
-			ushort which_repetition;
-			time_t last_repetition;
-			for(ushort i = 0; i < numberConnections; i++) {
-				file >> number1;
-				file >> number2;
-				file >> which_repetition;
-				file >> last_repetition;
-				
-				file.ignore(INT_MAX, '\n');
-				if(number1 >= wordl1.size() || (number2 >= wordl1.size()+wordl2.size() || number2 < wordl1.size()))throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
-				SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, last_repetition);
-				//to samo co: connectSingleWords(number1, number2);
-			}
-			for(ushort i = 0; i < numberWordsFL; i++) {
-				if(wordl1[i]->isKnown())qKnownSingleWords++;
-			}
-			for(ushort i = 0; i < numberWordsSL; i++) {
-				if(wordl2[i]->isKnown())qKnownSingleWords++;
-			}
-			file.close();
+			sword.setSpelling(spelling);
+			sword.setHralev(hralev);
+			sword.setTime_lastud(time_lastud);
+			sword.setOplev(oplev);
+			sword.setOplev(nowTime);
+			if(oplev != sword.getOplev())ifChangeKurs = true;
+			wordl1.push_back(new SingleWord(sword));
+			disconnectedWords.push_back(i);
 		}
-		else {
-			file.close();
-			FILE *plik;
-			plik = fopen(file_to_open.c_str(), "r");
-			if(plik == NULL)throw Error::newError(Error::ERROR_OPEN_FILE, "Kurs::Kurs(string file_to_open)", __LINE__, __FILE__);
-			ifChangeKurs = false;
-			//początek wczytywania danych kursu
-			char _name[100];
-			fscanf(plik, "%s", _name);
-			name = decode_text(_name);
-			char _lang1[100], _lang2[100];
-			fscanf(plik, "%s %s", _lang1, _lang2);
-			lang1 = decode_text(_lang1);
-			lang2 = decode_text(_lang2);
-			char _filename[100];
-			fscanf(plik, "%s %hu %hu", _filename, &askQKW, &askQNW);
-			//filename = decode_text(_filename);
-			filename = file_to_open;
-			fscanf(plik, "%hu %hu", &qAllSingleWords, &qKnownSingleWords);
-			qKnownSingleWords = 0;
-			numberConnections = qAllSingleWords;
-			qAllSingleWords *= 2;
-			
-			repetitionsTime.push_back(3600*24);
-			repetitionsHowMany.push_back(0);
-			repetitionsGrade.push_back(0.0);
-			
-			//koniec wczytywania danych kursu
-			ushort _hralev, _oplev;
-			time_t _time_lastud;
-			SingleWord sword("", "");
-			time_t nowTime = time(NULL);
-			for(ushort i = 0; i < numberConnections; i++) {
-		char _first[100], _second[100];
-		fscanf(plik, "%s\t%s\t%hu %hu %u\n", _first, _second, &_hralev, &_oplev, &_time_lastud);
-				
-		sword.setSpelling(decode_text(_first));
-		sword.setHralev(_hralev);
-		sword.setTime_lastud(_time_lastud);
-				sword.setOplev(_oplev);
-				sword.setOplev(nowTime);
-				if(_oplev != sword.getOplev())ifChangeKurs = true;
-				if(sword.getOplev() != 0)qKnownSingleWords += 2;
-				wordl1.push_back(new SingleWord(sword));
-				sword.setSpelling(decode_text(_second));
-				wordl2.push_back(new SingleWord(sword));
-				SingleWord::connectSingleWords(wordl1[i], wordl2[i], 0, _time_lastud);
-			}
-			fclose(plik);
-			//restore memory
-			
+		for(ushort i = 0; i < numberWordsSL; i++) {
+			getline(file, spelling);
+			file >> oplev;
+			file >> hralev;
+			file >> time_lastud;
+			file.ignore(INT_MAX, '\n');
+
+			sword.setSpelling(spelling);
+			sword.setHralev(hralev);
+			sword.setTime_lastud(time_lastud);
+			sword.setOplev(oplev);
+			sword.setOplev(nowTime);
+			if(oplev != sword.getOplev())ifChangeKurs = true;
+			wordl2.push_back(new SingleWord(sword));
+			disconnectedWords.push_back(i+numberWordsFL);
 		}
+		ushort number1;
+		ushort number2;
+		ushort which_repetition;
+		time_t last_repetition;
+		for(ushort i = 0; i < numberConnections; i++) {
+			file >> number1;
+			file >> number2;
+			file >> which_repetition;
+			file >> last_repetition;
+				
+			file.ignore(INT_MAX, '\n');
+			if(number1 >= wordl1.size() || (number2 >= wordl1.size()+wordl2.size() || number2 < wordl1.size()))throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
+			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, last_repetition);
+			//to samo co: connectSingleWords(number1, number2);
+			if (binary_search (disconnectedWords.begin(), disconnectedWords.end(), number1)) {
+				vector<unsigned int>::iterator position = (int)(lower_bound(disconnectedWords.begin(), disconnectedWords.end(), number1));
+				disconnectedWords.erase(position);
+			}
+			if (binary_search (disconnectedWords.begin(), disconnectedWords.end(), number2)) {
+				vector<unsigned int>::iterator position = lower_bound(disconnectedWords.begin(), disconnectedWords.end(), number2);
+				disconnectedWords.erase(position);
+			}
+		}
+		for(ushort i = 0; i < numberWordsFL; i++) {
+			if(wordl1[i]->isKnown())qKnownSingleWords++;
+		}
+		for(ushort i = 0; i < numberWordsSL; i++) {
+			if(wordl2[i]->isKnown())qKnownSingleWords++;
+		}
+		file.close();
+	}
+	else {
+		file.close();
+		FILE *plik;
+		plik = fopen(file_to_open.c_str(), "r");
+		if(plik == NULL)throw Error::newError(Error::ERROR_OPEN_FILE, "Kurs::Kurs(string file_to_open)", __LINE__, __FILE__);
+		ifChangeKurs = false;
+		//początek wczytywania danych kursu
+		char _name[100];
+		fscanf(plik, "%s", _name);
+		name = decode_text(_name);
+		char _lang1[100], _lang2[100];
+		fscanf(plik, "%s %s", _lang1, _lang2);
+		lang1 = decode_text(_lang1);
+		lang2 = decode_text(_lang2);
+		char _filename[100];
+		fscanf(plik, "%s %hu %hu", _filename, &askQKW, &askQNW);
+		//filename = decode_text(_filename);
+		filename = file_to_open;
+		fscanf(plik, "%hu %hu", &qAllSingleWords, &qKnownSingleWords);
+		qKnownSingleWords = 0;
+		numberConnections = qAllSingleWords;
+		qAllSingleWords *= 2;
+			
+		repetitionsTime.push_back(3600*24);
+		repetitionsHowMany.push_back(0);
+		repetitionsGrade.push_back(0.0);
+
+		disconnectedWords = vector<unsigned int>(0);
+		//koniec wczytywania danych kursu
+		ushort _hralev, _oplev;
+		time_t _time_lastud;
+		SingleWord sword("", "");
+		time_t nowTime = time(NULL);
+		for(ushort i = 0; i < numberConnections; i++) {
+			char _first[100], _second[100];
+			fscanf(plik, "%s\t%s\t%hu %hu %u\n", _first, _second, &_hralev, &_oplev, &_time_lastud);
+			
+			sword.setSpelling(decode_text(_first));
+			sword.setHralev(_hralev);
+			sword.setTime_lastud(_time_lastud);
+			sword.setOplev(_oplev);
+			sword.setOplev(nowTime);
+			if(_oplev != sword.getOplev())ifChangeKurs = true;
+			if(sword.getOplev() != 0)qKnownSingleWords += 2;
+			wordl1.push_back(new SingleWord(sword));
+			sword.setSpelling(decode_text(_second));
+			wordl2.push_back(new SingleWord(sword));
+			SingleWord::connectSingleWords(wordl1[i], wordl2[i], 0, _time_lastud);
+		}
+		fclose(plik);
+		//restore memory
+			
+	}
 }
 ushort Kurs::compare_words(string aa, string bb)
 {
@@ -764,4 +797,16 @@ void Kurs::setAskQNW(ushort _askQNW)
 {
 	askQNW = _askQNW;
 	ifChangeKurs = true;
+}
+
+template<typename T>
+void addToSortedVector(vector<T> &tab, const T& what, unsigned int from, unsigned int to) {
+	if(to-from == 0) {
+		if(min(tab[from], what) == what)tab.insert(tab.begin() + from, what);
+		else tab.insert(tab.begin() + from - 1, what);
+		return;
+	}
+	int middle = from + (to-from)/2;
+	if(min(tab[middle], what) == what)return addToSortedVector(tab, what, from, middle);
+	else return addToSortedVector(tab, what, middle, to);
 }
