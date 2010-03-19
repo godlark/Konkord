@@ -68,7 +68,7 @@ void Kurs::connectSingleWords(ushort number1, ushort number2) {
 	if(SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], 0, 0)) {
 		numberConnections++;
 		if (binary_search (disconnectedWords.begin(), disconnectedWords.end(), number1)) {
-			vector<unsigned int>::iterator position = (int)(lower_bound(disconnectedWords.begin(), disconnectedWords.end(), number1));
+			vector<unsigned int>::iterator position = (lower_bound(disconnectedWords.begin(), disconnectedWords.end(), number1));
 			disconnectedWords.erase(position);
 		}
 		if (binary_search (disconnectedWords.begin(), disconnectedWords.end(), number2)) {
@@ -392,7 +392,7 @@ string Kurs::readSingleWordsFromFile(string file_to_open)
 }
 void Kurs::unitSingleWords(ushort number1, ushort number2) {//ulepszyć
 	if (binary_search (disconnectedWords.begin(), disconnectedWords.end(), number1)) {
-		vector<unsigned int>::iterator position = (int)(lower_bound(disconnectedWords.begin(), disconnectedWords.end(), number1));
+		vector<unsigned int>::iterator position = (lower_bound(disconnectedWords.begin(), disconnectedWords.end(), number1));
 		disconnectedWords.erase(position);
 	}
 	if (binary_search (disconnectedWords.begin(), disconnectedWords.end(), number2)) {
@@ -533,7 +533,7 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
 			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, last_repetition);
 			//to samo co: connectSingleWords(number1, number2);
 			if (binary_search (disconnectedWords.begin(), disconnectedWords.end(), number1)) {
-				vector<unsigned int>::iterator position = (int)(lower_bound(disconnectedWords.begin(), disconnectedWords.end(), number1));
+				vector<unsigned int>::iterator position = (lower_bound(disconnectedWords.begin(), disconnectedWords.end(), number1));
 				disconnectedWords.erase(position);
 			}
 			if (binary_search (disconnectedWords.begin(), disconnectedWords.end(), number2)) {
