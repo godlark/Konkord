@@ -69,7 +69,6 @@ Variable Interface::dialogWindow(string text, ushort type) {
 				break;
 			case 1:
 				cin >> temp._ushort;
-				cin.ignore(INT_MAX, '\n');
 				break;
 		}
 		if(cin.fail()) {
