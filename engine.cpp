@@ -525,12 +525,12 @@ void ServiceOfTasks::saveCourse() {
 	{
 		courses[activ_course]->saveKurs(courses[activ_course]->getFilename());
 	}
-		catch (Error &errorek) {
-			(*printMessage)("PRZECHWYCONY WYJĄTEK", errorek.toString());
-			throw;
-		}
-		saved_courses[activ_course] = true;
-		actionActive[13] = false;
+	catch (Error &errorek) {
+		(*printMessage)("PRZECHWYCONY WYJĄTEK", errorek.toString());
+		throw;
+	}
+	saved_courses[activ_course] = true;
+	actionActive[13] = false;
 }
 void ServiceOfTasks::saveCourseAs() {
 	string filename = (*(*dialogWindow)("Podaj nazwę pliku, do którego chcesz zapisać kurs.", 0)._string);

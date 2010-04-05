@@ -739,7 +739,7 @@ void Kurs::saveKurs(string file_to_save)
 	for(int i = 0; i < repetitionsTime.size(); i++) {
 		file << repetitionsTime[i] << "\t";
 		file << repetitionsHowMany[i] << "\t";
-		file.precision(INT_MAX);
+		file.precision(10);
 		file << repetitionsGrade[i];
 		file << endl;
 	}
