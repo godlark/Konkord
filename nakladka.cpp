@@ -60,15 +60,24 @@ Variable Interface::dialogWindow(string text, ushort type) {
 	temp.type = type;
 	string teemp;
 	cout << text << ": " << endl;
-	switch(type) {
-		case 0:
-			getline(cin, teemp);
-			temp._string = new string(teemp);
-			break;
-		case 1:
-			cin >> temp._ushort; 
-			cin.ignore(INT_MAX, '\n');
-			break;
+	bool repeat = true;
+	while(repeat){
+		switch(type) {
+			case 0:
+				getline(cin, teemp);
+				temp._string = new string(teemp);
+				break;
+			case 1:
+				cin >> temp._ushort;
+				cin.ignore(INT_MAX, '\n');
+				break;
+		}
+		if(cin.fail()) {
+			cout << "\nNiepoprawne dane, wpisz jeszcze raz" << endl;
+			cin.clear();
+		}
+		else repeat = false;
+		if(type != 0)cin.ignore(INT_MAX, '\n');
 	}
 	return temp;
 }
@@ -102,18 +111,27 @@ Variables Interface::optionWindow(string const *descriptions, Variable *values, 
 		cout << "Aby zmienić opcję kursu, wpisz numer znajdujący się przy niej, jeśli nie chcesz zmienić już żadnej opcji wpisz '0'" << endl;
 		cin >> wybor;
 		cout << "Obecna wartość to: ";
-		switch(values[wybor-1].type) {
-			case 0:
-				cout << *(values[wybor-1]._string) << endl;
-				cout << "Podaj nową wartość: ";
-				cin >> teemp;
-				values[wybor-1]._string = new string(teemp);
-				break;
-			case 1:
-				cout << values[wybor-1]._ushort << endl;
-				cout << "Podaj nową wartość: ";
-				cin >> values[wybor-1]._ushort;
-				break;
+		bool repeat = true;
+		while(repeat){
+			switch(values[wybor-1].type) {
+				case 0:
+					cout << *(values[wybor-1]._string) << endl;
+					cout << "Podaj nową wartość: ";
+					cin >> teemp;
+					values[wybor-1]._string = new string(teemp);
+					break;
+				case 1:
+					cout << values[wybor-1]._ushort << endl;
+					cout << "Podaj nową wartość: ";
+					cin >> values[wybor-1]._ushort;
+					break;
+			}
+			if(cin.fail()) {
+				cout << "\nNiepoprawne dane, wpisz jeszcze raz" << endl;
+				cin.clear();
+			}
+			else repeat = false;
+			if(values[wybor-1].type != 0)cin.ignore(INT_MAX, '\n');
 		}
 		
 	}while(wybor != 0);
@@ -128,8 +146,16 @@ ushort Interface::radioWindow(string description, string const *values, ushort d
 	}
 	cout << "Wpisz numer opcji, którą wybierasz: ";
 	ushort temp;
-	cin >> temp;
-	cin.ignore(INT_MAX, '\n');
+	bool repeat = true;
+	while(repeat){
+		cin >> temp;
+		if(cin.fail()) {
+		  cout << "\nNiepoprawne dane, wpisz jeszcze raz" << endl;
+		  cin.clear();
+		}
+		else repeat = false;
+		cin.ignore(INT_MAX, '\n');
+	}
 	return temp;
 }
 
@@ -139,8 +165,16 @@ char Interface::Yes_No_Cancel(string description)
 	cout << description << endl;
 	cout << "Tak(T)" << endl;
 	cout << "Nie(N)\tAnuluj(A)" << endl;
-	cin >> znak;
-	cin.ignore(INT_MAX, '\n');
+	bool repeat = true;
+	while(repeat){
+		cin >> znak;
+		if(cin.fail()) {
+		  cout << "\nNiepoprawne dane, wpisz jeszcze raz" << endl;
+		  cin.clear();
+		}
+		else repeat = false;
+		cin.ignore(INT_MAX, '\n');
+	}
 	if(znak == 'T')return 1;
 	if(znak == 'N')return 0;
 	else return 2;
@@ -166,8 +200,16 @@ void Menu::printOptions() const
 short int Menu::scanfOption() const
 {
 	ushort wybor;
-	cin >> wybor;
-	cin.ignore(INT_MAX, '\n');
+	bool repeat = true;
+	while(repeat){
+		cin >> wybor;
+		if(cin.fail()) {
+		  cout << "\nNiepoprawne dane, wpisz jeszcze raz" << endl;
+		  cin.clear();
+		}
+		else repeat = false;
+		cin.ignore(INT_MAX, '\n');
+	}
 	if(wybor >= numberOptions || (numbersOfActions[wybor] > 0 && !serviceOfTasks->isActionActive(numbersOfActions[wybor])))return serviceOfTasks->freeNumber; //oznacza, że nieprawidłowe
 	else return numbersOfActions[wybor];
 }
