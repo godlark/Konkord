@@ -85,8 +85,14 @@ void Kurs::disconnectSingleWords(ushort number1, ushort number2) {
 	if(number1 >= wordl1.size() || (number2 >= wordl1.size()+wordl2.size() || number2 < wordl1.size()))throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	if(SingleWord::disconnectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()])) {
 		numberConnections--;
-		if(wordl1[number1]->getNumberMeanings() == 0)addToSortedVector<unsigned int>(disconnectedWords, number1, 0, disconnectedWords.size()-1);
-		if(wordl1[number2-wordl1.size()]->getNumberMeanings() == 0)addToSortedVector<unsigned int>(disconnectedWords, number2, 0, disconnectedWords.size()-1);
+		if(wordl1[number1]->getNumberMeanings() == 0) {
+			if(disconnectedWords.size() != 0)addToSortedVector<unsigned int>(disconnectedWords, (unsigned int)number1, 0, disconnectedWords.size()-1);
+			else disconnectedWords.push_back(number1);
+		}
+		if(wordl2[number2-wordl1.size()]->getNumberMeanings() == 0) {
+			if(disconnectedWords.size() != 0)addToSortedVector<unsigned int>(disconnectedWords, (unsigned int)number2, 0, disconnectedWords.size()-1);
+			else disconnectedWords.push_back(number2);
+		}
 		ifChangeKurs = true;
 	}
 	//else jakieś powiadomienie
@@ -502,7 +508,7 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
 			sword.setOplev(nowTime);
 			if(oplev != sword.getOplev())ifChangeKurs = true;
 			wordl1.push_back(new SingleWord(sword));
-			disconnectedWords.push_back(i);
+			disconnectedWords[i] = i;
 		}
 		for(ushort i = 0; i < numberWordsSL; i++) {
 			getline(file, spelling);
@@ -518,7 +524,7 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
 			sword.setOplev(nowTime);
 			if(oplev != sword.getOplev())ifChangeKurs = true;
 			wordl2.push_back(new SingleWord(sword));
-			disconnectedWords.push_back(i+numberWordsFL);
+			disconnectedWords[i+numberWordsFL] = i+numberWordsFL;
 		}
 		ushort number1;
 		ushort number2;
@@ -804,11 +810,11 @@ void Kurs::setAskQNW(ushort _askQNW)
 template<typename T>
 void addToSortedVector(vector<T> &tab, const T& what, unsigned int from, unsigned int to) {
 	if(to-from == 0) {
-		if(min(tab[from], what) == what)tab.insert(tab.begin() + from, what);
+		if(min<T>(tab[from], what) == what)tab.insert(tab.begin() + from, what);
 		else tab.insert(tab.begin() + from - 1, what);
 		return;
 	}
 	int middle = from + (to-from)/2;
-	if(min(tab[middle], what) == what)return addToSortedVector(tab, what, from, middle);
+	if(min<T>(tab[middle], what) == what)return addToSortedVector(tab, what, from, middle);
 	else return addToSortedVector(tab, what, middle, to);
 }
