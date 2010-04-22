@@ -38,7 +38,7 @@ class Interface
 {
 	public:
 		static string askWord(SingleWord const *sword, ushort nr_word);//nr_lang = 0 lub = 1
-		static void printWords(string description, SingleWord const **swords, ushort const *numbersWords, vector<ushort> numbersConnections, ushort number_connections, short time);
+		static void printWords(string description, SingleWord const **swords, ushort const *numbersWords, vector<ushort> numbersConnections, short time);
 		static Variable dialogWindow(string text, ushort type);
 		static void infoWindow(string const *descriptions, Variable *values, ushort number);
 		static ushort radioWindow(string description, string const *values, ushort defaultOption, ushort number);

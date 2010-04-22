@@ -87,6 +87,7 @@ class Kurs
 			string lang1;
 			string lang2;
 			string filename;
+			SingleWord *emptyWord;
                         vector<SingleWord*> wordl1;
                         vector<SingleWord*> wordl2;
                         vector<time_t> repetitionsTime; //in seconds
@@ -99,7 +100,6 @@ class Kurs
 			bool ifChangeKurs; //czy zmieniono kurs od ostatniego zapisania lub wczytania
 			RegisterOfErrors *ROE;
                         ushort numberConnections;
-			vector<unsigned int> disconnectedWords; //it is sorted
 			static ushort compare_words(string aa, string bb);//zwraca najkrótszą drogę pomiędzy słowami
 			static string decode_text(string oryginal);
 			static string encode_text(string oryginal);
@@ -150,8 +150,5 @@ class Kurs
                         ~Kurs();
                         static void takeOutSWFromLine(vector<string> &spellings, vector<string> &sounds, string rest);
 };
-
-template<typename T>
-void addToSortedVector(vector<T> &tab, const T& what, unsigned int from, unsigned int to);
 
 #endif

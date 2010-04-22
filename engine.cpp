@@ -151,7 +151,7 @@ void ServiceOfTasks::askKnownWords() {
 				 numbersConnections[j*2+1] = j;
 			}
 			atime = time(NULL) - atime;
-			(*printWords)("Poprawna wersja to:", &sword, &swords[i], numbersConnections, sword->getNumberMeanings(), 0);
+			(*printWords)("Poprawna wersja to:", &sword, &swords[i], numbersConnections, 0);
 			char temp[4];
 			for(ushort j = 0; j < sword->getNumberMeanings(); j++) {
 				sprintf(temp, "%hu", j+1);
@@ -188,7 +188,7 @@ void ServiceOfTasks::askUnknownWords() {
 				numbersConnections.push_back(j);
 			}
 		}
-		(*printWords)("Naciśnij 'ENTER' jeśli się nauczyłeś się słów", aswords, const_cast<ushort* const>(numbers_words), numbersConnections, number_words, -1);
+		(*printWords)("Naciśnij 'ENTER' jeśli się nauczyłeś się słów", aswords, const_cast<ushort* const>(numbers_words), numbersConnections, -1);
 		delete [] aswords;
 		delete [] numbers_words;
 		
@@ -205,7 +205,7 @@ void ServiceOfTasks::askUnknownWords() {
 				 numbersConnections[j*2+1] = j;
 			}
 			atime = time(NULL) - atime;
-			(*printWords)("Poprawna wersja to:", &sword, &swords[i], numbersConnections, sword->getNumberMeanings(), 0);
+			(*printWords)("Poprawna wersja to:", &sword, &swords[i], numbersConnections, 0);
 			char temp[4];
 			for(ushort j = 0; j < sword->getNumberMeanings(); j++) {
 				sprintf(temp, "%hu", j);
@@ -289,7 +289,7 @@ void ServiceOfTasks::deleteWord() {
 		numbersConnections[j*2] = 0;
 		numbersConnections[j*2 + 1] = j;
 	}
-	(*printWords)("Aktualnie: ", &sword, &numberWord, numbersConnections, numbersConnections.size()/2, 0);
+	(*printWords)("Aktualnie: ", &sword, &numberWord, numbersConnections, 0);
 	char znak = Yes_No_Cancel("Czy napewno usunąć?");
 	if(znak == 1) {
 		courses[activ_course]->delSingleWord(numberWord);
@@ -415,7 +415,7 @@ void ServiceOfTasks::editWord() {
 		numbersConnections.push_back(0);
 		numbersConnections.push_back(j);
 	}
-	(*printWords)("Aktualnie: ", &sword, &numberWord, numbersConnections, numbersConnections.size()/2, 0);
+	(*printWords)("Aktualnie: ", &sword, &numberWord, numbersConnections, 0);
 	ushort what = (*dialogWindow)("Podaj co, chcesz edytować, 0 - główne wyrażenie(po lewej stronie), 1, 2, 3… - dla kolejnych znaczeń tego wyrażenia", 1)._ushort;
 	string spelling;
 	spelling = (*(*dialogWindow)("Podaj pisownię wyrażenia", 0)._string);
@@ -423,6 +423,7 @@ void ServiceOfTasks::editWord() {
 	else courses[activ_course]->setMeaningForSingleWord(numberWord, what-1, spelling, "");
 	(*printMessage)("Edytowano", "");
 	saved_courses[activ_course] = false;
+	setStateActions();
 }
 void ServiceOfTasks::newCourse() {
 	string name, lang1, lang2, filename;
@@ -516,7 +517,7 @@ void ServiceOfTasks::printWordss() const {
 			numbersConnections.push_back(j);
 		}
 	}
-	(*printWords)("Aby przejść dalej naciśnij 'ENTER'", swords, numbers, numbersConnections, numbersConnections.size()/2, -1);
+	(*printWords)("Aby przejść dalej naciśnij 'ENTER'", swords, numbers, numbersConnections, -1);
 	delete [] swords;
 	delete [] numbers;
 }
@@ -661,7 +662,7 @@ void ServiceOfTasks::repeatWords() {//zoptymalizować find do logarytmicznego
 		numbersConnections[i*2] = (find(numbersWords, numbersWords+number_connections, connectionsToRepetition[i*2])-numbersWords);
 		numbersConnections[i*2 + 1] = connectionsToRepetition[i*2 + 1];
 	}
-	(*printWords)("Naciśnij 'ENTER' jeśli się nauczyłeś się słów", aswords, const_cast<ushort* const>(numbersWords), numbersConnections, set_numbersWords.size(), -1);
+	(*printWords)("Naciśnij 'ENTER' jeśli się nauczyłeś się słów", aswords, const_cast<ushort* const>(numbersWords), numbersConnections, -1);
 	delete [] aswords;
 	delete [] numbersWords;
 
@@ -693,5 +694,5 @@ void ServiceOfTasks::findWords() const {
 			numbersConnections.push_back(j);
 		}
 	}
-	(*printWords)("Aby kontynuować, naciśnij 'ENTER'", aswords, const_cast<ushort* const>(numbers_words), numbersConnections, number_words, -1);
+	(*printWords)("Aby kontynuować, naciśnij 'ENTER'", aswords, const_cast<ushort* const>(numbers_words), numbersConnections, -1);
 }

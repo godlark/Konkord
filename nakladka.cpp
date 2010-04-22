@@ -42,9 +42,10 @@ void Interface::printMessage(string title, string something) {
 	cout << "***" << title << "***" << endl;
 	cout << something << endl;
 }
-void Interface::printWords(string description, SingleWord const *swords[], ushort const *numbersWords, vector<ushort> numbersConnections, ushort number_connections, short time) {
+void Interface::printWords(string description, SingleWord const *swords[], ushort const *numbersWords, vector<ushort> numbersConnections, short time) {
 	cout << description << endl;
 	SingleWord const *mean;
+	ushort number_connections = numbersConnections.size()/2;
 	for(ushort i = 0; i < number_connections; i++) {
 		cout << "Numer słowa: " << numbersWords[numbersConnections[i*2]] << endl;
 		mean = swords[numbersConnections[i*2]]->getMeaning(numbersConnections[(i*2)+1]);

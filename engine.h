@@ -67,7 +67,7 @@ class ServiceOfTasks
 		static const ushort freeNumber = 4619;
 		
 		string (*askWord)(SingleWord const*, ushort);
-		void (*printWords)(string, SingleWord const**, ushort const*, vector<ushort>, ushort, short);
+		void (*printWords)(string, SingleWord const**, ushort const*, vector<ushort>, short);
 		Variable (*dialogWindow)(string, ushort);
 		char (*Yes_No_Cancel)(string);
 		void (*printMessage)(string, string);
