@@ -779,8 +779,8 @@ void Kurs::saveKurs(string file_to_save)
 	}
 	for(ushort i = 0; i < wordl1.size(); i++) {
 	for(ushort j = 0; j < wordl1[i]->getNumberMeanings(); j++) {
-		file << i << "\t";
 		if(wordl1[i]->getMeaning(j) != emptyWord) {
+			file << i << "\t";
 			file << wordl1[i]->getMeaning(j)->id << "\t";
 			file << wordl1[i]->getWhichRepetition(j) << "\t";
 			file << wordl1[i]->getTimeLastRepetition(j) << endl;

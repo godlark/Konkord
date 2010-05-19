@@ -15,7 +15,7 @@
 ##																				
 ##	This program is distributed in the hope that it will be useful,				
 ##	but WITHOUT ANY WARRANTY; without even the implied warranty of				
-##	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				
+##	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ##	GNU General Public License for more details.								
 ##																				
 ##	You should have received a copy of the GNU General Public License			
@@ -676,9 +676,9 @@ void ServiceOfTasks::findWords() const {
 		searched_string = new boost::regex(temp.c_str());
 	}
 	catch(boost::regex_error re_error){
-	Error errorek(Error::BOOST__REGEX_ERROR, "", __LINE__, __FILE__);
+		Error errorek(Error::BOOST__REGEX_ERROR, "", __LINE__, __FILE__);
 		(*printMessage)("PRZECHWYCONY WYJĄTEK", errorek.toString());
-		throw;
+		throw errorek;
 	}
 	vector<ushort> found_words = courses[activ_course]->findWord(*searched_string);
 	ushort number_words = found_words.size();
