@@ -192,7 +192,7 @@ vector<ushort> Kurs::getUnknownSingleWords(ushort quantityOfWords) const {
 	time_t lasttime = time(NULL);
 	for(ushort i = 0, j = 0; i < qAllSingleWords && j < quantityOfWords; i++) {
 		if(i < wordl1.size()) {
-			if(!wordl1[i]->isKnown()) {
+			if(!wordl1[i]->isKnown() && !wordl1[i]->isConnectedWith(emptyWord)) {
 				wordsToAsk.push_back(i);
 				ushort number_connections = wordl1[i]->getNumberMeanings();
 				for(ushort k = 0; k < number_connections; k++) {
@@ -202,8 +202,8 @@ vector<ushort> Kurs::getUnknownSingleWords(ushort quantityOfWords) const {
 			}
 		}
 		else {
-			if(!wordl2[i-wordl1.size()]->isKnown()) {
-		wordsToAsk.push_back(i);
+			if(!wordl2[i-wordl1.size()]->isKnown() && !wordl2[i-wordl1.size()]->isConnectedWith(emptyWord)) {
+				wordsToAsk.push_back(i);
 				ushort number_connections = wordl2[i-wordl1.size()]->getNumberMeanings();
 				for(ushort k = 0; k < number_connections; k++) {
 					wordl2[i-wordl1.size()]->setTimeLastRepetition(k, lasttime);
