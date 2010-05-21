@@ -165,7 +165,7 @@ vector<ushort> Kurs::getConnectionsToRepetition(ushort &howMany) {
 		ushort howManyConnections = wordl1[i]->getNumberMeanings();
 		for(ushort j = 0; j < howManyConnections; j++) {
 			time_t temp = wordl1[i]->getTimeNextRepetition(j, repetitionsTime);
-			if(temp <= nowTime && wordl1[i]->getTimeLastRepetition(j) != 0) { //zmienieć na jakieś isKnown
+			if(temp <= nowTime && wordl1[i]->getTimeLastRepetition(j) != 0 && wordl1[i]->getMeaning(j) != emptyWord) { //zmienieć na jakieś isKnown
 				ctr.nr_word = i;
 				ctr.nr_connection = j;
 				ctr.nextTimeOfRepetition = temp;
@@ -221,14 +221,14 @@ vector<ushort> Kurs::getKnownSingleWords(ushort quantityOfWords) const {
 	for(ushort i = 0; i < qAllSingleWords; i++)
 	{	
 		if(i < wordl1.size()) {
-			if(wordl1[i]->isKnown()) {
+			if(wordl1[i]->isKnown() && !wordl1[i]->isConnectedWith(emptyWord)) {
 		swani.sword = wordl1[i];
 		swani.index = i;
 		Q.push(swani);
 			}
 		}
 		else {
-			if(wordl2[i-wordl1.size()]->isKnown()) {
+			if(wordl2[i-wordl1.size()]->isKnown()  && !wordl2[i-wordl1.size()]->isConnectedWith(emptyWord)) {
 		swani.sword = wordl2[i-wordl1.size()];
 		swani.index = i;
 		Q.push(swani);
