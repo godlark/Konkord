@@ -70,14 +70,14 @@ class ConnectionToRepetition {
     public :
         ushort nr_word;
         ushort nr_connection;
-        unsigned int nextTimeOfRepetition;
+        unsigned int priority;
 };
 class compareConnections {
     public:
         bool operator() (ConnectionToRepetition swani1, ConnectionToRepetition swani2) {
             //malejąco według nextTimeOfRepetition
-            if(swani1.nextTimeOfRepetition < swani2.nextTimeOfRepetition)return true;
-            if(swani1.nextTimeOfRepetition > swani2.nextTimeOfRepetition)return false;
+            if(swani1.priority > swani2.priority)return true;
+            if(swani1.priority < swani2.priority)return false;
         }
 };
 class Kurs
