@@ -168,7 +168,7 @@ vector<ushort> Kurs::getConnectionsToRepetition(ushort &howMany) {
 			if(temp <= nowTime && wordl1[i]->getTimeLastRepetition(j) != 0 && wordl1[i]->getMeaning(j) != emptyWord) { //zmienieć na jakieś isKnown
 				ctr.nr_word = i;
 				ctr.nr_connection = j;
-				ctr.priority = (temp-nowTime)/wordl1[i].getWhichRepetition(j);
+				ctr.priority = (temp-nowTime)/wordl1[i]->getWhichRepetition(j);
 				Q.push(ctr);
 				AhowMany++;
 			}
