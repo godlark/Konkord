@@ -291,15 +291,17 @@ void Kurs::repairSingleWord_new(ushort word_number, time_t czas, vector<double> 
 	time_t nowTime = time(NULL);
 	double temp;
 	double sword_oplev = 0;
+	double predicted_score;
 	for(ushort i = 0; i < sword->getNumberMeanings(); i++) {
 		if(oplev_connections[i] > 20)oplev_connections[i] = 20;
-		temp = (double)((double)(sword->getTimeNextRepetition(i, repetitionsTime)-nowTime)/(double)repetitionsTime[sword->getWhichRepetition(i)]);
-		if(temp < 0)oplev_connections[i] *= 1.0-temp;
-		else oplev_connections[i] *= 1.0-(temp*((max_oplev-oplev_connections[i])/max_oplev));
+		temp = (double)(nowTime-sword->getTimeLastRepetition(i));
+		temp /= (double)(repetitionsTime[sword->getWhichRepetition(i)]);
+		predicted_score = 20 - 8*temp; //im wcześniej było ostatnie przeptywanie, tym niższy predicted_score
+		if(predicted_score < 1)predicted_score = 1;
+		oplev_connections[i] = oplev_connections[i]*18/predicted_score;//im wyższy predicted score tym wyższy wynik
 		//ale teraz może być już większe od max_oplev
 		repairRepetition(sword->getWhichRepetition(i), oplev_connections[i]);
 		setRepetitionForConnection(word_number, i, oplev_connections[i]);
-		
 		sword_oplev += oplev_connections[i];
 	}
 	sword_oplev = (sword_oplev/(sword->getNumberMeanings()*max_oplev)) * 1000;
