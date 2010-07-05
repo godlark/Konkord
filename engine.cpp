@@ -34,65 +34,60 @@ typedef unsigned short int ushort;
 
 void ServiceOfTasks::setStateActions() {
 	if(QOK != 0) {
-					
-					actionActive[2] = true;
-					actionActive[7] = true;
-					actionActive[8] = true;
-					actionActive[11] = true;
-					actionActive[14] = true;
-					actionActive[15] = true;
-					actionActive[17] = true;
-					actionActive[18] = true; //dać warunki jakieś
-					if(!saved_courses[activ_course])actionActive[13] = true;
-					if(QOK > 1)actionActive[16] = true;
-					else actionActive[16] = false;
-					if(courses[activ_course]->getQKnownSingleWords() > 0)actionActive[0] = true;
-					else actionActive[0] = false;
-					if(courses[activ_course]->getQKnownSingleWords() < courses[activ_course]->getQAllSingleWords())actionActive[1] = true;
-					else actionActive[1] = false;
-					if(courses[activ_course]->getQAllSingleWords() > 0) {
-						actionActive[3] = true;
-						actionActive[4] = true;
-						actionActive[12] = true;
-						actionActive[19] = true;
-					}
-					else {
-						actionActive[3] = false;
-						actionActive[4] = false;
-						actionActive[12] = false;
-						actionActive[19] = false;
-					}
-					if(courses[activ_course]->getQSingleWords_1() > 0 && courses[activ_course]->getQSingleWords_2() > 0) {
-						actionActive[5] = true;
-						actionActive[6] = true;
-					}
-					else {
-						actionActive[5] = false;
-						actionActive[6] = false;
-					}
-					
-				}
-				else {
-					
-					actionActive[0] = false;
-					actionActive[1] = false;
-					actionActive[2] = false;
-					actionActive[3] = false;
-					actionActive[4] = false;
-					actionActive[5] = false;
-					actionActive[6] = false;
-					actionActive[7] = false;
-					actionActive[8] = false;
-					actionActive[11] = false;
-					actionActive[12] = false;
-					actionActive[13] = false;
-					actionActive[14] = false;
-					actionActive[15] = false;
-					actionActive[16] = false;
-					actionActive[17] = false;
-					actionActive[18] = false;
-					actionActive[19] = false;
-				}
+		actionActive[2] = true;
+		actionActive[7] = true;
+		actionActive[8] = true;
+		actionActive[11] = true;
+		actionActive[14] = true;
+		actionActive[15] = true;
+		actionActive[17] = true;
+		if(!saved_courses[activ_course])actionActive[13] = true;
+		if(QOK > 1)actionActive[16] = true;
+		else actionActive[16] = false;
+		if(courses[activ_course]->getQKnownSingleWords() > 0)actionActive[0] = true;
+		else actionActive[0] = false;
+		if(courses[activ_course]->getQKnownSingleWords() < courses[activ_course]->getQAllSingleWords())actionActive[1] = true;
+		else actionActive[1] = false;
+		if(courses[activ_course]->getQAllSingleWords() > 0) {
+			actionActive[3] = true;
+			actionActive[4] = true;
+			actionActive[12] = true;
+			actionActive[18] = true;
+		}
+		else {
+			actionActive[3] = false;
+			actionActive[4] = false;
+			actionActive[12] = false;
+			actionActive[18] = false;
+		}
+		if(courses[activ_course]->getQSingleWords_1() > 0 && courses[activ_course]->getQSingleWords_2() > 0) {
+			actionActive[5] = true;
+			actionActive[6] = true;
+		}
+		else {
+			actionActive[5] = false;
+			actionActive[6] = false;
+		}
+	}
+	else {
+		actionActive[0] = false;
+		actionActive[1] = false;
+		actionActive[2] = false;
+		actionActive[3] = false;
+		actionActive[4] = false;
+		actionActive[5] = false;
+		actionActive[6] = false;
+		actionActive[7] = false;
+		actionActive[8] = false;
+		actionActive[11] = false;
+		actionActive[12] = false;
+		actionActive[13] = false;
+		actionActive[14] = false;
+		actionActive[15] = false;
+		actionActive[16] = false;
+		actionActive[17] = false;
+		actionActive[18] = false;
+	}
 }
 void ServiceOfTasks::addWord() {
 	ushort numberLang = (*dialogWindow)("Jeśli wyrażenie jest w pierwszym języku wpisz 0, jeśli w drugim wpisz inną wartość", 1)._ushort;
@@ -124,26 +119,32 @@ void ServiceOfTasks::addWords() {
 		setStateActions();
 	}
 }
-void ServiceOfTasks::askKnownWords() {
+void ServiceOfTasks::repaskWords() {
 		ushort number_words;
 		time_t atime;
 		string spellingWord;
 		ushort oplev;
-		
+		ushort number_connections;
+		ushort suggest_word_for_next_time;
+
 		number_words = (*dialogWindow)("Podaj ilość słów, z których chcesz być przepytywany, podaj 0 dla domyślnej wartości ustawionej w kursie", 1)._ushort;
 		if(number_words == 0)number_words = courses[activ_course]->getAskQKW();
-		vector <ushort> swords = courses[activ_course]->getKnownSingleWords(number_words);
-		number_words = swords.size();
+		vector <ushort> swords = courses[activ_course]->getWordsToRepetition(number_words);
+		number_connections = (swords.size()-number_words-1)/2;
+		cout << number_connections << endl;
+		cout << swords.size() << endl;
+		suggest_word_for_next_time = swords[0];
+
 		SingleWord const *sword;
 
-		for(ushort i = 0; i < number_words; i++) {
+		for(ushort i = 1; i <= number_words; i++) { //pomijamy pierwszy numer
 			atime = time(NULL);
 			sword = courses[activ_course]->getSingleWord(swords[i]);
 			vector<ushort> numbersConnections(2*(sword->getNumberMeanings()));
 			vector<double> oplevs(sword->getNumberMeanings());
-		char temp1[10];
-		sprintf(temp1, "%d/%d", number_words, i);
-		(*printMessage)("", temp1);
+			char temp1[10];
+			sprintf(temp1, "%d/%d", number_words, i);
+			(*printMessage)("", temp1);
 			(*printMessage)("", "Napisz znaczenia słowa" + ((courses[activ_course]->isSingleWordFLorSL(swords[i]) ? " (poniższe wyrażenie jest w pierwszym języku):\n" : " (poniższe wyrażenie jest w drugim języku):\n") + sword->getSpelling())); //dodać jeszcze wyświetlanie numeru słowa
 			for(ushort j = 0; j < sword->getNumberMeanings(); j++) {
 				 (*dialogWindow)("Napisz kolejne znaczenie tego słowa", 0);
@@ -161,8 +162,35 @@ void ServiceOfTasks::askKnownWords() {
 				oplevs[j] = (double)dialogWindow(temp2, 1)._ushort;
 				if(oplevs[j] > 20)oplevs[j] = 20;
 			}
-			courses[activ_course]->repairSingleWord_new(swords[i], atime, oplevs);
+			courses[activ_course]->repairSingleWord(swords[i], atime, oplevs);
 		}
+
+		vector<ushort> connectionsToRepetition = vector<ushort> (0);
+		for(int i = number_words+1; i < swords.size(); i++) {
+			connectionsToRepetition.push_back(swords[i]);
+		}
+		//ten kod działa kiedyś go stworzyłem i nie wiem o co w nim chodzi
+		set<ushort> set_numbersWords;
+		vector<ushort> numbersConnections(number_connections*2);
+		for(ushort i = 0; i < number_connections; i++) {
+			set_numbersWords.insert(connectionsToRepetition[i*2]);
+		}
+		set<ushort>::iterator it;
+		ushort i = 0;
+		SingleWord const** aswords = new SingleWord const*[set_numbersWords.size()];
+		ushort * numbersWords = new ushort[set_numbersWords.size()];
+		for(it=set_numbersWords.begin(); it!=set_numbersWords.end(); it++, i++) {
+			numbersWords[i] = *it;
+			aswords[i] = courses[activ_course]->getSingleWord(numbersWords[i]);
+		}
+		for(ushort i = 0; i < number_connections; i++) {
+			numbersConnections[i*2] = (find(numbersWords, numbersWords+number_connections, connectionsToRepetition[i*2])-numbersWords);
+			numbersConnections[i*2 + 1] = connectionsToRepetition[i*2 + 1];
+		}
+		(*printWords)("Naciśnij 'ENTER' jeśli się nauczyłeś się słów", aswords, const_cast<ushort* const>(numbersWords), numbersConnections, -1);
+		delete [] aswords;
+		delete [] numbersWords;
+
 		saved_courses[activ_course] = false;
 		setStateActions();
 }
@@ -215,7 +243,7 @@ void ServiceOfTasks::askUnknownWords() {
 				oplevs.push_back((double)dialogWindow(temp2, 1)._ushort);
 				if(oplevs[j] > 20)oplevs[j] = 20;
 			}
-			courses[activ_course]->repairSingleWord_new(swords[i], atime, oplevs);
+			courses[activ_course]->repairSingleWord(swords[i], atime, oplevs);
 		}
 		saved_courses[activ_course] = false;
 		setStateActions();
@@ -338,7 +366,7 @@ void ServiceOfTasks::disconnectWords() {
 void ServiceOfTasks::doAction(ushort number) {
 	switch(number) {
 		case 1:
-			askKnownWords();
+			repaskWords();
 			break;
 		case 2:
 			askUnknownWords();
@@ -392,9 +420,6 @@ void ServiceOfTasks::doAction(ushort number) {
 			readWordsFromFile();
 			break;
 		case 19:
-			repeatWords();
-			break;
-		case 20:
 			findWords();
 			break;
 	}
@@ -638,36 +663,6 @@ bool ServiceOfTasks::closeProgram() {
 		}
 	}
 	return true;
-}
-void ServiceOfTasks::repeatWords() {//zoptymalizować find do logarytmicznego
-	ushort number_connections = (*dialogWindow)("Podaj ilość połączeń, które chcesz powtórzyć", 1)._ushort;
-	
-	vector<ushort> connectionsToRepetition = courses[activ_course]->getConnectionsToRepetition(number_connections);
-	number_connections = connectionsToRepetition.size()/2;
-	
-	set<ushort> set_numbersWords;
-	vector<ushort> numbersConnections(number_connections*2);
-	for(ushort i = 0; i < number_connections; i++) {
-		set_numbersWords.insert(connectionsToRepetition[i*2]);
-	}
-	set<ushort>::iterator it;
-	ushort i = 0;
-	SingleWord const** aswords = new SingleWord const*[set_numbersWords.size()];
-	ushort * numbersWords = new ushort[set_numbersWords.size()];
-	for(it=set_numbersWords.begin(); it!=set_numbersWords.end(); it++, i++) {
-		numbersWords[i] = *it;
-		aswords[i] = courses[activ_course]->getSingleWord(numbersWords[i]);
-	}
-	for(ushort i = 0; i < number_connections; i++) {
-		numbersConnections[i*2] = (find(numbersWords, numbersWords+number_connections, connectionsToRepetition[i*2])-numbersWords);
-		numbersConnections[i*2 + 1] = connectionsToRepetition[i*2 + 1];
-	}
-	(*printWords)("Naciśnij 'ENTER' jeśli się nauczyłeś się słów", aswords, const_cast<ushort* const>(numbersWords), numbersConnections, -1);
-	delete [] aswords;
-	delete [] numbersWords;
-
-	saved_courses[activ_course] = false;
-	setStateActions();
 }
 void ServiceOfTasks::findWords() const {
 	string temp = *((*dialogWindow)("Podaj wyrażenie regularne zgodne z formatem używanym w Perlu\n", 0)._string);

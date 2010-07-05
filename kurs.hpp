@@ -39,6 +39,7 @@
 #include <boost/regex.hpp>
 #include <cmath>
 #include <climits>
+#include <algorithm>
 
 #include "RegisterOfErrors.h"
 #include "SingleWord.h"
@@ -51,30 +52,14 @@ class SingleWordAndIndex {
         ushort index;
         const SingleWord *sword;
 };
-class compareSingleWords
-{
-    public:
-        bool operator() (SingleWordAndIndex swani1, SingleWordAndIndex swani2) {
-            //rosnąco według oplev
-            if(swani1.sword->getOplev() > swani2.sword->getOplev())return true;
-            if(swani1.sword->getOplev() < swani2.sword->getOplev())return false;
-            //malejąco według hralev
-            if(swani1.sword->getHralev() < swani2.sword->getHralev())return true;
-            if(swani1.sword->getHralev() > swani2.sword->getHralev())return false;
-            //rosnąco według time_lastud
-            if(swani1.sword->getTime_lastud() >= swani2.sword->getTime_lastud())return true;
-            if(swani1.sword->getTime_lastud() < swani2.sword->getTime_lastud())return false;
-        }
-};
-class ConnectionToRepetition {
+class WordToRepetition {
     public :
         ushort nr_word;
-        ushort nr_connection;
-        unsigned int priority;
+	unsigned int priority;
 };
-class compareConnections {
+class compareWords {
     public:
-        bool operator() (ConnectionToRepetition swani1, ConnectionToRepetition swani2) {
+        bool operator() (WordToRepetition swani1, WordToRepetition swani2) {
             //malejąco według nextTimeOfRepetition
             if(swani1.priority > swani2.priority)return true;
             if(swani1.priority < swani2.priority)return false;
@@ -115,9 +100,8 @@ class Kurs
                         void disconnectSingleWords(ushort number1, ushort number2);
                         void delSingleWord(ushort number);
                         vector<ushort> findWord(boost::regex searched_string) const;
-                        vector<ushort> getKnownSingleWords(ushort quantityOfWords) const;
                         vector<ushort> getUnknownSingleWords(ushort quantityOfWords) const;
-                        vector<ushort> getConnectionsToRepetition(ushort &howMany);
+			vector<ushort>  getWordsToRepetition(ushort &howManyWords) const;
 			string getName() const;
 			string getLang1() const;
 			string getLang2() const;
@@ -133,7 +117,7 @@ class Kurs
                         SingleWord const* getSingleWord(ushort number) const;
                         vector<SingleWord const*> getSingleWords(ushort from, ushort to) const;
 			bool isSingleWordFLorSL(ushort word_number) const; //first_language - true, second_language - false
-                        void repairSingleWord_new(ushort word_number, time_t czas, vector<double> oplev_connections);
+                        void repairSingleWord(ushort word_number, time_t czas, vector<double> oplev_connections);
                         string readSingleWordsFromFile(string file_to_open);
 			void saveKurs(string file_to_save); //zrobić na consta
 			void setName(string _name);

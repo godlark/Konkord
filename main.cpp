@@ -46,7 +46,7 @@ int main() {
 	serviceOfTasks->infoWindow = &Interface::infoWindow;
 	serviceOfTasks->optionWindow = &Interface::optionWindow;
 	serviceOfTasks->radioWindow = &Interface::radioWindow;
-	ushort numberOptionsM1 = 15;
+	ushort numberOptionsM1 = 14;
 	short int *numberOfActionsM1 = new short int[numberOptionsM1];
 	numberOfActionsM1[0] = 1;
 	numberOfActionsM1[1] = 2;
@@ -61,11 +61,10 @@ int main() {
 	numberOfActionsM1[10] = 16;
 	numberOfActionsM1[11] = 18;
 	numberOfActionsM1[12] = 19;
-	numberOfActionsM1[13] = 20;
-	numberOfActionsM1[14] = 0;
+	numberOfActionsM1[13] = 0;
 	string *describesOptionsM1 = new string[numberOptionsM1];
-	describesOptionsM1[0] = "Przepytaj ze starych słów";
-	describesOptionsM1[1] = "Przepytaj z nowych słów";
+	describesOptionsM1[0] = "Powtórz poznane słowa";
+	describesOptionsM1[1] = "Naucz się nowych";
 	describesOptionsM1[2] = "Edytuje słowo";
 	describesOptionsM1[3] = "Usuń słowo";
 	describesOptionsM1[4] = "Połącz słowa";
@@ -76,9 +75,8 @@ int main() {
 	describesOptionsM1[9] = "Wyświetl słowa";
 	describesOptionsM1[10] = "Ustawienia kursu";
 	describesOptionsM1[11] = "Wczytaj słowa z pliku";
-	describesOptionsM1[12] = "Powtórz słowa";
-	describesOptionsM1[13] = "Znajdź słowa";
-	describesOptionsM1[14] = "Zamknij podmenu";
+	describesOptionsM1[12] = "Znajdź słowa";
+	describesOptionsM1[13] = "Zamknij podmenu";
 	Menu *menu1 = new Menu(numberOptionsM1, numberOfActionsM1, describesOptionsM1, NULL, 0, serviceOfTasks, false);
 	ushort numberOptionsM2 = 8;
 	short int *numberOfActionsM2 = new short int[numberOptionsM2];

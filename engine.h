@@ -61,7 +61,7 @@ class ServiceOfTasks
 		ushort QOK; //number opened courses
 		vector<Kurs*> courses; 
 		vector<bool> saved_courses;
-		static const ushort numberActions = 20;
+		static const ushort numberActions = 19;
 		bool* actionActive;
 	public:
 		static const ushort freeNumber = 4619;
@@ -77,8 +77,8 @@ class ServiceOfTasks
 		
 		RegisterOfErrors globalROE;
 		
-		void askKnownWords();//1
-	void askUnknownWords();//2
+		void repaskWords();//1
+		void askUnknownWords();//2
 		void closeKurs();//3
 		void editWord();//4
 		void deleteWord();//5
@@ -87,17 +87,16 @@ class ServiceOfTasks
 		void disconnectWords();//7
 		void addWord();//8
 		void addWords();//9
-	void newCourse();//10
-	void openCourse();//11
-	void printInfoCourse() const;//12
+		void newCourse();//10
+		void openCourse();//11
+		void printInfoCourse() const;//12
 		void printWordss() const; //13
-	void saveCourse();//14
-	void saveCourseAs();//15
-	void settingsCourse();//16
-	void switchCourse();//17
+		void saveCourse();//14
+		void saveCourseAs();//15
+		void settingsCourse();//16
+		void switchCourse();//17
 		void readWordsFromFile();//18
-		void repeatWords();//19
-		void findWords() const;//20
+		void findWords() const;//19
 		bool isActionActive(ushort numberOfAction) const; //isn't done
 		void setStateActions();
 		ushort getNumberOpenedCourses() const;
@@ -129,7 +128,6 @@ class ServiceOfTasks
 			actionActive[16] = false;
 			actionActive[17] = false;
 			actionActive[18] = false;
-			actionActive[19] = false;
 		}
 		~ServiceOfTasks() {
 			delete [] actionActive;

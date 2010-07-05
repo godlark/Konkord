@@ -46,10 +46,9 @@ class SingleWord {
 		vector<SingleWord*> meanings;
 		vector<ushort*> repetitionsOfMeanings;
 		vector<time_t*> lastRepetitionsOfM;
-		time_t time_lastud; //data ostatniego użycia
-		ushort hralev;//poziom trudności
-		ushort oplev;//poziom opanowania
 		ushort q_meanings;
+		vector<string> flag_names;
+		vector<string> flags;
 	public:
 		ushort id;
 		bool isConnectedWith(SingleWord* meaning) const;
@@ -61,9 +60,6 @@ class SingleWord {
 		
 		string getSound() const;
 		string getSpelling() const;
-		time_t getTime_lastud() const;
-		ushort getHralev() const;
-		ushort getOplev() const;
 		SingleWord * getMeaning(ushort number) const;
 		ushort getNumberMeanings() const;
 		time_t getTimeLastRepetition(ushort number_meaning) const;
@@ -74,20 +70,16 @@ class SingleWord {
 		
 		void setSound(string Asound);
 		void setSpelling(string Aspelling);
-		void setTime_lastud(time_t time_lastud);
-		void setHralev(int hralev);
-		void setOplev(ushort oplev);
-		void setOplev(time_t nowTime);
-		
+
+		void setFlag(string flag_name, string flag);
+		string getFlag(string flag_name) const;
+
 		SingleWord(const string Aspelling, const string Asound);
 		static SingleWord newSingleWord(string spelling, string sound);
 		SingleWord() {
 			spelling = "";
 			sound = "";
-			oplev = MIN_OPLEV;
-			hralev = MAX_HRALEV;
 			q_meanings = 0;
-			time_lastud = 0;
 			known = false;
 			meanings = vector<SingleWord *>(0);
 			repetitionsOfMeanings = vector<ushort*>(0);
@@ -95,12 +87,8 @@ class SingleWord {
 		}
 		SingleWord(SingleWord const *sw);
 		
-		static bool connectSingleWords(SingleWord *sw1, SingleWord *sw2, ushort which_repetition, time_t last_repetition);
+		static bool connectSingleWords(SingleWord *sw1, SingleWord *sw2, ushort which_repetition, time_t last_repetition, int which_repetition2 = -1);
 		static bool disconnectSingleWords(SingleWord *sw1, SingleWord *sw2);//powiadamianie o pustych słowach
-	static const ushort MAX_OPLEV = 1000;
-	static const ushort MAX_HRALEV = 1000;
-	static const ushort MIN_OPLEV = 0;
-	static const ushort MIN_HRALEV = 1;
 };
 
 #endif	/* _SINGLEWORD_H */

@@ -10,7 +10,7 @@
 ##																				
 ##	This program is free software: you can redistribute it and/or modify		
 ##	it under the terms of the GNU General Public License as published by		
-##	the Free Software Foundation, either version 3 of the License, or			
+##	the Free Software Foundation, either version 3 of the License, or
 ##	(at your option) any later version.											
 ##																				
 ##	This program is distributed in the hope that it will be useful,				
@@ -155,36 +155,99 @@ vector<ushort> Kurs::findWord(boost::regex searched_string) const {
 	}
 	return found_words;
 }
-vector<ushort> Kurs::getConnectionsToRepetition(ushort &howMany) {
-	//numery słów tylko z pierwszego vectora, ponieważ gdyby się wzięło również z drugiego to połączenia by się powtarzały
-	ushort AhowMany = 0;
-	priority_queue<ConnectionToRepetition, vector<ConnectionToRepetition>, compareConnections> Q;
-	ConnectionToRepetition ctr;
+vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
+	//howManyWords jest liczbą słów do przepytania, rozmiar zwracanego vectora to liczba słów do przepytania i liczba połączeń do powtórzenia
+	if(howManyWords > wordl1.size() + wordl2.size())howManyWords = wordl1.size() + wordl2.size();
+	ushort AhowManyWords = 0;
+	priority_queue<WordToRepetition, vector<WordToRepetition>, compareWords>Q;
+	WordToRepetition wtr;
 	time_t nowTime = time(NULL);
+	//pobieranie słów z tablic i dodawanie ich do kolejki priorytetowej sortującej według zmiennej priority
 	for(ushort i = 0; i < wordl1.size(); i++) {
-		ushort howManyConnections = wordl1[i]->getNumberMeanings();
-		for(ushort j = 0; j < howManyConnections; j++) {
-			time_t temp = wordl1[i]->getTimeNextRepetition(j, repetitionsTime);
-			if(temp <= nowTime && wordl1[i]->getTimeLastRepetition(j) != 0 && wordl1[i]->getMeaning(j) != emptyWord) { //zmienieć na jakieś isKnown
-				ctr.nr_word = i;
-				ctr.nr_connection = j;
-				ctr.priority = (nowTime-temp)/repetitionsTime[wordl1[i]->getWhichRepetition(j)];
-				Q.push(ctr);
-				AhowMany++;
-			}
+		ushort countConnections = wordl1[i]->getNumberMeanings();
+		unsigned int averageNextTimesConnections = 0; //średnia czasów następnego przepytania dla połączeń tego słowa
+		unsigned int averageLengthPeriodsConnections = 0; //średnia okresów przepytawnia połączeń
+		for(ushort j = 0; j < countConnections; j++) {
+			averageNextTimesConnections +=  wordl1[i]->getTimeNextRepetition(j, repetitionsTime);
+			averageLengthPeriodsConnections += repetitionsTime[wordl1[i]->getWhichRepetition(j)];
+		}
+		averageNextTimesConnections /= countConnections;
+		averageLengthPeriodsConnections /= countConnections;
+		wtr.nr_word = i;
+		wtr.priority = (double)(nowTime-averageNextTimesConnections)/(double)averageLengthPeriodsConnections;
+		if(wtr.priority > -0,1) {
+			AhowManyWords++;
+			Q.push(wtr);
+		}
+		
+	}
+	for(ushort i = 0; i < wordl2.size(); i++) {
+		ushort countConnections = wordl2[i]->getNumberMeanings();
+		unsigned int averageNextTimesConnections = 0; //średnia czasów następnego przepytania dla połączeń tego słowa
+		unsigned int averageLengthPeriodsConnections = 0; //średnia okresów przepytawnia połączeń
+		for(ushort j = 0; j < countConnections; j++) {
+			averageNextTimesConnections +=  wordl2[i]->getTimeNextRepetition(j, repetitionsTime);
+			averageLengthPeriodsConnections += repetitionsTime[wordl2[i]->getWhichRepetition(j)];
+		}
+		averageNextTimesConnections /= countConnections;
+		averageLengthPeriodsConnections /= countConnections;
+		wtr.nr_word = i+wordl1.size();
+		wtr.priority = (double)(nowTime-averageNextTimesConnections)/(double)averageLengthPeriodsConnections;
+		if(wtr.priority > -0,1) {
+			AhowManyWords++;
+			Q.push(wtr);
 		}
 	}
-	vector<ushort> connectionsToRepetition;
-	if(AhowMany < howMany)howMany = AhowMany;
-	for(ushort i = 0; i < howMany; i++) {
-		wordl1[Q.top().nr_word]->setTimeLastRepetition(Q.top().nr_connection, nowTime);
-	setRepetitionForConnection(Q.top().nr_word, Q.top().nr_connection, 20); //MAX_OPLEV
-		connectionsToRepetition.push_back(Q.top().nr_word);
-		connectionsToRepetition.push_back(Q.top().nr_connection);
+	//koniec pobieranie słów z tablicy
+
+	//1 liczba to ilość sugerowanych na następny dzień słów do przepytania
+	vector<ushort> WordsToRepetition = vector<ushort>(0);
+	WordsToRepetition.push_back(AhowManyWords);
+	//słowa do przepytania i połączenia do powtórzenia
+	vector<ushort> ConnectionsToRepetition = vector<ushort>(0);
+	
+
+	//pobieranie górnych słów z kolejki priorytetowej i dodawanie ich do WordsToRepetition
+	//dodawanie połączeń tych słów do ConnectionsToRepetition
+	for(ushort i = 0; i < howManyWords; i++) {
+		WordsToRepetition.push_back(Q.top().nr_word);//dodaje słowo do przepytania
+		SingleWord *sword;
+		if(Q.top().nr_word < wordl1.size())sword = wordl1[Q.top().nr_word];
+		else sword = wordl2[Q.top().nr_word-wordl1.size()];
+		int whereInOther;
+		for(ushort j = 0; j < sword->getNumberMeanings(); j++) {
+			//zamiana liczby na string
+			string s_number = "";
+			int temp_j =  j;
+			if(temp_j == 0)s_number = "0";
+			while(temp_j != 0) {
+				s_number = (char)(temp_j%10+(int)'0') + s_number;
+				temp_j -= temp_j%10;
+				temp_j /= 10;
+			}
+			//koniec zamiany liczby j na string
+			if(sword->getFlag(s_number) == "use")continue;//jeśli połączenie zostało już dodanie do ConnectionsToRepetition to pomiń
+			whereInOther = sword->getMeaning(j)->findMeaning(sword);
+			//zamiana liczby whereInOther na string
+			s_number = "";
+			int temp_whereInOther =  whereInOther;
+			if(temp_whereInOther == 0)s_number = "0";
+			while(temp_whereInOther != 0) {
+				s_number = (char)(temp_whereInOther%10+(int)'0') + s_number;
+				temp_whereInOther -= temp_whereInOther%10;
+				temp_whereInOther /= 10;
+			}
+			//koniec zamiany liczby whereInOther na string
+			sword->getMeaning(j)->setFlag(s_number, "use");//ustawianie flagi, która informuje, że polączenie zostało już dodane
+			ConnectionsToRepetition.push_back(Q.top().nr_word);//wstawianie nr_słowa
+			ConnectionsToRepetition.push_back(j);//wstawianie nr_połączenia
+		}
 		Q.pop();
 	}
-	//zwraca połączenia, które należey powtórzyć, dwa kolejne elemnty vectora stanowią informację o jednym połączeniu
-	return connectionsToRepetition;
+	for(int i = 0; i < ConnectionsToRepetition.size(); i++) {
+		WordsToRepetition.push_back(ConnectionsToRepetition[i]);
+	}
+	return WordsToRepetition;
 }
 vector<ushort> Kurs::getUnknownSingleWords(ushort quantityOfWords) const {
 	//if(quantityOfWords > qAllWords - qKnownWords)quantityOfWords = qAllWords - qKnownWords;
@@ -211,36 +274,6 @@ vector<ushort> Kurs::getUnknownSingleWords(ushort quantityOfWords) const {
 		j++;
 			}
 		}
-	}
-	return wordsToAsk;
-}
-vector<ushort> Kurs::getKnownSingleWords(ushort quantityOfWords) const {
-	if(quantityOfWords > qKnownSingleWords)quantityOfWords = qKnownSingleWords;
-	priority_queue<SingleWordAndIndex, vector<SingleWordAndIndex>, compareSingleWords> Q;
-	SingleWordAndIndex swani;
-	for(ushort i = 0; i < qAllSingleWords; i++)
-	{	
-		if(i < wordl1.size()) {
-			if(wordl1[i]->isKnown() && !wordl1[i]->isConnectedWith(emptyWord)) {
-		swani.sword = wordl1[i];
-		swani.index = i;
-		Q.push(swani);
-			}
-		}
-		else {
-			if(wordl2[i-wordl1.size()]->isKnown()  && !wordl2[i-wordl1.size()]->isConnectedWith(emptyWord)) {
-		swani.sword = wordl2[i-wordl1.size()];
-		swani.index = i;
-		Q.push(swani);
-			}
-		}
-	}
-	vector<ushort> wordsToAsk;
-	for(ushort i = 0; i < quantityOfWords; i++)
-	{
-	swani = Q.top();
-		wordsToAsk.push_back(swani.index);
-	Q.pop();
 	}
 	return wordsToAsk;
 }
@@ -283,40 +316,25 @@ vector<SingleWord const*> Kurs::getSingleWords(ushort from, ushort _to) const {
 bool Kurs::isSingleWordFLorSL(ushort word_number) const {
 	return word_number < wordl1.size() ? true : false; //not sesne ist throw Error for word_number > qAllSingleWords
 }
-void Kurs::repairSingleWord_new(ushort word_number, time_t czas, vector<double> oplev_connections) {
+void Kurs::repairSingleWord(ushort word_number, time_t czas, vector<double> oplev_connections) {
 	SingleWord *sword = word_number < wordl1.size() ? wordl1[word_number] : wordl2[word_number-wordl1.size()];
 	//dodać coś z czasm i pisaniem na komputerze
 	double max_oplev = 20;
 	if(oplev_connections.size() < sword->getNumberMeanings())throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	time_t nowTime = time(NULL);
 	double temp;
-	double sword_oplev = 0;
 	double predicted_score;
 	for(ushort i = 0; i < sword->getNumberMeanings(); i++) {
-		if(oplev_connections[i] > 20)oplev_connections[i] = 20;
+		if(oplev_connections[i] > max_oplev)oplev_connections[i] = 20;
 		temp = (double)(nowTime-sword->getTimeLastRepetition(i));
 		temp /= (double)(repetitionsTime[sword->getWhichRepetition(i)]);
-		predicted_score = 20 - 8*temp; //im wcześniej było ostatnie przeptywanie, tym niższy predicted_score
+		predicted_score = max_oplev - 8*temp; //im wcześniej było ostatnie przeptywanie, tym niższy predicted_score
 		if(predicted_score < 1)predicted_score = 1;
-		oplev_connections[i] = oplev_connections[i]*18/predicted_score;//im wyższy predicted score tym wyższy wynik
+		oplev_connections[i] = oplev_connections[i]*(max_oplev*0.9)/predicted_score;//im wyższy predicted score tym wyższy wynik
 		//ale teraz może być już większe od max_oplev
 		repairRepetition(sword->getWhichRepetition(i), oplev_connections[i]);
 		setRepetitionForConnection(word_number, i, oplev_connections[i]);
-		sword_oplev += oplev_connections[i];
 	}
-	sword_oplev = (sword_oplev/(sword->getNumberMeanings()*max_oplev)) * 1000;
-	
-	if(sword_oplev > 1000)sword_oplev = 1000;
-	
-	if(sword_oplev == 0 && sword->getOplev() != 0)increaseQKnownSingleWords(-1-sword->getNumberMeanings());
-	if(sword_oplev != 0 && sword->getOplev() == 0)increaseQKnownSingleWords(1+sword->getNumberMeanings());
-		
-	int procent = (((sword->getOplev()*1000)/sword_oplev)-1000)/2;
-	
-	sword->setHralev((sword->getHralev()*procent)/1000+sword->getHralev());
-	sword->setOplev((ushort)sword_oplev);
-	sword->setTime_lastud(nowTime);
-	
 	ifChangeKurs = true;
 }
 void Kurs::repairRepetition(ushort which_repetition, double oplev_connection) { //private
@@ -434,13 +452,13 @@ void Kurs::unitSingleWords(ushort number1, ushort number2) {//ulepszyć
 	if(number1 >= qAllSingleWords || number2 >= qAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "",__LINE__, __FILE__);
 	if(number1 >= wordl1.size() && number2 >= wordl1.size()) {
 		wordl2[number1-wordl1.size()]->joinOtherSingleWord(wordl2[number2-wordl1.size()]);
-		if(wordl2[number2-wordl1.size()]->getOplev() != 0)qKnownSingleWords--;
+		if(wordl2[number2-wordl1.size()]->isKnown() == false)qKnownSingleWords--;
 		wordl2.erase(wordl2.begin() + number2 - wordl1.size());
 		if(wordl2[number1-wordl1.size()]->getNumberMeanings() == 0)SingleWord::connectSingleWords(wordl2[number1-wordl1.size()], emptyWord, 0, 0);
 	}
 	else if(number1 < wordl1.size() && number2 < wordl1.size()) {
 		wordl1[number1]->joinOtherSingleWord(wordl1[number2]);
-		if(wordl1[number2]->getOplev() != 0)qKnownSingleWords--;
+		if(wordl1[number2]->isKnown() == false)qKnownSingleWords--;
 		wordl1.erase(wordl1.begin() + number2);
 		if(wordl1[number1]->getNumberMeanings() == 0)SingleWord::connectSingleWords(wordl1[number1], emptyWord, 0, 0);
 	}
@@ -526,11 +544,6 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
 			file.ignore(INT_MAX, '\n');
 				
 			sword.setSpelling(spelling);
-			sword.setHralev(hralev);
-			sword.setTime_lastud(time_lastud);
-			sword.setOplev(oplev);
-			sword.setOplev(nowTime);
-			if(oplev != sword.getOplev())ifChangeKurs = true;
 			wordl1.push_back(new SingleWord(sword));
 			SingleWord::connectSingleWords(wordl1[i], emptyWord, 0, 0);
 		}
@@ -542,11 +555,6 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
 			file.ignore(INT_MAX, '\n');
 
 			sword.setSpelling(spelling);
-			sword.setHralev(hralev);
-			sword.setTime_lastud(time_lastud);
-			sword.setOplev(oplev);
-			sword.setOplev(nowTime);
-			if(oplev != sword.getOplev())ifChangeKurs = true;
 			wordl2.push_back(new SingleWord(sword));
 			SingleWord::connectSingleWords(wordl2[i], emptyWord, 0, 0);
 		}
@@ -565,6 +573,85 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
 			SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
 			SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
 			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, last_repetition);
+		}
+
+		for(ushort i = 0; i < numberWordsFL; i++) {
+			if(wordl1[i]->isKnown())qKnownSingleWords++;
+		}
+		for(ushort i = 0; i < numberWordsSL; i++) {
+			if(wordl2[i]->isKnown())qKnownSingleWords++;
+		}
+		file.close();
+	}
+	else if(firstline == "new version2") {
+		ushort numberWordsFL;
+		ushort numberWordsSL;
+		file >> name;
+		file.ignore(INT_MAX, '\n');
+		file >> numberWordsFL;
+		file.ignore(INT_MAX, '\n');
+		file >> numberWordsSL;
+		file.ignore(INT_MAX, '\n');
+		file >> numberConnections;
+		file.ignore(INT_MAX, '\n');
+		file >> askQKW;
+		file.ignore(INT_MAX, '\n');
+		file >> askQNW;
+		file.ignore(INT_MAX, '\n');
+		ushort qRepetition;
+		file >> qRepetition;
+		file.ignore(INT_MAX, '\n');
+		time_t repetitionTime;
+		ushort repetitionHowMany;
+		double repetitionGrade;
+		for(int i = 0; i < qRepetition; i++) {
+			file >> repetitionTime;
+			file >> repetitionHowMany;
+			file >> repetitionGrade;
+			file.ignore(INT_MAX, '\n');
+			repetitionsTime.push_back(repetitionTime);
+			repetitionsHowMany.push_back(repetitionHowMany);
+			repetitionsGrade.push_back(repetitionGrade);
+		}
+		filename = file_to_open;
+		qAllSingleWords = numberWordsFL + numberWordsSL;
+
+		SingleWord sword("", "");
+		ushort oplev;
+		ushort hralev;
+		string spelling;
+		time_t time_lastud;
+		qKnownSingleWords = 0;
+		ifChangeKurs = false;
+		for(ushort i = 0; i < numberWordsFL; i++) {
+			getline(file, spelling);
+			sword.setSpelling(spelling);
+			wordl1.push_back(new SingleWord(sword));
+			SingleWord::connectSingleWords(wordl1[i], emptyWord, 0, 0);
+		}
+		for(ushort i = 0; i < numberWordsSL; i++) {
+			getline(file, spelling);
+			sword.setSpelling(spelling);
+			wordl2.push_back(new SingleWord(sword));
+			SingleWord::connectSingleWords(wordl2[i], emptyWord, 0, 0);
+		}
+		ushort number1;
+		ushort number2;
+		ushort which_repetition;
+		ushort which_repetition2;
+		time_t last_repetition;
+		for(ushort i = 0; i < numberConnections; i++) {
+			file >> number1;
+			file >> number2;
+			file >> which_repetition;
+			file >> which_repetition2;
+			file >> last_repetition;
+
+			file.ignore(INT_MAX, '\n');
+			if(number1 >= wordl1.size() || (number2 >= wordl1.size()+wordl2.size() || number2 < wordl1.size()))throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
+			SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
+			SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
+			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, last_repetition, which_repetition2);
 		}
 
 		for(ushort i = 0; i < numberWordsFL; i++) {
@@ -612,12 +699,7 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
 			fscanf(plik, "%s\t%s\t%hu %hu %u\n", _first, _second, &_hralev, &_oplev, &_time_lastud);
 			
 			sword.setSpelling(decode_text(_first));
-			sword.setHralev(_hralev);
-			sword.setTime_lastud(_time_lastud);
-			sword.setOplev(_oplev);
-			sword.setOplev(nowTime);
-			if(_oplev != sword.getOplev())ifChangeKurs = true;
-			if(sword.getOplev() != 0)qKnownSingleWords += 2;
+			if(_oplev != 0)qKnownSingleWords += 2;
 			wordl1.push_back(new SingleWord(sword));
 			sword.setSpelling(decode_text(_second));
 			wordl2.push_back(new SingleWord(sword));
@@ -751,7 +833,7 @@ void Kurs::saveKurs(string file_to_save)
 	ofstream file;
 	file.open(file_to_save.c_str());
 	if(!file.is_open())throw Error::newError(Error::ERROR_OPEN_FILE, "", __LINE__, __FILE__);
-	file << "new version" << endl;
+	file << "new version2" << endl;
 	file << name << endl;
 	file << wordl1.size() << endl;
 	file << wordl2.size() << endl;
@@ -768,23 +850,20 @@ void Kurs::saveKurs(string file_to_save)
 	}
 	for(ushort i = 0; i < wordl1.size(); i++) {
 		file << wordl1[i]->getSpelling() << endl;
-		file << wordl1[i]->getOplev() << "\t";
-		file << wordl1[i]->getHralev() << "\t";
-		file << wordl1[i]->getTime_lastud() << endl;
 	}
 	for(ushort i = 0; i < wordl2.size(); i++) {
 		file << wordl2[i]->getSpelling() << endl;
-		file << wordl2[i]->getOplev() << "\t";
-		file << wordl2[i]->getHralev() << "\t";
-		file << wordl2[i]->getTime_lastud() << endl;
 		wordl2[i]->id = i+wordl1.size();
 	}
+	int inSecondWord;
 	for(ushort i = 0; i < wordl1.size(); i++) {
 	for(ushort j = 0; j < wordl1[i]->getNumberMeanings(); j++) {
 		if(wordl1[i]->getMeaning(j) != emptyWord) {
 			file << i << "\t";
 			file << wordl1[i]->getMeaning(j)->id << "\t";
 			file << wordl1[i]->getWhichRepetition(j) << "\t";
+			inSecondWord = wordl1[i]->getMeaning(j)->findMeaning(wordl1[i]);
+			file << wordl1[i]->getMeaning(j)->getWhichRepetition(inSecondWord) << "\t";
 			file << wordl1[i]->getTimeLastRepetition(j) << endl;
 		}
 	}

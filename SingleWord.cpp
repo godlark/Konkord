@@ -35,22 +35,18 @@ using namespace std;
 SingleWord::SingleWord(const string Aspelling, const string Asound) {
 	spelling = Aspelling;
 	sound = Asound;
-	oplev = MIN_OPLEV;
-	hralev = MAX_HRALEV;
 	q_meanings = 0;
-	time_lastud = 0;
 	known = false;
 	meanings = vector<SingleWord *>(0);
 	repetitionsOfMeanings = vector<ushort*>(0);
 	lastRepetitionsOfM = vector<time_t*>(0);
+	flag_names = vector<string>(0);
+	flags = vector<string>(0);
 }
 SingleWord::SingleWord(SingleWord const *sw) {
 	spelling = sw->spelling;
 	sound = sw->sound;
-	oplev = sw->oplev;
-	hralev = sw->hralev;
 	q_meanings = sw->q_meanings;
-	time_lastud = sw->time_lastud;
 	meanings = vector<SingleWord*>(sw->meanings); // czy napewno skopiuje wektor
 	lastRepetitionsOfM = vector<time_t*>(sw->lastRepetitionsOfM);
 	repetitionsOfMeanings = vector<ushort*>(sw->repetitionsOfMeanings);
@@ -86,8 +82,8 @@ time_t SingleWord::getTimeNextRepetition(ushort number_meaning, vector<time_t> r
 	if(*repetitionsOfMeanings[number_meaning] >= repetitionsTime.size())throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	return *lastRepetitionsOfM[number_meaning] + repetitionsTime[*repetitionsOfMeanings[number_meaning]];
 }
-bool SingleWord::connectSingleWords(SingleWord *sw1, SingleWord *sw2, ushort which_repetition, time_t last_repetition) {
-	
+bool SingleWord::connectSingleWords(SingleWord *sw1, SingleWord *sw2, ushort which_repetition, time_t last_repetition, int which_repetition2) {//zmienić kolejność argumentów
+	if(which_repetition2 == -1)which_repetition2 = which_repetition;
 	//verifying correctness data
 	time_t nowTime = time(NULL);
 	if(last_repetition > nowTime)last_repetition = nowTime;
@@ -106,9 +102,10 @@ bool SingleWord::connectSingleWords(SingleWord *sw1, SingleWord *sw2, ushort whi
 		int temp2 = sw2->meanings.size();
 		sw2->meanings.push_back(sw1);
 		sw2->repetitionsOfMeanings.push_back(NULL);
-		sw2->repetitionsOfMeanings[temp2] = sw1->repetitionsOfMeanings[temp1];
-		sw2->lastRepetitionsOfM.push_back(NULL);
-		sw2->lastRepetitionsOfM[temp2] = sw1->lastRepetitionsOfM[temp1];
+		sw2->repetitionsOfMeanings[temp2] = new ushort;
+		*(sw2->repetitionsOfMeanings[temp2]) = (ushort)which_repetition2;//niewspólna cecha dla dwóch słów
+		sw2->lastRepetitionsOfM.push_back(NULL); 
+		sw2->lastRepetitionsOfM[temp2] = sw1->lastRepetitionsOfM[temp1];//wspólna cecha dwa dwóch słów
 		sw2->q_meanings++;
 		sw2->known = (sw2->known || last_repetition != 0);
 		return true;
@@ -148,6 +145,7 @@ bool SingleWord::disconnectSingleWords(SingleWord* sw1, SingleWord* sw2) {
 		for(int i = 0; i < sw1->q_meanings; i++) {
 			sw1->known = (sw1->lastRepetitionsOfM[i] != 0 || sw1->known);
 		}
+		delete sw2->repetitionsOfMeanings[inSW2];
 		sw2->meanings.erase(sw2->meanings.begin()+inSW2);
 		sw2->repetitionsOfMeanings.erase(sw2->repetitionsOfMeanings.begin()+inSW2);
 		sw2->lastRepetitionsOfM.erase(sw2->lastRepetitionsOfM.begin()+inSW2);
@@ -186,47 +184,11 @@ string SingleWord::getSound() const{
 string SingleWord::getSpelling() const{
 	return spelling;
 }
-ushort SingleWord::getHralev() const{
-	return hralev;
-}
-ushort SingleWord::getOplev() const{
-	return oplev;
-}
-time_t SingleWord::getTime_lastud() const{
-	return time_lastud;
-}
 void SingleWord::setSound(string Asound) {
 	sound = Asound;
 }
 void SingleWord::setSpelling(string Aspelling) {
 	spelling = Aspelling;
-}
-void SingleWord::setHralev(int Ahralev)
-{
-	if(Ahralev > MAX_HRALEV)hralev = MAX_HRALEV;
-	else if(Ahralev < MIN_HRALEV)hralev = MIN_HRALEV;
-	else hralev = Ahralev;
-}
-void SingleWord::setOplev(ushort Aoplev)
-{
-	if(Aoplev > MAX_OPLEV)oplev = MAX_OPLEV;
-	else if(Aoplev < MIN_OPLEV)oplev = MIN_OPLEV;
-	else oplev = Aoplev;
-}
-void SingleWord::setOplev(time_t nowTime)
-{
-	unsigned int max_way_time = ceil((oplev*86400)/hralev);
-	unsigned int way_time = (unsigned int)nowTime - time_lastud;
-	ushort old_oplev = oplev;	
-	if(way_time > max_way_time)way_time = max_way_time;	
-	setOplev((ushort)(oplev-((way_time*hralev)/86400)));
-	if(oplev != old_oplev)setTime_lastud(nowTime);
-}
-void SingleWord::setTime_lastud(time_t Atime_lastud)
-{
-	time_t nowTime = time(NULL);
-	if(Atime_lastud > nowTime)time_lastud = nowTime;
-	else time_lastud = Atime_lastud;
 }
 SingleWord * SingleWord::getMeaning(ushort number) const {
 	if(number >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
@@ -238,4 +200,15 @@ ushort SingleWord::getNumberMeanings() const {
 SingleWord SingleWord::newSingleWord(string spelling, string sound) {
 	SingleWord neww(spelling, sound);
 	return neww;
+}
+
+void SingleWord::setFlag(string flag_name, string flag) {
+	flag_names.push_back(flag_name);
+	flags.push_back(flag);
+}
+string SingleWord::getFlag(string flag_name) const {
+	for(int i = 0; i < flag_names.size(); i++) {
+		if(flag_names[i] == flag_name)return flags[i];
+	}
+	return "";
 }
