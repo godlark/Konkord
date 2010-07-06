@@ -32,6 +32,8 @@
 typedef unsigned short int ushort;
 using namespace std;
 
+SingleWord::~SingleWord() {
+}
 SingleWord::SingleWord(const string Aspelling, const string Asound) {
 	spelling = Aspelling;
 	sound = Asound;
@@ -50,6 +52,8 @@ SingleWord::SingleWord(SingleWord const *sw) {
 	meanings = vector<SingleWord*>(sw->meanings); // czy napewno skopiuje wektor
 	lastRepetitionsOfM = vector<time_t*>(sw->lastRepetitionsOfM);
 	repetitionsOfMeanings = vector<ushort*>(sw->repetitionsOfMeanings);
+	flag_names = sw->flag_names;
+	flags = sw->flags;
 }
 void SingleWord::setTimeLastRepetition(ushort number_meaning, time_t lasttime) {
 	if(number_meaning >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
@@ -118,12 +122,16 @@ void SingleWord::deleteAllMeanings() {
 		inSW2 = meanings[i]->findMeaning(this);
 		meanings[i]->meanings.erase(meanings[i]->meanings.begin()+inSW2);
 		meanings[i]->q_meanings--;
+
 		delete repetitionsOfMeanings[i];
 		repetitionsOfMeanings.pop_back();
+		delete meanings[i]->repetitionsOfMeanings[inSW2];
 		meanings[i]->repetitionsOfMeanings.erase(meanings[i]->repetitionsOfMeanings.begin()+inSW2);
+
 		delete lastRepetitionsOfM[i];
 		lastRepetitionsOfM.pop_back();
 		meanings[i]->lastRepetitionsOfM.erase(meanings[i]->lastRepetitionsOfM.begin()+inSW2);
+		
 		for(int j = 0; j < meanings[i]->q_meanings; j++) {
 			meanings[i]->known = (meanings[i]->lastRepetitionsOfM[j] != 0 || meanings[i]->known);
 		}

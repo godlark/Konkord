@@ -84,8 +84,11 @@ class SingleWord {
 			meanings = vector<SingleWord *>(0);
 			repetitionsOfMeanings = vector<ushort*>(0);
 			lastRepetitionsOfM = vector<time_t*>(0);
+			flag_names = vector<string>(0);
+			flags = vector<string>(0);
 		}
 		SingleWord(SingleWord const *sw);
+		~SingleWord();
 		
 		static bool connectSingleWords(SingleWord *sw1, SingleWord *sw2, ushort which_repetition, time_t last_repetition, int which_repetition2 = -1);
 		static bool disconnectSingleWords(SingleWord *sw1, SingleWord *sw2);//powiadamianie o pustych słowach
