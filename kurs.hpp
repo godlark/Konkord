@@ -55,7 +55,7 @@ class SingleWordAndIndex {
 class WordToRepetition {
     public :
         ushort nr_word;
-	unsigned int priority;
+	double priority;
 };
 class compareWords {
     public:
