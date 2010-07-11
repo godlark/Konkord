@@ -60,8 +60,8 @@ class WordToRepetition {
 class compareWords {
     public:
         bool operator() (WordToRepetition swani1, WordToRepetition swani2) {
-            if(swani1.priority >= swani2.priority)return true;
-            if(swani1.priority < swani2.priority)return false;
+            if(swani1.priority <= swani2.priority)return true;
+            if(swani1.priority > swani2.priority)return false;
         }
 };
 class Kurs
