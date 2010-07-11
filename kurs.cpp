@@ -244,6 +244,9 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 		}
 		Q.pop();
 	}
+	for(int i = 0; i < Q.size(); i++) {//usuwanie pozostałych elementów z kolejki
+		Q.pop();
+	}
 	for(int i = 0; i < ConnectionsToRepetition.size(); i++) {
 		WordsToRepetition.push_back(ConnectionsToRepetition[i]);
 	}
