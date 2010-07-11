@@ -164,6 +164,7 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 	time_t nowTime = time(NULL);
 	//pobieranie słów z tablic i dodawanie ich do kolejki priorytetowej sortującej według zmiennej priority
 	for(ushort i = 0; i < wordl1.size(); i++) {
+		if(wordl1[i]->isConnectedWith(emptyWord))continue; //ze słów pustych nie można przeptywać
 		ushort countConnections = wordl1[i]->getNumberMeanings();
 		unsigned int averageNextTimesConnections = 0; //średnia czasów następnego przepytania dla połączeń tego słowa
 		unsigned int averageLengthPeriodsConnections = 0; //średnia okresów przepytawnia połączeń
@@ -182,6 +183,7 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 		
 	}
 	for(ushort i = 0; i < wordl2.size(); i++) {
+		if(wordl2[i]->isConnectedWith(emptyWord))continue; //ze słów pustych nie można przeptywać
 		ushort countConnections = wordl2[i]->getNumberMeanings();
 		unsigned int averageNextTimesConnections = 0; //średnia czasów następnego przepytania dla połączeń tego słowa
 		unsigned int averageLengthPeriodsConnections = 0; //średnia okresów przepytawnia połączeń
