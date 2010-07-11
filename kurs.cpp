@@ -334,6 +334,7 @@ void Kurs::repairSingleWord(ushort word_number, time_t czas, vector<double> ople
 		//ale teraz może być już większe od max_oplev
 		repairRepetition(sword->getWhichRepetition(i), oplev_connections[i]);
 		setRepetitionForConnection(word_number, i, oplev_connections[i]);
+		sword->setTimeLastRepetition(i, nowTime);
 	}
 	ifChangeKurs = true;
 }

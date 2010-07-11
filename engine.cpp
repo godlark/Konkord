@@ -131,8 +131,6 @@ void ServiceOfTasks::repaskWords() {
 		if(number_words == 0)number_words = courses[activ_course]->getAskQKW();
 		vector <ushort> swords = courses[activ_course]->getWordsToRepetition(number_words);
 		number_connections = (swords.size()-number_words-1)/2;
-		cout << number_connections << endl;
-		cout << swords.size() << endl;
 		suggest_word_for_next_time = swords[0];
 
 		SingleWord const *sword;
@@ -188,6 +186,7 @@ void ServiceOfTasks::repaskWords() {
 			numbersConnections[i*2 + 1] = connectionsToRepetition[i*2 + 1];
 		}
 		(*printWords)("Naciśnij 'ENTER' jeśli się nauczyłeś się słów", aswords, const_cast<ushort* const>(numbersWords), numbersConnections, -1);
+		cout << "Sugerowana liczba słów do przepytania następnym razem: " << swords[0] << endl;
 		delete [] aswords;
 		delete [] numbersWords;
 
