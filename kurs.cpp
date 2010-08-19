@@ -27,6 +27,16 @@
 */
 #include "kurs.hpp"
 
+#include <cstdio>
+#include <ctime>
+#include <queue>
+#include <stdlib.h>
+#include <fstream>
+#include <cmath>
+#include <climits>
+#include <algorithm>
+#include <iostream>
+
 using namespace std;
 typedef unsigned short int ushort;
 
@@ -60,7 +70,7 @@ void Kurs::addSingleWords(const vector<string> &spellings, const vector<string> 
 	qAllSingleWords = wordl1.size() + wordl2.size();
 	ifChangeKurs = true;
 }
-void Kurs::addSingleWord(const SingleWord &singleWord, ushort where) {
+void Kurs::addSingleWord(const SingleWord &singleWord, const ushort &where) {
 	ushort number;
 	if(where == 0) {
 		wordl1.push_back(new SingleWord(&singleWord));
@@ -75,7 +85,7 @@ void Kurs::addSingleWord(const SingleWord &singleWord, ushort where) {
 	qAllSingleWords = wordl1.size() + wordl2.size();
 	ifChangeKurs = true;
 }
-void Kurs::connectSingleWords(ushort number1, ushort number2) {
+void Kurs::connectSingleWords(const ushort &number1, const ushort &number2) {
 	if(number1 >= wordl1.size() || (number2 >= wordl1.size()+wordl2.size() || number2 < wordl1.size()))throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	if(SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], 0, 0)) {
 		numberConnections++;
@@ -85,7 +95,7 @@ void Kurs::connectSingleWords(ushort number1, ushort number2) {
 	}
 	//else jakieś powiadomienie
 }
-void Kurs::disconnectSingleWords(ushort number1, ushort number2) {
+void Kurs::disconnectSingleWords(const ushort &number1, const ushort &number2) {
 	if(number1 >= wordl1.size() || (number2 >= wordl1.size()+wordl2.size() || number2 < wordl1.size()))throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	if(SingleWord::disconnectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()])) {
 		numberConnections--;
@@ -95,7 +105,7 @@ void Kurs::disconnectSingleWords(ushort number1, ushort number2) {
 	}
 	//else jakieś powiadomienie
 }
-void Kurs::delSingleWord(ushort number) {
+void Kurs::delSingleWord(const ushort &number) {
 	ushort qAllMeanings;
 	SingleWord* meaning;
 	vector<SingleWord*>::iterator position;
@@ -141,7 +151,7 @@ void Kurs::delSingleWord(ushort number) {
 	qAllSingleWords = wordl1.size() + wordl2.size();
 	ifChangeKurs = true;
 }
-vector<ushort> Kurs::findWord(boost::regex searched_string) const {
+vector<ushort> Kurs::findWord(const boost::regex &searched_string) const {
 	vector<ushort> found_words;
 	for(ushort i = 0; i < wordl1.size(); i++) {   
 		if(regex_match(wordl1[i]->getSpelling(), searched_string)) {
@@ -166,8 +176,8 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 	for(ushort i = 0; i < wordl1.size(); i++) {
 		if(wordl1[i]->isConnectedWith(emptyWord) || !wordl1[i]->isKnown())continue; //ze słów pustych i nie poznanych nie można przeptywać
 		ushort countConnections = wordl1[i]->getNumberMeanings();
-		unsigned int averageNextTimesConnections = 0; //średnia czasów następnego przepytania dla połączeń tego słowa
-		unsigned int averageLengthPeriodsConnections = 0; //średnia okresów przepytawnia połączeń
+		long long averageNextTimesConnections = 0; //średnia czasów następnego przepytania dla połączeń tego słowa
+		long long averageLengthPeriodsConnections = 0; //średnia okresów przepytawnia połączeń
 		for(ushort j = 0; j < countConnections; j++) {
 			averageNextTimesConnections +=  wordl1[i]->getTimeNextRepetition(j, repetitionsTime);
 			averageLengthPeriodsConnections += repetitionsTime[wordl1[i]->getWhichRepetition(j)];
@@ -175,18 +185,18 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 		averageNextTimesConnections /= countConnections;
 		averageLengthPeriodsConnections /= countConnections;
 		wtr.nr_word = i;
-		wtr.priority = (double)(nowTime-averageNextTimesConnections)/(double)averageLengthPeriodsConnections;
-		if(wtr.priority > -0,1) {
+		wtr.priority = (double)((long long)nowTime-averageNextTimesConnections)/(double)averageLengthPeriodsConnections;
+		if(wtr.priority > -0.1) {
 			AhowManyWords++;
-			Q.push(wtr);
 		}
+		Q.push(wtr);
 		
 	}
 	for(ushort i = 0; i < wordl2.size(); i++) {
 		if(wordl2[i]->isConnectedWith(emptyWord) || !wordl2[i]->isKnown())continue; //ze słów pustych i nie poznanych nie można przeptywać
 		ushort countConnections = wordl2[i]->getNumberMeanings();
-		unsigned int averageNextTimesConnections = 0; //średnia czasów następnego przepytania dla połączeń tego słowa
-		unsigned int averageLengthPeriodsConnections = 0; //średnia okresów przepytawnia połączeń
+		long long averageNextTimesConnections = 0; //średnia czasów następnego przepytania dla połączeń tego słowa
+		long long averageLengthPeriodsConnections = 0; //średnia okresów przepytawnia połączeń
 		for(ushort j = 0; j < countConnections; j++) {
 			averageNextTimesConnections +=  wordl2[i]->getTimeNextRepetition(j, repetitionsTime);
 			averageLengthPeriodsConnections += repetitionsTime[wordl2[i]->getWhichRepetition(j)];
@@ -194,11 +204,11 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 		averageNextTimesConnections /= countConnections;
 		averageLengthPeriodsConnections /= countConnections;
 		wtr.nr_word = i+wordl1.size();
-		wtr.priority = (double)(nowTime-averageNextTimesConnections)/(double)averageLengthPeriodsConnections;
-		if(wtr.priority > -0,1) {
+		wtr.priority = (double)((long long)nowTime-averageNextTimesConnections)/(double)averageLengthPeriodsConnections;
+		if(wtr.priority > -0.1) {
 			AhowManyWords++;
-			Q.push(wtr);
 		}
+		Q.push(wtr);
 	}
 	//koniec pobieranie słów z tablicy
 
@@ -254,7 +264,7 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 	}
 	return WordsToRepetition;
 }
-vector<ushort> Kurs::getUnknownSingleWords(ushort quantityOfWords) const {
+vector<ushort> Kurs::getUnknownSingleWords(const ushort &quantityOfWords) const {
 	//if(quantityOfWords > qAllWords - qKnownWords)quantityOfWords = qAllWords - qKnownWords;
 	vector<ushort> wordsToAsk;
 	time_t lasttime = time(NULL);
@@ -282,7 +292,7 @@ vector<ushort> Kurs::getUnknownSingleWords(ushort quantityOfWords) const {
 	}
 	return wordsToAsk;
 }
-void Kurs::increaseQKnownSingleWords(short int quantity) {
+void Kurs::increaseQKnownSingleWords(const short int &quantity) {
 	qKnownSingleWords += quantity;
 }
 ushort Kurs::getQAllSingleWords() const {
@@ -297,11 +307,11 @@ ushort Kurs::getQSingleWords_1() const {
 ushort Kurs::getQSingleWords_2() const {
 	return wordl2.size();
 }
-SingleWord const* Kurs::getSingleWord(ushort number) const {
+SingleWord const* Kurs::getSingleWord(const ushort &number) const {
 	if(number >= qAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	return number < wordl1.size() ? wordl1[number] : wordl2[number-wordl1.size()];
 }
-vector<SingleWord const*> Kurs::getSingleWords(ushort from, ushort _to) const {
+vector<SingleWord const*> Kurs::getSingleWords(const ushort &from, ushort &_to) const {
 	vector<SingleWord const*> _words;
 	if(from >= qAllSingleWords || _to >= qAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	else if(_to < from && _to != 0)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
@@ -318,10 +328,10 @@ vector<SingleWord const*> Kurs::getSingleWords(ushort from, ushort _to) const {
 	}
 	return _words;
 }
-bool Kurs::isSingleWordFLorSL(ushort word_number) const {
+bool Kurs::isSingleWordFLorSL(const ushort &word_number) const {
 	return word_number < wordl1.size() ? true : false; //not sesne ist throw Error for word_number > qAllSingleWords
 }
-void Kurs::repairSingleWord(ushort word_number, time_t czas, vector<double> oplev_connections) {
+void Kurs::repairSingleWord(const ushort &word_number, const time_t &czas, vector<double> &oplev_connections) {
 	SingleWord *sword = word_number < wordl1.size() ? wordl1[word_number] : wordl2[word_number-wordl1.size()];
 	//dodać coś z czasm i pisaniem na komputerze
 	double max_oplev = 20;
@@ -343,12 +353,11 @@ void Kurs::repairSingleWord(ushort word_number, time_t czas, vector<double> ople
 	}
 	ifChangeKurs = true;
 }
-void Kurs::repairRepetition(ushort which_repetition, double oplev_connection) { //private
-	double max_oplev = 20;
-	double max_grade = 100;
-	oplev_connection *= max_grade/max_oplev;
+void Kurs::repairRepetition(const ushort &which_repetition, const double &oplev_connection) { //private
+	const double max_oplev = 20;
+	const double max_grade = 100;
 	repetitionsGrade[which_repetition] *= (double)repetitionsHowMany[which_repetition];
-	repetitionsGrade[which_repetition] += oplev_connection;
+	repetitionsGrade[which_repetition] += oplev_connection * (max_grade/max_oplev);
 	repetitionsHowMany[which_repetition]++;
 	if(repetitionsHowMany[which_repetition] > qAllSingleWords)repetitionsHowMany[which_repetition] = qAllSingleWords;
 	repetitionsGrade[which_repetition] /= (double)repetitionsHowMany[which_repetition];
@@ -367,7 +376,7 @@ void Kurs::repairRepetition(ushort which_repetition, double oplev_connection) { 
 		repetitionsGrade[which_repetition] = 90;
 	}
 }
-void Kurs::setRepetitionForConnection(ushort word_number, ushort nr_connection, double oplev_connection) { //private
+void Kurs::setRepetitionForConnection(const ushort &word_number, const ushort &nr_connection, const double &oplev_connection) { //private
 	double max_oplev = 20;
 	SingleWord *sword = word_number < wordl1.size() ? wordl1[word_number] : wordl2[word_number-wordl1.size()];
 	ushort repetition = sword->getWhichRepetition(nr_connection);
@@ -386,13 +395,13 @@ void Kurs::setRepetitionForConnection(ushort word_number, ushort nr_connection, 
 	}
 	sword->setWhichRepetition(nr_connection, repetition);
 }
-void Kurs::setSingleWord(ushort number, string spelling, string sound) {
+void Kurs::setSingleWord(const ushort &number, const string &spelling, const string &sound) {
 	if(number >= qAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	SingleWord *sword = number < wordl1.size() ? wordl1[number] : wordl2[number-wordl1.size()];
 	sword->setSpelling(spelling);
 	sword->setSound(sound);
 }
-void Kurs::setMeaningForSingleWord(ushort number_word, ushort number_meaning, string spelling, string sound) {
+void Kurs::setMeaningForSingleWord(const ushort &number_word, const ushort &number_meaning, const string &spelling, const string &sound) {
 	if(number_word >= qAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	SingleWord *sword = number_word < wordl1.size() ? wordl1[number_word] : wordl2[number_word-wordl1.size()];
 	if(number_meaning >= sword->getNumberMeanings())throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
@@ -400,7 +409,7 @@ void Kurs::setMeaningForSingleWord(ushort number_word, ushort number_meaning, st
 	sword->getMeaning(number_meaning)->setSpelling(spelling);
 	sword->getMeaning(number_meaning)->setSound(sound);
 }
-void Kurs::takeOutSWFromLine(vector<string> &spellings, vector<string> &sounds, string rest) {
+void Kurs::takeOutSWFromLine(vector<string> &spellings, vector<string> &sounds, const string &rest) {
 	size_t found=rest.find('|');
 	if(found == string::npos)
 	{
@@ -416,7 +425,7 @@ void Kurs::takeOutSWFromLine(vector<string> &spellings, vector<string> &sounds, 
 		takeOutSWFromLine(spellings, sounds, rest.substr(found+1));
 	}
 }
-string Kurs::readSingleWordsFromFile(string file_to_open)
+string Kurs::readSingleWordsFromFile(const string &file_to_open)
 {
 	ifstream plik;
 	plik.open(file_to_open.c_str(), ios::binary);
@@ -452,7 +461,7 @@ string Kurs::readSingleWordsFromFile(string file_to_open)
 	plik.close();
 	return message;
 }
-void Kurs::unitSingleWords(ushort number1, ushort number2) {//ulepszyć
+void Kurs::unitSingleWords(const ushort &number1, const ushort &number2) {//ulepszyć
 	if(wordl1[number1]->getMeaning(0) == emptyWord)SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
 	if(wordl2[number2-wordl1.size()]->getMeaning(0) == emptyWord)SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
 	if(number1 >= qAllSingleWords || number2 >= qAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "",__LINE__, __FILE__);
@@ -492,7 +501,7 @@ Kurs::Kurs(const string &name, const string &lang1, const string &lang2, const s
 	ROE = &_ROE;
 	emptyWord = new SingleWord("BRAK ZNACZENIA", "");
 }
-Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
+Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 {
 	emptyWord = new SingleWord("BRAK ZNACZENIA", "");
 	ROE = &_ROE;
@@ -716,7 +725,7 @@ Kurs::Kurs(string file_to_open,  RegisterOfErrors &_ROE)
 			
 	}
 }
-ushort Kurs::compare_words(string aa, string bb)
+ushort Kurs::compare_words(const string &aa, const string &bb)
 {
 	ushort a = aa.length();
 	ushort b = bb.length();
@@ -766,7 +775,7 @@ ushort Kurs::compare_words(string aa, string bb)
 		
 	return wynik;
 }
-string Kurs::decode_text(string oryginal)
+string Kurs::decode_text(const string &oryginal)
 {
 	string wynik = "";
 	for(int i = 0; i < oryginal.length(); i++)
@@ -783,7 +792,7 @@ string Kurs::decode_text(string oryginal)
 	}
 	return wynik;
 }
-string Kurs::encode_text(string oryginal)
+string Kurs::encode_text(const string &oryginal)
 {
 	string wynik = "";
 	for(int i = 0; i < oryginal.length(); i++)
@@ -830,11 +839,11 @@ ushort Kurs::getAskQNW() const
 {
 	return this->askQNW;
 }
-void Kurs::increaseQKnownWords(short int quantity)
+void Kurs::increaseQKnownWords(const short int &quantity)
 {
 	qKnownSingleWords += quantity;
 }
-void Kurs::saveKurs(string file_to_save)
+void Kurs::saveKurs(const string &file_to_save)
 {
 	ofstream file;
 	file.open(file_to_save.c_str());
@@ -876,36 +885,36 @@ void Kurs::saveKurs(string file_to_save)
 	}
 	file.close();
 }
-void Kurs::setName(string _name)
+void Kurs::setName(const string &_name)
 {
 	name = _name;
 	ifChangeKurs = true;
 }
-void Kurs::setLang1(string _lang1)
+void Kurs::setLang1(const string &_lang1)
 {
 	lang1 = _lang1;
 	ifChangeKurs = true;
 }
-void Kurs::setLang2(string _lang2)
+void Kurs::setLang2(const string &_lang2)
 {
 	lang2 = _lang2;
 	ifChangeKurs = true;
 }
-void Kurs::setFilename(string _filename)
+void Kurs::setFilename(const string &_filename)
 {
 	filename = _filename;
 	ifChangeKurs = true;
 }
-void Kurs::setIfChangeKurs(bool _ifChangeKurs)
+void Kurs::setIfChangeKurs(const bool &_ifChangeKurs)
 {
 	ifChangeKurs = _ifChangeKurs;
 }
-void Kurs::setAskQKW(ushort _askQKW)
+void Kurs::setAskQKW(const ushort &_askQKW)
 {
 	askQKW = _askQKW;
 	ifChangeKurs = true;
 }
-void Kurs::setAskQNW(ushort _askQNW)
+void Kurs::setAskQNW(const ushort &_askQNW)
 {
 	askQNW = _askQNW;
 	ifChangeKurs = true;

@@ -27,6 +27,8 @@
 */
 #include "RegisterOfErrors.h"
 
+#include <cstdio>
+
 using namespace std;
 typedef unsigned short int ushort;
 

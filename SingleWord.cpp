@@ -27,14 +27,16 @@
 */
 
 #include "SingleWord.h"
-#include <iostream>
+
+#include <cmath>
+#include <ctime>
 
 typedef unsigned short int ushort;
 using namespace std;
 
 SingleWord::~SingleWord() {
 }
-SingleWord::SingleWord(const string Aspelling, const string Asound) {
+SingleWord::SingleWord(const string &Aspelling, const string &Asound) {
 	spelling = Aspelling;
 	sound = Asound;
 	q_meanings = 0;
@@ -55,11 +57,11 @@ SingleWord::SingleWord(SingleWord const *sw) {
 	flag_names = sw->flag_names;
 	flags = sw->flags;
 }
-void SingleWord::setTimeLastRepetition(ushort number_meaning, time_t lasttime) {
+void SingleWord::setTimeLastRepetition(const ushort &number_meaning, const time_t &lasttime) {
 	if(number_meaning >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	
 	//veryfying correctness data
-	time_t nowTime = time(NULL);
+	const time_t nowTime = time(NULL);
 	if(lasttime > nowTime)*lastRepetitionsOfM[number_meaning] = nowTime;
 	else *lastRepetitionsOfM[number_meaning] = lasttime;
 	
@@ -69,29 +71,26 @@ void SingleWord::setTimeLastRepetition(ushort number_meaning, time_t lasttime) {
 bool SingleWord::isKnown() const{
 	return known;
 }
-ushort SingleWord::getWhichRepetition(ushort number_meaning) const {
+ushort SingleWord::getWhichRepetition(const ushort &number_meaning) const {
 	if(number_meaning >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	return *repetitionsOfMeanings[number_meaning];
 }
-void SingleWord::setWhichRepetition(ushort number_meaning, ushort which_repetition) const {
+void SingleWord::setWhichRepetition(const ushort &number_meaning, const ushort &which_repetition) const {
 	if(number_meaning >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	*repetitionsOfMeanings[number_meaning] = which_repetition;
 }
-time_t SingleWord::getTimeLastRepetition(ushort number_meaning) const {
+time_t SingleWord::getTimeLastRepetition(const ushort &number_meaning) const {
 	if(number_meaning >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	return *lastRepetitionsOfM[number_meaning];
 }
-time_t SingleWord::getTimeNextRepetition(ushort number_meaning, vector<time_t> repetitionsTime) const {
+time_t SingleWord::getTimeNextRepetition(const ushort &number_meaning, const vector<time_t> &repetitionsTime) const {
 	if(number_meaning >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	if(*repetitionsOfMeanings[number_meaning] >= repetitionsTime.size())throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	return *lastRepetitionsOfM[number_meaning] + repetitionsTime[*repetitionsOfMeanings[number_meaning]];
 }
-bool SingleWord::connectSingleWords(SingleWord *sw1, SingleWord *sw2, ushort which_repetition, time_t last_repetition, int which_repetition2) {//zmienić kolejność argumentów
+bool SingleWord::connectSingleWords(SingleWord *sw1, SingleWord *sw2, const ushort &which_repetition, const time_t &last_repetition, int which_repetition2) {//zmienić kolejność argumentów
 	if(which_repetition2 == -1)which_repetition2 = which_repetition;
-	//verifying correctness data
-	time_t nowTime = time(NULL);
-	if(last_repetition > nowTime)last_repetition = nowTime;
-	
+		
 	if(!sw1->isConnectedWith(sw2)) {
 		int temp1 = sw1->meanings.size();
 		sw1->meanings.push_back(sw2);
@@ -99,8 +98,12 @@ bool SingleWord::connectSingleWords(SingleWord *sw1, SingleWord *sw2, ushort whi
 		sw1->repetitionsOfMeanings[temp1] = new ushort;
 		*(sw1->repetitionsOfMeanings[temp1]) = which_repetition;
 		sw1->lastRepetitionsOfM.push_back(NULL);
+
 		sw1->lastRepetitionsOfM[temp1] = new time_t;
-		*(sw1->lastRepetitionsOfM[temp1]) = last_repetition;
+		time_t nowTime = time(NULL);
+		if(last_repetition >= nowTime) *(sw1->lastRepetitionsOfM[temp1]) = nowTime;
+		else *(sw1->lastRepetitionsOfM[temp1]) =  last_repetition;
+
 		sw1->q_meanings++;
 		sw1->known = (sw1->known || last_repetition != 0);
 		int temp2 = sw2->meanings.size();
@@ -192,29 +195,29 @@ string SingleWord::getSound() const{
 string SingleWord::getSpelling() const{
 	return spelling;
 }
-void SingleWord::setSound(string Asound) {
+void SingleWord::setSound(const string &Asound) {
 	sound = Asound;
 }
-void SingleWord::setSpelling(string Aspelling) {
+void SingleWord::setSpelling(const string &Aspelling) {
 	spelling = Aspelling;
 }
-SingleWord * SingleWord::getMeaning(ushort number) const {
+SingleWord * SingleWord::getMeaning(const ushort &number) const {
 	if(number >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	return meanings[number];
 }
 ushort SingleWord::getNumberMeanings() const {
 	return q_meanings;
 }
-SingleWord SingleWord::newSingleWord(string spelling, string sound) {
+SingleWord SingleWord::newSingleWord(const string &spelling, const string &sound) {
 	SingleWord neww(spelling, sound);
 	return neww;
 }
 
-void SingleWord::setFlag(string flag_name, string flag) {
+void SingleWord::setFlag(const string &flag_name, const string &flag) {
 	flag_names.push_back(flag_name);
 	flags.push_back(flag);
 }
-string SingleWord::getFlag(string flag_name) const {
+string SingleWord::getFlag(const string &flag_name) const {
 	for(int i = 0; i < flag_names.size(); i++) {
 		if(flag_names[i] == flag_name)return flags[i];
 	}

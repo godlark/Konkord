@@ -29,14 +29,11 @@
 #ifndef _ENGINE_H
 #define	_ENGINE_H
 
-#include <ctime>
-#include <iostream>
-#include <string>
-#include <set>
 #include "RegisterOfErrors.h"
 #include "kurs.hpp"
 
-using namespace std;
+#include <string>
+#include <vector>
 
 typedef unsigned short int ushort;
 
@@ -44,7 +41,7 @@ struct Variable {
 	ushort type; //0- string, ushort - 1
 	union {
 		ushort _ushort;
-		string *_string;
+		std::string *_string;
 	};
 };
 
@@ -59,21 +56,21 @@ class ServiceOfTasks
 		void simpleCloseCourse(ushort nr_course);
 		short int activ_course;
 		ushort QOK; //number opened courses
-		vector<Kurs*> courses; 
-		vector<bool> saved_courses;
+		std::vector<Kurs*> courses;
+		std::vector<bool> saved_courses;
 		static const ushort numberActions = 19;
 		bool* actionActive;
 	public:
 		static const ushort freeNumber = 4619;
 		
-		string (*askWord)(SingleWord const*, ushort);
-		void (*printWords)(string, SingleWord const**, ushort const*, vector<ushort>, short);
-		Variable (*dialogWindow)(string, ushort);
-		char (*Yes_No_Cancel)(string);
-		void (*printMessage)(string, string);
-		void (*infoWindow)(string const*, Variable *, ushort);
-		Variables (*optionWindow)(string const*, Variable *, ushort);
-		ushort (*radioWindow)(string, string const*, ushort, ushort);
+		std::string (*askWord)(SingleWord const*, ushort);
+		void (*printWords)(std::string, SingleWord const**, ushort const*, std::vector<ushort>, short);
+		Variable (*dialogWindow)(std::string, ushort);
+		char (*Yes_No_Cancel)(std::string);
+		void (*printMessage)(std::string, std::string);
+		void (*infoWindow)(std::string const*, Variable *, ushort);
+		Variables (*optionWindow)(std::string const*, Variable *, ushort);
+		ushort (*radioWindow)(std::string, std::string const*, ushort, ushort);
 		
 		RegisterOfErrors globalROE;
 		
@@ -105,8 +102,8 @@ class ServiceOfTasks
 		ServiceOfTasks() {
 			activ_course = -1;
 			QOK = 0;
-			courses = vector<Kurs*>();
-			saved_courses = vector<bool>();
+			courses = std::vector<Kurs*>();
+			saved_courses = std::vector<bool>();
 			
 			actionActive = new bool[numberActions];
 			actionActive[0] = false;

@@ -13,7 +13,7 @@
 ##	the Free Software Foundation, either version 3 of the License, or			
 ##	(at your option) any later version.											
 ##																				
-##	This program is distributed in the hope that it will be useful,				
+##	This program is distributed in the hope that it will be useful,
 ##	but WITHOUT ANY WARRANTY; without even the implied warranty of				
 ##	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ##	GNU General Public License for more details.								
@@ -27,7 +27,11 @@
 */
 #include "engine.h"
 
-typedef unsigned short int ushort;
+#include <ctime>
+#include <set>
+#include <iostream>
+
+using namespace std;
 typedef unsigned short int ushort;
 
 //ushort ServiceOfTasks::freeNumber = 4619;
@@ -90,20 +94,20 @@ void ServiceOfTasks::setStateActions() {
 	}
 }
 void ServiceOfTasks::addWord() {
-	ushort numberLang = (*dialogWindow)("Jeśli wyrażenie jest w pierwszym języku wpisz 0, jeśli w drugim wpisz inną wartość", 1)._ushort;
-	string spelling = (*(*dialogWindow)("Podaj pisownię wyrażenia", 0)._string);
+	const ushort numberLang = (*dialogWindow)("Jeśli wyrażenie jest w pierwszym języku wpisz 0, jeśli w drugim wpisz inną wartość", 1)._ushort;
+	const string spelling = (*(*dialogWindow)("Podaj pisownię wyrażenia", 0)._string);
 	courses[activ_course]->addSingleWord(SingleWord::newSingleWord(spelling, ""), numberLang == 0 ? 0 : 1);
 	(*printMessage)("Dodano słowo", "");
 	saved_courses[activ_course] = false;
 	setStateActions();
 }
 void ServiceOfTasks::addWords() {
-	string line = (*(*dialogWindow)("Podaj w lini wyrażenia wg schematu: znaczenie_w_pierwszym_języku[tab]I_znaczenie_w_drugim_języku|synonim_I_znaczenie_w_drugim_języku|kolejny_synonim itd.", 0)._string);
+	const string line = (*(*dialogWindow)("Podaj w lini wyrażenia wg schematu: znaczenie_w_pierwszym_języku[tab]I_znaczenie_w_drugim_języku|synonim_I_znaczenie_w_drugim_języku|kolejny_synonim itd.", 0)._string);
 	vector<string> spellings;
 	vector<string> meanings_spelling;
 	vector<string> sounds;
 	vector<string> meanings_sound;
-	size_t found=line.find('\t');
+	const size_t found=line.find('\t');
 	if(found == string::npos) {
 	   (*printMessage)("Nie znaleziono odstępu [tab]", "");
 	}

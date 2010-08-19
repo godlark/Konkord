@@ -29,26 +29,24 @@
 #ifndef _SINGLEWORD_H
 #define	_SINGLEWORD_H
 
-#include <string>
-#include <vector>
-#include <ctime>
-#include <cmath>
 #include "RegisterOfErrors.h"
 
-using namespace std;
+#include <string>
+#include <vector>
+
 typedef unsigned short int ushort;
 
 class SingleWord {
 	private:
 		bool known;
-		string sound;
-		string spelling;
-		vector<SingleWord*> meanings;
-		vector<ushort*> repetitionsOfMeanings;
-		vector<time_t*> lastRepetitionsOfM;
+		std::string sound;
+		std::string spelling;
+		std::vector<SingleWord*> meanings;
+		std::vector<ushort*> repetitionsOfMeanings;
+		std::vector<time_t*> lastRepetitionsOfM;
 		ushort q_meanings;
-		vector<string> flag_names;
-		vector<string> flags;
+		std::vector<std::string> flag_names;
+		std::vector<std::string> flags;
 	public:
 		ushort id;
 		bool isConnectedWith(SingleWord* meaning) const;
@@ -58,39 +56,39 @@ class SingleWord {
 		void deleteAllMeanings();
 		void joinOtherSingleWord(SingleWord* sword); //zakładamy, że sound, spelling są takie same
 		
-		string getSound() const;
-		string getSpelling() const;
-		SingleWord * getMeaning(ushort number) const;
+		std::string getSound() const;
+		std::string getSpelling() const;
+		SingleWord * getMeaning(const ushort &number) const;
 		ushort getNumberMeanings() const;
-		time_t getTimeLastRepetition(ushort number_meaning) const;
-		time_t getTimeNextRepetition(ushort number_meaning, vector<time_t> repetitionsTime) const;
-		ushort getWhichRepetition(ushort number_meaning) const;
-		void setWhichRepetition(ushort number_meaning, ushort which_repetition) const;
-		void setTimeLastRepetition(ushort number_meaning, time_t lasttime);
+		time_t getTimeLastRepetition(const ushort &number_meaning) const;
+		time_t getTimeNextRepetition(const ushort &number_meaning, const std::vector<time_t> &repetitionsTime) const;
+		ushort getWhichRepetition(const ushort &number_meaning) const;
+		void setWhichRepetition(const ushort &number_meaning, const ushort &which_repetition) const;
+		void setTimeLastRepetition(const ushort &number_meaning, const time_t &lasttime);
 		
-		void setSound(string Asound);
-		void setSpelling(string Aspelling);
+		void setSound(const std::string &Asound);
+		void setSpelling(const std::string &Aspelling);
 
-		void setFlag(string flag_name, string flag);
-		string getFlag(string flag_name) const;
+		void setFlag(const std::string &flag_name,const  std::string &flag);
+		std::string getFlag(const std::string &flag_name) const;
 
-		SingleWord(const string Aspelling, const string Asound);
-		static SingleWord newSingleWord(string spelling, string sound);
+		SingleWord(const std::string &Aspelling, const std::string &Asound);
+		static SingleWord newSingleWord(const std::string &spelling, const std::string &sound);
 		SingleWord() {
 			spelling = "";
 			sound = "";
 			q_meanings = 0;
 			known = false;
-			meanings = vector<SingleWord *>(0);
-			repetitionsOfMeanings = vector<ushort*>(0);
-			lastRepetitionsOfM = vector<time_t*>(0);
-			flag_names = vector<string>(0);
-			flags = vector<string>(0);
+			meanings = std::vector<SingleWord *>(0);
+			repetitionsOfMeanings = std::vector<ushort*>(0);
+			lastRepetitionsOfM = std::vector<time_t*>(0);
+			flag_names = std::vector<std::string>(0);
+			flags = std::vector<std::string>(0);
 		}
 		SingleWord(SingleWord const *sw);
 		~SingleWord();
 		
-		static bool connectSingleWords(SingleWord *sw1, SingleWord *sw2, ushort which_repetition, time_t last_repetition, int which_repetition2 = -1);
+		static bool connectSingleWords(SingleWord *sw1, SingleWord *sw2, const ushort &which_repetition, const time_t &last_repetition, int which_repetition2 = -1);
 		static bool disconnectSingleWords(SingleWord *sw1, SingleWord *sw2);//powiadamianie o pustych słowach
 };
 

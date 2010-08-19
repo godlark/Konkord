@@ -28,24 +28,14 @@
 #ifndef kurs_hpp
 #define kurs_hpp
 
-#include <cstdio>
-#include <string>
-#include <vector>
-#include <ctime>
-#include <queue>
-#include <stdlib.h>
-#include <fstream>
-#include <iostream>
-#include <boost/regex.hpp>
-#include <cmath>
-#include <climits>
-#include <algorithm>
-
 #include "RegisterOfErrors.h"
 #include "SingleWord.h"
 
+#include <boost/regex.hpp>
+#include <string>
+#include <vector>
+
 typedef unsigned short int ushort;
-using namespace std;
 
 class SingleWordAndIndex {
     public:
@@ -62,21 +52,21 @@ class compareWords {
         bool operator() (WordToRepetition swani1, WordToRepetition swani2) {
             if(swani1.priority <= swani2.priority)return true;
             if(swani1.priority > swani2.priority)return false;
-        }
+	}
 };
 class Kurs
 {
 		private:
-			string name;
-			string lang1;
-			string lang2;
-			string filename;
+			std::string name;
+			std::string lang1;
+			std::string lang2;
+			std::string filename;
 			SingleWord *emptyWord;
-                        vector<SingleWord*> wordl1;
-                        vector<SingleWord*> wordl2;
-                        vector<time_t> repetitionsTime; //in seconds
-                        vector<unsigned int> repetitionsHowMany;
-                        vector<double> repetitionsGrade;
+                        std::vector<SingleWord*> wordl1;
+                        std::vector<SingleWord*> wordl2;
+                        std::vector<time_t> repetitionsTime; //in seconds
+                        std::vector<unsigned int> repetitionsHowMany;
+                        std::vector<double> repetitionsGrade;
                         ushort qAllSingleWords;
                         ushort qKnownSingleWords;
 			ushort askQKW; //ilość przepytywanych znanych słów
@@ -84,54 +74,54 @@ class Kurs
 			bool ifChangeKurs; //czy zmieniono kurs od ostatniego zapisania lub wczytania
 			RegisterOfErrors *ROE;
                         ushort numberConnections;
-			static ushort compare_words(string aa, string bb);//zwraca najkrótszą drogę pomiędzy słowami
-			static string decode_text(string oryginal);
-			static string encode_text(string oryginal);
-                        void increaseQKnownSingleWords(short int quantity);
-                        void repairRepetition(ushort which_repetition, double oplev_connection);
-                        void setRepetitionForConnection(ushort nr_word, ushort nr_connection, double oplev_connection);
+			static ushort compare_words(const std::string &aa, const std::string &bb);//zwraca najkrótszą drogę pomiędzy słowami
+			static std::string decode_text(const std::string &oryginal);
+			static std::string encode_text(const std::string &oryginal);
+                        void increaseQKnownSingleWords(const short int &quantity);
+                        void repairRepetition(const ushort &which_repetition, const double &oplev_connection);
+                        void setRepetitionForConnection(const ushort &nr_word, const ushort &nr_connection, const double &oplev_connection);
 		public:
-			Kurs(string file_to_open, RegisterOfErrors &_ROE);
-			Kurs(const string &name, const string &lang1, const string &lang2, const string &filename, const ushort &askQKW, const ushort &askQNW,  RegisterOfErrors &_ROE);
-                        void addSingleWords(const vector<string> &spellings, const vector<string> &sounds, const vector<string> &meanings_spelling, const vector<string> &meanings_sound);
-                        void addSingleWord(const SingleWord &singleWord, ushort where);
-                        void connectSingleWords(ushort number1, ushort number2);
-                        void disconnectSingleWords(ushort number1, ushort number2);
-                        void delSingleWord(ushort number);
-                        vector<ushort> findWord(boost::regex searched_string) const;
-                        vector<ushort> getUnknownSingleWords(ushort quantityOfWords) const;
-			vector<ushort>  getWordsToRepetition(ushort &howManyWords) const;
-			string getName() const;
-			string getLang1() const;
-			string getLang2() const;
-			string getFilename() const;
-			void increaseQKnownWords(short int quantity);
+			Kurs(const std::string &file_to_open, RegisterOfErrors &_ROE);
+			Kurs(const std::string &name, const std::string &lang1, const std::string &lang2, const std::string &filename, const ushort &askQKW, const ushort &askQNW,  RegisterOfErrors &_ROE);
+                        void addSingleWords(const std::vector<std::string> &spellings, const std::vector<std::string> &sounds, const std::vector<std::string> &meanings_spelling, const std::vector<std::string> &meanings_sound);
+                        void addSingleWord(const SingleWord &singleWord, const ushort &where);
+                        void connectSingleWords(const ushort &number1, const ushort &number2);
+                        void disconnectSingleWords(const ushort &number1, const ushort &number2);
+                        void delSingleWord(const ushort &number);
+                        std::vector<ushort> findWord(const boost::regex &searched_string) const;
+                        std::vector<ushort> getUnknownSingleWords(const ushort &quantityOfWords) const;
+			std::vector<ushort>  getWordsToRepetition(ushort &howManyWords) const;
+			std::string getName() const;
+			std::string getLang1() const;
+			std::string getLang2() const;
+			std::string getFilename() const;
+			void increaseQKnownWords(const short int &quantity);
 			bool isKursChanged() const;
                         ushort getQAllSingleWords() const;
 			ushort getQKnownSingleWords() const;
-                        ushort getQSingleWords_1() const; //vector<SingleWord> wordl1;
-                        ushort getQSingleWords_2() const; //vector<SingleWord> wordl1;
+                        ushort getQSingleWords_1() const; //std::vector<SingleWord> wordl1;
+                        ushort getQSingleWords_2() const; //std::vector<SingleWord> wordl1;
 			ushort getAskQKW() const;
 			ushort getAskQNW() const;
-                        SingleWord const* getSingleWord(ushort number) const;
-                        vector<SingleWord const*> getSingleWords(ushort from, ushort to) const;
-			bool isSingleWordFLorSL(ushort word_number) const; //first_language - true, second_language - false
-                        void repairSingleWord(ushort word_number, time_t czas, vector<double> oplev_connections);
-                        string readSingleWordsFromFile(string file_to_open);
-			void saveKurs(string file_to_save); //zrobić na consta
-			void setName(string _name);
-			void setLang1(string _lang1);
-			void setLang2(string _lang2);
-			void setFilename(string _filename);
-			void setIfChangeKurs(bool _ifChangeKurs);
-			void setAskQKW(ushort _askQKW);
-			void setAskQNW(ushort _askQNW);
-			void setWord(ushort number, string first, string second);
-                        void setSingleWord(ushort number, string spelling, string sound);
-			void setMeaningForSingleWord(ushort number_word, ushort number_meaning, string spelling, string sound);
-                        void unitSingleWords(ushort number1, ushort number2);
+                        SingleWord const* getSingleWord(const ushort &number) const;
+                        std::vector<SingleWord const*> getSingleWords(const ushort &from, ushort &to) const;
+			bool isSingleWordFLorSL(const ushort &word_number) const; //first_language - true, second_language - false
+                        void repairSingleWord(const ushort &word_number, const time_t &czas, std::vector<double> &oplev_connections);
+                        std::string readSingleWordsFromFile(const std::string &file_to_open);
+			void saveKurs(const std::string &file_to_save); //zrobić na consta
+			void setName(const std::string &_name);
+			void setLang1(const std::string &_lang1);
+			void setLang2(const std::string &_lang2);
+			void setFilename(const std::string &_filename);
+			void setIfChangeKurs(const bool &_ifChangeKurs);
+			void setAskQKW(const ushort &_askQKW);
+			void setAskQNW(const ushort &_askQNW);
+			void setWord(const ushort &number, const std::string &first, const std::string &second);
+                        void setSingleWord(const ushort &number, const std::string &spelling, const std::string &sound);
+			void setMeaningForSingleWord(const ushort &number_word, const ushort &number_meaning, const std::string &spelling, const std::string &sound);
+                        void unitSingleWords(const ushort &number1, const ushort &number2);
                         ~Kurs();
-                        static void takeOutSWFromLine(vector<string> &spellings, vector<string> &sounds, string rest);
+                        static void takeOutSWFromLine(std::vector<std::string> &spellings, std::vector<std::string> &sounds, const std::string &rest);
 };
 
 #endif

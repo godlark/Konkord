@@ -30,20 +30,18 @@
 
 #include <string>
 #include <vector>
-#include <cstdio>
 
-using namespace std;
 typedef unsigned short int ushort;
 
 class Error {
 	private:
 		ushort kindOfError;
-		string nameOfFunction;
+		std::string nameOfFunction;
 		ushort numberOfLine;
-		string filename;
+		std::string filename;
 	public:
 		static const ushort QUANTITY_OF_ERRORS = 11;
-		static string *DescriptionOfErrors;
+		static std::string *DescriptionOfErrors;
 		static const ushort OTHER_ERROR = 0;
 		static const ushort ERROR_SAVE_FILE = 1;
 		static const ushort ERROR_READ_FILE = 2;
@@ -53,25 +51,25 @@ class Error {
 		static const ushort BAD_ARGUMENT = 6;
 		static const ushort IGNORED_LINE_IN_FILE = 7; // warning
 		static const ushort BOOST__REGEX_ERROR = 8;
-				static const ushort IMPOSSIBLE = 9;
-				static const ushort CANCELLED = 10;
+		static const ushort IMPOSSIBLE = 9;
+		static const ushort CANCELLED = 10;
 		//przy dodaniu kolejnych błędów i ostrzeżeń trzeba zmienić funkcję "isWarning()"
-		Error(ushort _kindOfError, string _nameOfFunction, ushort _numberOfLine, string _filename);
-		string getDescription() const;
+		Error(ushort _kindOfError, std::string _nameOfFunction, ushort _numberOfLine, std::string _filename);
+		std::string getDescription() const;
 		ushort getKindOfError() const;
-		string getNameOfFunction() const;
+		std::string getNameOfFunction() const;
 		ushort getNumberOfLine() const;
-		string getFilname() const;
+		std::string getFilname() const;
 		static void setDescriptionOfErrors();
 				static void eraseDerscriptionOfErros();
-		static Error newError(ushort _kindOfError, string _nameOfFunction, ushort _numberOfLine, string _filename);
-		void addNextFunction(string _nameOfFunction);
+		static Error newError(ushort _kindOfError, std::string _nameOfFunction, ushort _numberOfLine, std::string _filename);
+		void addNextFunction(std::string _nameOfFunction);
 		bool isWarning() const;
-				string toString() const;
+		std::string toString() const;
 };
 class RegisterOfErrors {
 	private:
-		vector<Error> errors;
+		std::vector<Error> errors;
 		unsigned int quantityOfErrors;
 	public:
 		RegisterOfErrors()
