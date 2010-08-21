@@ -1,30 +1,24 @@
-/*
-#################################################################################
-#################################################################################
-##	                 Konkord 												
-##	          Version 0.0.2009.04.19																
-##	This program was created for learning words						
-##	         from different languages.											
-##																				
-##	Copyright(C) 2009 Sławomir Domagała											
-##																				
-##	This program is free software: you can redistribute it and/or modify		
-##	it under the terms of the GNU General Public License as published by		
-##	the Free Software Foundation, either version 3 of the License, or			
-##	(at your option) any later version.											
-##																				
-##	This program is distributed in the hope that it will be useful,
-##	but WITHOUT ANY WARRANTY; without even the implied warranty of				
-##	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##	GNU General Public License for more details.								
-##																				
-##	You should have received a copy of the GNU General Public License			
-##	along with this program.  If not, see <http://www.gnu.org/licenses/>
-##																				
-##	E-mail: E-mail: g_o_d_l_a_r_k / monkey / g_m_a_i_l / dot / c_o_m									
-#################################################################################
-#################################################################################	
-*/
+/*				Konkord 
+ *		    Version 0.0.2009.04.19
+ *	This program was created for learning words
+ *		    from different languages.
+ *    Copyright(C) 2009 Sławomir Domagała	
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *																			
+ * This program is distributed in the hope that it will be useful,				
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of				
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the				
+ * GNU General Public License for more details.								
+ *																			
+ * You should have received a copy of the GNU General Public License			
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *																				
+ * E-mail: E-mail: g_o_d_l_a_r_k / monkey / g_m_a_i_l / dot / c_o_m									
+ */
 #include "engine.hpp"
 
 #include <ctime>
@@ -102,7 +96,7 @@ void ServiceOfTasks::addWord() {
 	setStateActions();
 }
 void ServiceOfTasks::addWords() {
-	const string line = *main_interface->dialogWindow("Podaj w lini wyrażenia wg schematu: znaczenie_w_pierwszym_języku[tab]I_znaczenie_w_drugim_języku|synonim_I_znaczenie_w_drugim_języku|kolejny_synonim itd.", 0)._string);
+	const string line = *(main_interface->dialogWindow("Podaj w lini wyrażenia wg schematu: znaczenie_w_pierwszym_języku[tab]I_znaczenie_w_drugim_języku|synonim_I_znaczenie_w_drugim_języku|kolejny_synonim itd.", 0)._string);
 	vector<string> spellings;
 	vector<string> meanings_spelling;
 	vector<string> sounds;
@@ -244,7 +238,7 @@ void ServiceOfTasks::askUnknownWords() {
 			string temp2 = "Na ile oceniasz swoją poprawność znaczenia ";
 			temp2 += temp;
 			temp2 += " w skali od 1 do 20";
-			oplevs.push_back((double)dialogWindow(temp2, 1)._ushort);
+			oplevs.push_back((double)main_interface->dialogWindow(temp2, 1)._ushort);
 			if(oplevs[j] > 20)oplevs[j] = 20;
 		}
 		courses[activ_course]->repairSingleWord(swords[i], atime, oplevs);
@@ -255,7 +249,7 @@ void ServiceOfTasks::askUnknownWords() {
 void ServiceOfTasks::closeKurs() {
 	char znak;
 	if(!saved_courses[activ_course]) {
-		znak = Yes_No_Cancel("Zapisać zmieniony kurs: "+ courses[activ_course]->getFilename()+" (ODPOWIEDŹ \"Nie\" SPOWODUJE UTRATĘ ZMIAN))");
+		znak = main_interface->Yes_No_Cancel("Zapisać zmieniony kurs: "+ courses[activ_course]->getFilename()+" (ODPOWIEDŹ \"Nie\" SPOWODUJE UTRATĘ ZMIAN))");
 		if(znak == 1) {
 			saveCourse();
 			simpleCloseCourse(activ_course);
@@ -322,7 +316,7 @@ void ServiceOfTasks::deleteWord() {
 		numbersConnections[j*2 + 1] = j;
 	}
 	main_interface->printWords("Aktualnie: ", &sword, &numberWord, numbersConnections, 0);
-	char znak = Yes_No_Cancel("Czy napewno usunąć?");
+	char znak = main_interface->Yes_No_Cancel("Czy napewno usunąć?");
 	if(znak == 1) {
 		courses[activ_course]->delSingleWord(numberWord);
 		main_interface->printMessage("Usunięto", "");

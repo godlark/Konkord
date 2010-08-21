@@ -23,7 +23,7 @@
 #ifndef _INTERFACE_H_
 #define _INTERFACE_H_
 
-#include "SingleWord.h"
+#include "SingleWord.hpp"
 
 typedef unsigned short int ushort;
 
@@ -50,8 +50,8 @@ class Interface {
 		virtual char Yes_No_Cancel(std::string description) = 0;
 		virtual Variables optionWindow(std::string const *descriptions, Variable *values, ushort number) = 0;
 		virtual void printMessage(std::string title, std::string something) = 0;
-	private:
-		Interface(){}
+	protected:
+		Interface() {}
 };
 
 #endif //_INTERFACE_H_
