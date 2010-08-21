@@ -286,9 +286,6 @@ vector<ushort> Kurs::getUnknownSingleWords(const ushort &quantityOfWords) const 
 	}
 	return wordsToAsk;
 }
-void Kurs::increaseQKnownSingleWords(const short int &quantity) {
-	qKnownSingleWords += quantity;
-}
 ushort Kurs::getQAllSingleWords() const {
 	return qAllSingleWords;
 }

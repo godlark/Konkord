@@ -25,6 +25,71 @@
 using namespace std;
 typedef unsigned short int ushort;
 
+Text_Interface::~Text_Interface() {
+	delete menu2;
+	delete menu1;
+}
+
+Text_Interface::Text_Interface() {
+	serviceOfTasks = new ServiceOfTasks(this);
+	
+	int numberOptionsM1 = 14;
+	numberOfActionsM1 = vector<short int>(numberOptionsM1);
+	numberOfActionsM1[0] = 1;
+	numberOfActionsM1[1] = 2;
+	numberOfActionsM1[2] = 4;
+	numberOfActionsM1[3] = 5;
+	numberOfActionsM1[4] = 6;
+	numberOfActionsM1[5] = 7;
+	numberOfActionsM1[6] = 8;
+	numberOfActionsM1[7] = 9;
+	numberOfActionsM1[8] = 12;
+	numberOfActionsM1[9] = 13;
+	numberOfActionsM1[10] = 16;
+	numberOfActionsM1[11] = 18;
+	numberOfActionsM1[12] = 19;
+	numberOfActionsM1[13] = 0;
+	describesOptionsM1 = vector<string>(numberOptionsM1);
+	describesOptionsM1[0] = "Powtórz poznane słowa";
+	describesOptionsM1[1] = "Naucz się nowych";
+	describesOptionsM1[2] = "Edytuje słowo";
+	describesOptionsM1[3] = "Usuń słowo";
+	describesOptionsM1[4] = "Połącz słowa";
+	describesOptionsM1[5] = "Rozłącz słowa";
+	describesOptionsM1[6] = "Dodaj słowo";
+	describesOptionsM1[7] = "Dodaj słowa";
+	describesOptionsM1[8] = "Wyświetl informacje na temat kursu";
+	describesOptionsM1[9] = "Wyświetl słowa";
+	describesOptionsM1[10] = "Ustawienia kursu";
+	describesOptionsM1[11] = "Wczytaj słowa z pliku";
+	describesOptionsM1[12] = "Znajdź słowa";
+	describesOptionsM1[13] = "Zamknij podmenu";
+	menu1 = new Menu(numberOptionsM1, numberOfActionsM1, describesOptionsM1, NULL, 0, serviceOfTasks, false);
+	int numberOptionsM2 = 8;
+	numberOfActionsM2 = vector<short int>(numberOptionsM2);
+	numberOfActionsM2[0] = 3;
+	numberOfActionsM2[1] = 10;
+	numberOfActionsM2[2] = 11;
+	numberOfActionsM2[3] = 14;
+	numberOfActionsM2[4] = 15;
+	numberOfActionsM2[5] = 17;
+  	numberOfActionsM2[6] = -1;
+	numberOfActionsM2[7] = 0;
+	describesOptionsM2 = vector<string>(numberOptionsM2);
+	describesOptionsM2[0] = "Zamknij kurs";
+	describesOptionsM2[1] = "Nowy kurs";
+	describesOptionsM2[2] = "Otwórz kurs";
+	describesOptionsM2[3] = "Zapisz kurs";
+	describesOptionsM2[4] = "Zapisz jako...";
+	describesOptionsM2[5] = "Przełącz kurs";
+	describesOptionsM2[6] = "Podmenu Kurs->";
+	describesOptionsM2[7] = "Zamknij program";
+	menu2 = new Menu(numberOptionsM2, numberOfActionsM2, describesOptionsM2, menu1, 1, serviceOfTasks, true);
+}
+
+void Text_Interface::run() {
+	menu2->open();
+}
 
 string Text_Interface::askWord(SingleWord const *sword, ushort nr_word) {
 	system("clear");
@@ -176,21 +241,13 @@ char Text_Interface::Yes_No_Cancel(string description)
 	else return 2;
 }
 
-/*Menu::Menu(ushort numberO, short int* numbersOA, string * describesO, Menu* asubmenus, ushort numberS, ServiceOfTasks *aSOT) {
-	numberOptions = numberO;
-	numberOfActions = numbersOA;
-	describesOptions = describesO;
-	submenus = asubmenus;
-	numberSubmenus = numberS;
-	serviceOfTasks = aSOT;
-}*/
 void Menu::printOptions() const
 {
-	printf("Aby wybrać opcję, wpisz numer, który znajduje się przy niej. Jeśli przed opcją jest \'#\' to opcja jest nieaktywna.\n");
+	cout << "Aby wybrać opcję, wpisz numer, który znajduje się przy niej. Jeśli przed opcją jest \'#\' to opcja jest nieaktywna." << endl;
 	for(int i = 0; i < numberOptions; i++)
 	{
 		if(numbersOfActions[i] > 0 && !serviceOfTasks->isActionActive(numbersOfActions[i]))printf("%c ", '#');
-		printf("%hu %s\n", i, describesOptions[i].c_str());
+		cout << i << " " << describesOptions[i] << endl;
 	}
 }
 short int Menu::scanfOption() const
@@ -219,7 +276,7 @@ void Menu::open()
 		if(!fix) {
 			printOptions();
 			temp = scanfOption();
-			if(temp == serviceOfTasks->freeNumber)printf("Zły numer opcji lub opcja w danej chwili jest nieaktywna.\n");
+			if(temp == serviceOfTasks->freeNumber)cout << "Zły numer opcji lub opcja w danej chwili jest nieaktywna." << endl;
 		}
 		if(temp == 0) {
 			if(exitMenuISexitProgram) {
@@ -237,9 +294,3 @@ void Menu::open()
 		else if(temp < 0)submenus[(temp*(-1))-1].open();
 	}while(temp != 0);
 }
-/*Menu::~Menu() {
-	delete serviceOfTasks;
-	delete [] submenus;
-	delete [] describesOptions;
-	delete [] numbersOfActions;
-}*/

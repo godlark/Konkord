@@ -50,6 +50,7 @@ class Interface {
 		virtual char Yes_No_Cancel(std::string description) = 0;
 		virtual Variables optionWindow(std::string const *descriptions, Variable *values, ushort number) = 0;
 		virtual void printMessage(std::string title, std::string something) = 0;
+		virtual void run() = 0;
 	protected:
 		Interface() {}
 };

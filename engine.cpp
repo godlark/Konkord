@@ -30,6 +30,36 @@ typedef unsigned short int ushort;
 
 //ushort ServiceOfTasks::freeNumber = 4619;
 
+ServiceOfTasks::ServiceOfTasks(Interface *Amain_interface) {
+			main_interface = Amain_interface;
+			activ_course = -1;
+			QOK = 0;
+			courses = std::vector<Kurs*> (0);
+			saved_courses = std::vector<bool> (0);
+			
+			actionActive = new bool[numberActions];
+			actionActive[0] = false;
+			actionActive[1] = false;
+			actionActive[2] = false;
+			actionActive[3] = false;
+			actionActive[4] = false;
+			actionActive[5] = false;
+			actionActive[6] = false;
+			actionActive[7] = false;
+			actionActive[8] = false;
+			actionActive[9] = true;
+			actionActive[10] = true;
+			actionActive[11] = false;
+			actionActive[12] = false;
+			actionActive[13] = false;
+			actionActive[14] = false;
+			actionActive[15] = false;
+			actionActive[16] = false;
+			actionActive[17] = false;
+			actionActive[18] = false;
+		}
+
+
 void ServiceOfTasks::setStateActions() {
 	if(QOK != 0) {
 		actionActive[2] = true;

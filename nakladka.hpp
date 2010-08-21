@@ -30,10 +30,45 @@
 
 typedef unsigned short int ushort;
 
+class Menu
+{
+	private: 
+		ServiceOfTasks* serviceOfTasks;
+		Menu* submenus;
+		const ushort numberSubmenus;
+		
+		const std::vector<std::string> describesOptions;
+		const std::vector<short int> numbersOfActions;
+		/*numberOfAction[n] is for n-option in menu
+		*number > 0 points to use function "bool ServiceOfTask::doAction(USI numberAction);"
+		*number == 0 points to close menu
+		*number < 0 points to open submenu
+		**/
+		const ushort numberOptions;
+		bool exitMenuISexitProgram;	
+	public:
+		Menu(ushort numberO, std::vector<short int> numbersOA, std::vector<std::string> describesO, Menu* asubmenus, ushort numberS, ServiceOfTasks *aSOT, bool emisp) : numberOptions(numberO), serviceOfTasks(aSOT), submenus(asubmenus), numbersOfActions(numbersOA), describesOptions(describesO), numberSubmenus(numberS), exitMenuISexitProgram(emisp) {}
+		void open();
+		void printOptions() const;
+		short int scanfOption() const; //get 'n' number of option (from 0 to 'numberOptions') from user and return 'numberOfActions[n]' and 'n' is not correct return 'serviceOfTaks->freeNumber'
+		//~Menu();
+};
+
 class Text_Interface : public Interface
 {
+	private:
+		Menu *menu2;
+		Menu *menu1;
+		ServiceOfTasks *serviceOfTasks;
+		
+		std::vector<short int> numberOfActionsM1;
+		std::vector<std::string> describesOptionsM1;
+		std::vector<short int> numberOfActionsM2;
+		std::vector<std::string> describesOptionsM2;
 	public:
-		Text_Interface() {}
+		Text_Interface();
+		~Text_Interface();
+		void run();
 		std::string askWord(SingleWord const *sword, ushort nr_word);//nr_lang = 0 lub = 1
 		void printWords(std::string description, SingleWord const **swords, ushort const *numbersWords, std::vector<ushort> numbersConnections, short time);
 		Variable dialogWindow(std::string text, ushort type);
@@ -42,30 +77,6 @@ class Text_Interface : public Interface
 		char Yes_No_Cancel(std::string description);
 		Variables optionWindow(std::string const *descriptions, Variable *values, ushort number);
 		void printMessage(std::string title, std::string something);
-};
-class Menu
-{
-	private: 
-		ServiceOfTasks* serviceOfTasks;
-		Menu* submenus;
-		const ushort numberSubmenus;
-		
-		std::string const* const describesOptions;
-		short int const* const numbersOfActions; 
-		/*numberOfAction[n] is for n-option in menu
-		*number > 0 points to use function "bool ServiceOfTask::doAction(USI numberAction);"
-		*number == 0 points to close menu
-		*number < 0 points to open submenu
-		**/
-		const ushort numberOptions;
-		bool exitMenuISexitProgram;
-		
-	public:
-		Menu(ushort numberO, short int* numbersOA, std::string * describesO, Menu* asubmenus, ushort numberS, ServiceOfTasks *aSOT, bool emiep) : numberOptions(numberO), serviceOfTasks(aSOT), submenus(asubmenus), numbersOfActions(numbersOA), describesOptions(describesO), numberSubmenus(numberS), exitMenuISexitProgram(emiep) {}
-		void open();
-		void printOptions() const;
-		short int scanfOption() const; //get 'n' number of option (from 0 to 'numberOptions') from user and return 'numberOfActions[n]' and 'n' is not correct return 'serviceOfTaks->freeNumber'
-		//~Menu();
 };
 #endif	/* _NAKLADKA2_H */
 

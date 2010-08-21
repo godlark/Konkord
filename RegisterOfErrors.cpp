@@ -19,7 +19,7 @@
  *																				
  * E-mail: E-mail: g_o_d_l_a_r_k / monkey / g_m_a_i_l / dot / c_o_m									
  */
-#include "RegisterOfErrors.h"
+#include "RegisterOfErrors.hpp"
 
 #include <cstdio>
 
