@@ -25,14 +25,14 @@
 #################################################################################
 #################################################################################	
 */
-#include "nakladka.h"
+#include "nakladka.hpp"
 #include <iostream>
 
 using namespace std;
 typedef unsigned short int ushort;
 
 
-string Interface::askWord(SingleWord const *sword, ushort nr_word) {
+string Text_Interface::askWord(SingleWord const *sword, ushort nr_word) {
 	system("clear");
 	cout << "Numer słowa: " << nr_word << endl;
 	cout << "Napisz znaczenia tego wyrażenia:\n\"" << sword->getSpelling() << "\"";
@@ -40,11 +40,11 @@ string Interface::askWord(SingleWord const *sword, ushort nr_word) {
 	getline(cin, temp);
 	return temp;
 }
-void Interface::printMessage(string title, string something) {
+void Text_Interface::printMessage(string title, string something) {
 	cout << "***" << title << "***" << endl;
 	cout << something << endl;
 }
-void Interface::printWords(string description, SingleWord const *swords[], ushort const *numbersWords, vector<ushort> numbersConnections, short time) {
+void Text_Interface::printWords(string description, SingleWord const *swords[], ushort const *numbersWords, vector<ushort> numbersConnections, short time) {
 	cout << description << endl;
 	SingleWord const *mean;
 	ushort number_connections = numbersConnections.size()/2;
@@ -58,7 +58,7 @@ void Interface::printWords(string description, SingleWord const *swords[], ushor
 	else cin.get();
 }
 
-Variable Interface::dialogWindow(string text, ushort type) {
+Variable Text_Interface::dialogWindow(string text, ushort type) {
 	Variable temp;
 	temp.type = type;
 	string teemp;
@@ -84,7 +84,7 @@ Variable Interface::dialogWindow(string text, ushort type) {
 	return temp;
 }
 
-void Interface::infoWindow(string const *descriptions, Variable *values, ushort number) {
+void Text_Interface::infoWindow(string const *descriptions, Variable *values, ushort number) {
 	for(ushort i = 0; i < number; i++) {
 		cout << descriptions[i] << ": ";
 		switch(values[i].type) {
@@ -98,7 +98,7 @@ void Interface::infoWindow(string const *descriptions, Variable *values, ushort 
 	}
 }
 
-Variables Interface::optionWindow(string const *descriptions, Variable *values, ushort number) {
+Variables Text_Interface::optionWindow(string const *descriptions, Variable *values, ushort number) {
 	ushort wybor = 0;
 	Variables vs;
 	vs.number = number;
@@ -139,7 +139,7 @@ Variables Interface::optionWindow(string const *descriptions, Variable *values, 
 	}while(wybor != 0);
 }
 
-ushort Interface::radioWindow(string description, string const *values, ushort defaultOption, ushort number) {
+ushort Text_Interface::radioWindow(string description, string const *values, ushort defaultOption, ushort number) {
 	cout << description << endl;
 	cout << "Kurs aktywny oznaczony jest gwiazdką" << endl;
 	for(ushort i = 0; i < number; i++) {
@@ -161,7 +161,7 @@ ushort Interface::radioWindow(string description, string const *values, ushort d
 	return temp;
 }
 
-char Interface::Yes_No_Cancel(string description)
+char Text_Interface::Yes_No_Cancel(string description)
 {
 	char znak;
 	cout << description << endl;

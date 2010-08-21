@@ -25,6 +25,8 @@
 
 #include "SingleWord.h"
 
+typedef unsigned short int ushort;
+
 struct Variable {
 	ushort type; //0- string, ushort - 1
 	union {
@@ -48,6 +50,8 @@ class Interface {
 		virtual char Yes_No_Cancel(std::string description) = 0;
 		virtual Variables optionWindow(std::string const *descriptions, Variable *values, ushort number) = 0;
 		virtual void printMessage(std::string title, std::string something) = 0;
+	private:
+		Interface(){}
 };
 
 #endif //_INTERFACE_H_

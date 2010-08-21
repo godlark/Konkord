@@ -37,15 +37,8 @@ extern string* Error::DescriptionOfErrors;
 
 int main() {
 	Error::setDescriptionOfErrors();
-	ServiceOfTasks *serviceOfTasks = new ServiceOfTasks;
-	serviceOfTasks->askWord = &(Interface::askWord);
-	serviceOfTasks->printWords = &Interface::printWords;
-	serviceOfTasks->dialogWindow = &Interface::dialogWindow;
-	serviceOfTasks->Yes_No_Cancel = &Interface::Yes_No_Cancel;
-	serviceOfTasks->printMessage = &Interface::printMessage;
-	serviceOfTasks->infoWindow = &Interface::infoWindow;
-	serviceOfTasks->optionWindow = &Interface::optionWindow;
-	serviceOfTasks->radioWindow = &Interface::radioWindow;
+	Text_Interface *textInterface = new Text_Interface;
+	ServiceOfTasks *serviceOfTasks = new ServiceOfTasks(textInterface);
 	ushort numberOptionsM1 = 14;
 	short int *numberOfActionsM1 = new short int[numberOptionsM1];
 	numberOfActionsM1[0] = 1;
@@ -106,5 +99,6 @@ int main() {
 	delete [] numberOfActionsM1;
 	delete [] describesOptionsM1;
 	delete serviceOfTasks;
+	delete textInterface;
 	Error::eraseDerscriptionOfErros();
 }
