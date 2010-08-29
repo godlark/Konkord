@@ -62,22 +62,22 @@ class Error {
 		std::string toString() const;
 };
 class RegisterOfErrors {
-	private:
-		std::vector<Error> errors;
-		unsigned int quantityOfErrors;
-	public:
-		RegisterOfErrors()
-		{
-			quantityOfErrors = 0;
-		}
-		void addError(const Error &error)
-		{
-			errors.push_back(error);
-			quantityOfErrors++;
-		}
-		Error getError(unsigned int numberOfError) const
-		{
-			return errors[numberOfError];
-		}
+        private:
+                std::vector<Error> errors;
+                unsigned int quantityOfErrors;
+        public:
+                RegisterOfErrors()
+                {
+                        quantityOfErrors = 0;
+                }
+                void addError(const Error &error)
+                {
+                        errors.push_back(error);
+                        quantityOfErrors++;
+                }
+                Error getError(unsigned int numberOfError) const
+                {
+                        return errors[numberOfError];
+                }
 };
 #endif
