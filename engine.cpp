@@ -192,7 +192,7 @@ void ServiceOfTasks::repaskWords() {
 	}
 	
 	vector<ushort> connectionsToRepetition = vector<ushort> (0);
-	for(int i = number_words+1; i < swords.size(); i++) {
+        for(unsigned int i = number_words+1; i < swords.size(); i++) {
 		connectionsToRepetition.push_back(swords[i]);
 	}
 	
@@ -391,7 +391,7 @@ void ServiceOfTasks::disconnectWords() {
 	saved_courses[activ_course] = false;
 	setStateActions();
 }
-void ServiceOfTasks::doAction(ushort number) {
+void ServiceOfTasks::doAction(ushort number, string options) {
 	switch(number) {
 		case 1:
 			repaskWords();
@@ -424,7 +424,7 @@ void ServiceOfTasks::doAction(ushort number) {
 			newCourse();
 			break;
 		case 11:
-			openCourse();
+			openCourse(options);
 			break;
 		case 12:
 			printInfoCourse();
@@ -500,8 +500,7 @@ void ServiceOfTasks::newCourse() {
 		main_interface->printMessage("Otworzono kurs", "");
 	}
 }
-void ServiceOfTasks::openCourse() {
-	string filename = (*main_interface->dialogWindow("Podaj nazwę pliku do otwarcia.", 0)._string);
+void ServiceOfTasks::openCourse(string filename) {
 	Kurs *course;
 	try
 	{

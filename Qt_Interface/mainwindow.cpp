@@ -1,6 +1,7 @@
 #include "mainwindow.hpp"
 #include <iostream>
 #include <QAction>
+#include <QFileDialog>
 
 using namespace std;
 
@@ -96,7 +97,8 @@ void MainWindow::slotNewCourse() {
 }
 
 void MainWindow::slotOpenCourse() {
-    serviceOfTasks->doAction(11);
+	QString filename = QFileDialog::getOpenFileName(this, tr("Otwórz plik"));
+    serviceOfTasks->doAction(11, filename.toStdString());
 }
 
 void MainWindow::slotSaveCourse() {

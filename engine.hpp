@@ -54,13 +54,13 @@ class ServiceOfTasks
 		void closeKurs();//3
 		void editWord();//4
 		void deleteWord();//5
-		void doAction(ushort number);
+		void doAction(ushort number, std::string options = "");
 		void connectWords();//6
 		void disconnectWords();//7
 		void addWord();//8
 		void addWords();//9
 		void newCourse();//10
-		void openCourse();//11
+		void openCourse(std::string filename);//11
 		void printInfoCourse() const;//12
 		void printWordss() const; //13
 		void saveCourse();//14

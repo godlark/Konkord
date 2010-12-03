@@ -232,7 +232,10 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 				temp_j /= 10;
 			}
 			//koniec zamiany liczby j na string
-			if(sword->getFlag(s_number) == "use")continue;//jeśli połączenie zostało już dodanie do ConnectionsToRepetition to pomiń
+			if(sword->getFlag(s_number) == "use") {//jeśli połączenie zostało już dodanie do ConnectionsToRepetition to pomiń i usuń z przepytywanych
+				WordsToRepetition.erase(WordsToRepetition.end()-1);
+				continue;
+			}
 			whereInOther = sword->getMeaning(j)->findMeaning(sword);
 			//zamiana liczby whereInOther na string
 			s_number = "";
