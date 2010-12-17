@@ -358,18 +358,24 @@ void Kurs::repairRepetition(const ushort &which_repetition, const double &oplev_
 	repetitionsGrade[which_repetition] /= (double)repetitionsHowMany[which_repetition];
 	if(repetitionsGrade[which_repetition] > max_grade*0.95) {
 		double time = (double)repetitionsTime[which_repetition];
-		time *= 0.95/0.90;
+		time *= repetitionsGrade[which_repetition]/0.90;
 		repetitionsTime[which_repetition] = (time_t)time;
+		// Nie możliwe jest, żeby wraz z upływem czasu trzeba coraz częściej przepytywać
+		if(which_repetition != repetitionsTime.size()-1 && repetitionsTime[which_repetition] > repetitionsTime[which_repetition+1])repetitionsTime[which_repetition] = repetitionsTime[which_repetition+1];
 		repetitionsHowMany[which_repetition] = ceil((double)qAllSingleWords/100.0);
 		repetitionsGrade[which_repetition] = 90;
 	}
 	else if(repetitionsGrade[which_repetition] < max_grade*0.8) {
 		double time = (double)repetitionsTime[which_repetition];
-		time *= 0.8/0.9;
+		time *= repetitionsGrade[which_repetition]/0.9;
 		repetitionsTime[which_repetition] = (time_t)time;
+		// Nie możliwe jest, żeby wraz z upływem czasu trzeba coraz częściej przepytywać
+		if(which_repetition != 0 && repetitionsTime[which_repetition] < repetitionsTime[which_repetition-1])repetitionsTime[which_repetition] = repetitionsTime[which_repetition-1];
 		repetitionsHowMany[which_repetition] = ceil((double)qAllSingleWords/100.0);
 		repetitionsGrade[which_repetition] = 90;
 	}
+	//Nie może być mniejsze od 100 – poniżej 20 utknie na takim samym poziomie, a 100 sensowny limit
+	if(repetitionsTime[which_repetition] < 100)repetitionsTime[which_repetition] = 100;
 }
 void Kurs::setRepetitionForConnection(const ushort &word_number, const ushort &nr_connection, const double &oplev_connection) { //private
 	double max_oplev = 20;
