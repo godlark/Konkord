@@ -163,7 +163,8 @@ void MainWindow::slotSetupCourse() {
 }
 
 void MainWindow::slotReadWords() {
-    serviceOfTasks->doAction(18);
+    QString filename = QFileDialog::getOpenFileName(this, tr("Otwórz plik"));
+    serviceOfTasks->doAction(18, filename.toStdString());
 }
 
 void MainWindow::slotFindWords() {

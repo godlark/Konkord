@@ -445,7 +445,7 @@ void ServiceOfTasks::doAction(ushort number, string options) {
 			switchCourse();
 			break;
 		case 18:
-			readWordsFromFile();
+			readWordsFromFile(options);
 			break;
 		case 19:
 			findWords();
@@ -658,8 +658,7 @@ void ServiceOfTasks::switchCourse() {
 		setStateActions();
 		delete [] coursesNames;
 }
-void ServiceOfTasks::readWordsFromFile() {
-	string filename = (*(main_interface->dialogWindow("Podaj nazwę pliku", 0)._string));
+void ServiceOfTasks::readWordsFromFile(string filename) {
 	string message;
 	try {
 		message = courses[activ_course]->readSingleWordsFromFile(filename);
