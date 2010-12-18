@@ -188,7 +188,7 @@ void ServiceOfTasks::repaskWords() {
 			oplevs[j] = (double)main_interface->dialogWindow(temp2, 1)._ushort;
 			if(oplevs[j] > 20)oplevs[j] = 20;
 		}
-		courses[activ_course]->repairSingleWord(swords[i], atime, oplevs);
+		courses[activ_course]->repairPredictions(swords[i], atime, oplevs);
 	}
 	
 	vector<ushort> connectionsToRepetition = vector<ushort> (0);
@@ -271,7 +271,7 @@ void ServiceOfTasks::askUnknownWords() {
 			oplevs.push_back((double)main_interface->dialogWindow(temp2, 1)._ushort);
 			if(oplevs[j] > 20)oplevs[j] = 20;
 		}
-		courses[activ_course]->repairSingleWord(swords[i], atime, oplevs);
+		courses[activ_course]->repairPredictions(swords[i], atime, oplevs);
 	}
 	saved_courses[activ_course] = false;
 	setStateActions();

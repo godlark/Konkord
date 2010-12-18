@@ -43,6 +43,7 @@ Kurs::~Kurs() {
 		wordl2[i]->deleteAllMeanings();
 		delete wordl2[i];
 	}
+	delete logs;
 	delete emptyWord;
 }
 void Kurs::addSingleWords(const vector<string> &spellings, const vector<string> &sounds, const vector<string> &meanings_spelling, const vector<string> &meanings_sound) {
@@ -167,19 +168,32 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 	WordToRepetition wtr;
 	time_t nowTime = time(NULL);
 	//pobieranie słów z tablic i dodawanie ich do kolejki priorytetowej sortującej według zmiennej priority
+	
+	double parttime;
+	double predicted_score;
+	double divider;
 	for(ushort i = 0; i < wordl1.size(); i++) {
 		if(wordl1[i]->isConnectedWith(emptyWord) || !wordl1[i]->isKnown())continue; //ze słów pustych i nie poznanych nie można przeptywać
+		
 		ushort countConnections = wordl1[i]->getNumberMeanings();
-		long long averageNextTimesConnections = 0; //średnia czasów następnego przepytania dla połączeń tego słowa
-		long long averageLengthPeriodsConnections = 0; //średnia okresów przepytawnia połączeń
+		divider = 0;
+		predicted_score = 0;
+		parttime = 0;
 		for(ushort j = 0; j < countConnections; j++) {
-			averageNextTimesConnections +=  wordl1[i]->getTimeNextRepetition(j, repetitionsTime);
-			averageLengthPeriodsConnections += repetitionsTime[wordl1[i]->getWhichRepetition(j)];
+			parttime = (double)(nowTime-wordl1[i]->getTimeLastRepetition(j));
+			parttime *= 1000;
+			parttime /= (double)(new_repetitionsTime[wordl1[i]->getWhichRepetition(j)]);
+			if(parttime > 1000)parttime = 1000;
+		
+			for(int k = 0; k < 11; k++) {
+				predicted_score += new_repetitionsLevels[wordl1[i]->getWhichRepetition(j)][k]*logs[abs(k*10-(int)parttime/10)];
+				divider += logs[abs(k*10-(int)parttime/10)];
+			}
+			predicted_score /= divider;
+			wtr.priority += predicted_score;
 		}
-		averageNextTimesConnections /= countConnections;
-		averageLengthPeriodsConnections /= countConnections;
+		wtr.priority /= countConnections;
 		wtr.nr_word = i;
-		wtr.priority = (double)((long long)nowTime-averageNextTimesConnections)/(double)averageLengthPeriodsConnections;
 		if(wtr.priority > -0.1) {
 			AhowManyWords++;
 		}
@@ -188,17 +202,26 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 	}
 	for(ushort i = 0; i < wordl2.size(); i++) {
 		if(wordl2[i]->isConnectedWith(emptyWord) || !wordl2[i]->isKnown())continue; //ze słów pustych i nie poznanych nie można przeptywać
+		
 		ushort countConnections = wordl2[i]->getNumberMeanings();
-		long long averageNextTimesConnections = 0; //średnia czasów następnego przepytania dla połączeń tego słowa
-		long long averageLengthPeriodsConnections = 0; //średnia okresów przepytawnia połączeń
+		divider = 0;
+		predicted_score = 0;
+		parttime = 0;
 		for(ushort j = 0; j < countConnections; j++) {
-			averageNextTimesConnections +=  wordl2[i]->getTimeNextRepetition(j, repetitionsTime);
-			averageLengthPeriodsConnections += repetitionsTime[wordl2[i]->getWhichRepetition(j)];
+			parttime = (double)(nowTime-wordl2[i]->getTimeLastRepetition(j));
+			parttime *= 1000;
+			parttime /= (double)(new_repetitionsTime[wordl2[i]->getWhichRepetition(j)]);
+			if(parttime > 1000)parttime = 1000;
+		
+			for(int k = 0; k < 11; k++) {
+				predicted_score += new_repetitionsLevels[wordl2[i]->getWhichRepetition(j)][k]*logs[abs(k*10-(int)parttime/10)];
+				divider += logs[abs(k*10-(int)parttime/10)];
+			}
+			predicted_score /= divider;
+			wtr.priority += predicted_score;
 		}
-		averageNextTimesConnections /= countConnections;
-		averageLengthPeriodsConnections /= countConnections;
-		wtr.nr_word = i+wordl1.size();
-		wtr.priority = (double)((long long)nowTime-averageNextTimesConnections)/(double)averageLengthPeriodsConnections;
+		wtr.priority /= countConnections;
+		wtr.nr_word = i;
 		if(wtr.priority > -0.1) {
 			AhowManyWords++;
 		}
@@ -326,75 +349,102 @@ vector<SingleWord const*> Kurs::getSingleWords(const ushort &from, ushort &_to) 
 bool Kurs::isSingleWordFLorSL(const ushort &word_number) const {
 	return word_number < wordl1.size() ? true : false; //not sesne ist throw Error for word_number > qAllSingleWords
 }
-void Kurs::repairSingleWord(const ushort &word_number, const time_t &czas, vector<double> &oplev_connections) {
+void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vector<double> &oplev_connections) {
 	SingleWord *sword = word_number < wordl1.size() ? wordl1[word_number] : wordl2[word_number-wordl1.size()];
-	//dodać coś z czasm i pisaniem na komputerze
 	double max_oplev = 20;
 	if(oplev_connections.size() < sword->getNumberMeanings())throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	time_t nowTime = time(NULL);
-	double temp;
+	double parttime;
 	double predicted_score;
+	double divider;
+	double deviation;
+	double old10Level;
 	for(ushort i = 0; i < sword->getNumberMeanings(); i++) {
+		predicted_score = 0;
+		parttime = 0;
+		divider = 0;
+		deviation = 0;
+		
 		if(oplev_connections[i] > max_oplev)oplev_connections[i] = 20;
-		temp = (double)(nowTime-sword->getTimeLastRepetition(i));
-		temp /= (double)(repetitionsTime[sword->getWhichRepetition(i)]);
-		predicted_score = max_oplev - 8*temp; //im wcześniej było ostatnie przeptywanie, tym niższy predicted_score
-		if(predicted_score < 1)predicted_score = 1;
-		oplev_connections[i] = oplev_connections[i]*(max_oplev*0.9)/predicted_score;//im wyższy predicted score tym wyższy wynik
-		//ale teraz może być już większe od max_oplev
-		repairRepetition(sword->getWhichRepetition(i), oplev_connections[i]);
-		setRepetitionForConnection(word_number, i, oplev_connections[i]);
-		sword->setTimeLastRepetition(i, nowTime);
+		oplev_connections[i] *= 50;
+		
+		parttime = (double)(nowTime-sword->getTimeLastRepetition(i));
+		parttime *= 1000;
+		parttime /= (double)(new_repetitionsTime[sword->getWhichRepetition(i)]);
+		
+		if(parttime > 1000) { //poprawić
+			deviation = ((new_repetitionsLevels[sword->getWhichRepetition(i)][10] - oplev_connections[i])*1000)/new_repetitionsLevels[sword->getWhichRepetition(i)][10];
+			if(abs(deviation) > new_repetitionsAverageError[sword->getWhichRepetition(i)]) {
+				old10Level = new_repetitionsLevels[sword->getWhichRepetition(i)][10];
+				new_repetitionsLevels[sword->getWhichRepetition(i)][10] = oplev_connections[i]*1000;
+				new_repetitionsLevels[sword->getWhichRepetition(i)][10] /= 1000-new_repetitionsAverageError[sword->getWhichRepetition(i)];
+				if(new_repetitionsLevels[sword->getWhichRepetition(i)][10] < 1)new_repetitionsLevels[sword->getWhichRepetition(i)][10] = 1;
+				new_repetitionsTime[sword->getWhichRepetition(i)] += (nowTime-sword->getTimeLastRepetition(i)-sword->getWhichRepetition(i))*(old10Level-new_repetitionsLevels[sword->getWhichRepetition(i)][10])/(old10Level-oplev_connections[i]);
+			}
+			continue;
+		}
+		
+		for(int j = 0; j < 11; j++) {
+			predicted_score += new_repetitionsLevels[sword->getWhichRepetition(i)][j]*logs[abs(j*10-(int)parttime/10)];
+			divider += logs[abs(j*10-(int)parttime/10)];
+		}
+		predicted_score /= divider;
+		
+		deviation = ((predicted_score - oplev_connections[i])*1000)/predicted_score;
+		if(abs(deviation) <= new_repetitionsAverageError[sword->getWhichRepetition(i)]) {
+			new_repetitionsAverageError[sword->getWhichRepetition(i)] = new_repetitionsAverageError[sword->getWhichRepetition(i)] * new_repetitionsStabilization[sword->getWhichRepetition(i)] + abs(deviation);
+			new_repetitionsAverageError[sword->getWhichRepetition(i)] /= new_repetitionsStabilization[sword->getWhichRepetition(i)]+1;
+			new_repetitionsStabilization[sword->getWhichRepetition(i)]++;
+		}
+		else {
+			new_repetitionsAverageError[sword->getWhichRepetition(i)] = new_repetitionsAverageError[sword->getWhichRepetition(i)] * (new_repetitionsStabilization[sword->getWhichRepetition(i)]-1) + new_repetitionsAverageError[sword->getWhichRepetition(i)] + (abs(deviation) - new_repetitionsAverageError[sword->getWhichRepetition(i)])/2;
+			new_repetitionsAverageError[sword->getWhichRepetition(i)] /= new_repetitionsStabilization[sword->getWhichRepetition(i)];
+			if(deviation > 0) {
+				deviation -= new_repetitionsAverageError[sword->getWhichRepetition(i)];
+			}
+			else {
+				deviation += new_repetitionsAverageError[sword->getWhichRepetition(i)];
+			}
+			repairRepetitionLevels(sword->getWhichRepetition(i), deviation, (int)parttime);
+			
+			ushort repetition = sword->getWhichRepetition(i);
+			if(deviation > 0) {
+				repetition++;
+				if(repetition == new_repetitionsTime.size()) {
+					new_repetitionsLevels.push_back(NULL);
+					new_repetitionsLevels[repetition] = new double[11];
+					new_repetitionsLevels[repetition][0] = new_repetitionsLevels[repetition-1][0];
+					new_repetitionsLevels[repetition][1] = new_repetitionsLevels[repetition-1][1];
+					new_repetitionsLevels[repetition][2] = new_repetitionsLevels[repetition-1][2];
+					new_repetitionsLevels[repetition][3] = new_repetitionsLevels[repetition-1][3];
+					new_repetitionsLevels[repetition][4] = new_repetitionsLevels[repetition-1][4];
+					new_repetitionsLevels[repetition][5] = new_repetitionsLevels[repetition-1][5];
+					new_repetitionsLevels[repetition][6] = new_repetitionsLevels[repetition-1][6];
+					new_repetitionsLevels[repetition][7] = new_repetitionsLevels[repetition-1][7];
+					new_repetitionsLevels[repetition][8] = new_repetitionsLevels[repetition-1][8];
+					new_repetitionsLevels[repetition][9] = new_repetitionsLevels[repetition-1][9];
+					new_repetitionsLevels[repetition][10] = new_repetitionsLevels[repetition-1][10];
+					new_repetitionsTime.push_back(new_repetitionsTime[repetition-1]);
+					new_repetitionsAverageError.push_back(5.0);
+					new_repetitionsStabilization.push_back(1);
+				}
+			}
+			else {
+				if(repetition != 0) {
+					repetition--;
+				}
+			}
+			sword->setWhichRepetition(i, repetition);
+		}
 	}
 	ifChangeKurs = true;
 }
-void Kurs::repairRepetition(const ushort &which_repetition, const double &oplev_connection) { //private
-	const double max_oplev = 20;
-	const double max_grade = 100;
-	repetitionsGrade[which_repetition] *= (double)repetitionsHowMany[which_repetition];
-	repetitionsGrade[which_repetition] += oplev_connection * (max_grade/max_oplev);
-	repetitionsHowMany[which_repetition]++;
-	if(repetitionsHowMany[which_repetition] > qAllSingleWords)repetitionsHowMany[which_repetition] = qAllSingleWords;
-	repetitionsGrade[which_repetition] /= (double)repetitionsHowMany[which_repetition];
-	if(repetitionsGrade[which_repetition] > max_grade*0.95) {
-		double time = (double)repetitionsTime[which_repetition];
-		time *= repetitionsGrade[which_repetition]/0.90;
-		repetitionsTime[which_repetition] = (time_t)time;
-		// Nie możliwe jest, żeby wraz z upływem czasu trzeba coraz częściej przepytywać
-		if(which_repetition != repetitionsTime.size()-1 && repetitionsTime[which_repetition] > repetitionsTime[which_repetition+1])repetitionsTime[which_repetition] = repetitionsTime[which_repetition+1];
-		repetitionsHowMany[which_repetition] = ceil((double)qAllSingleWords/100.0);
-		repetitionsGrade[which_repetition] = 90;
+void Kurs::repairRepetitionLevels(const ushort &which_repetition, const double &deviation, const int &parttime) {
+	for(int i = 0; i < 11; i++) {
+		new_repetitionsLevels[which_repetition][i] /= 1+logs[abs(i*10-parttime/10)];
+		new_repetitionsLevels[which_repetition][i] *= 1+logs[abs(i*10-parttime/10)]*(1000+deviation);
+		if(new_repetitionsLevels[which_repetition][i] > 1000)new_repetitionsLevels[which_repetition][i] = 1000;
 	}
-	else if(repetitionsGrade[which_repetition] < max_grade*0.8) {
-		double time = (double)repetitionsTime[which_repetition];
-		time *= repetitionsGrade[which_repetition]/0.9;
-		repetitionsTime[which_repetition] = (time_t)time;
-		// Nie możliwe jest, żeby wraz z upływem czasu trzeba coraz częściej przepytywać
-		if(which_repetition != 0 && repetitionsTime[which_repetition] < repetitionsTime[which_repetition-1])repetitionsTime[which_repetition] = repetitionsTime[which_repetition-1];
-		repetitionsHowMany[which_repetition] = ceil((double)qAllSingleWords/100.0);
-		repetitionsGrade[which_repetition] = 90;
-	}
-	//Nie może być mniejsze od 100 – poniżej 20 utknie na takim samym poziomie, a 100 sensowny limit
-	if(repetitionsTime[which_repetition] < 100)repetitionsTime[which_repetition] = 100;
-}
-void Kurs::setRepetitionForConnection(const ushort &word_number, const ushort &nr_connection, const double &oplev_connection) { //private
-	double max_oplev = 20;
-	SingleWord *sword = word_number < wordl1.size() ? wordl1[word_number] : wordl2[word_number-wordl1.size()];
-	ushort repetition = sword->getWhichRepetition(nr_connection);
-	if(oplev_connection > max_oplev*0.9) {
-		repetition++;
-		if(repetition == repetitionsTime.size()) {
-			repetitionsTime.push_back(repetitionsTime[repetition-1]*2);
-			repetitionsHowMany.push_back(ceil((double)qAllSingleWords/100.0));
-			repetitionsGrade.push_back(90);
-		}
-	}
-	else if(oplev_connection < max_oplev*0.5){
-		if(repetition != 0) {
-			repetition--;
-		}
-	}
-	sword->setWhichRepetition(nr_connection, repetition);
 }
 void Kurs::setSingleWord(const ushort &number, const string &spelling, const string &sound) {
 	if(number >= qAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
@@ -493,19 +543,48 @@ Kurs::Kurs(const string &name, const string &lang1, const string &lang2, const s
 	numberConnections = 0;
 	wordl1 = vector<SingleWord *>(0);
 	wordl2 = vector<SingleWord *>(0);
-	repetitionsTime = vector<time_t>(1);
-	repetitionsTime[0] = (time_t)3600*24;
-	repetitionsHowMany = vector<unsigned int>(1);
-	repetitionsHowMany[0] = 0;
-	repetitionsGrade = vector<double>(1);
-	repetitionsGrade[0] = 0.0;
+	
+	double* tempss = new double[11]; //nie robić delete, dopiero w destruktorze kursu
+	tempss[0] = 1000;
+	tempss[1] = 900;
+	tempss[2] = 800;
+	tempss[3] = 700;
+	tempss[4] = 600;
+	tempss[5] = 500;
+	tempss[6] = 400;
+	tempss[7] = 300;
+	tempss[8] = 200;
+	tempss[9] = 100;
+	tempss[10] = 0;
+	new_repetitionsLevels = vector<double*>(1);
+	new_repetitionsLevels[0] = tempss;
+	new_repetitionsTime = vector<time_t>(1);
+	new_repetitionsTime[0] = (3600*24);
+	new_repetitionsAverageError = vector<double>(1);
+	new_repetitionsAverageError[0] = 50.0;
+	new_repetitionsStabilization = vector<unsigned int>(1);
+	new_repetitionsStabilization[0] = 1;
+	
 	ROE = &_ROE;
 	emptyWord = new SingleWord("BRAK ZNACZENIA", "");
+	logs = new double[101];
+	logs[0] = 1000000000;
+	logs[100] = 0;
+	for(int i = 1; i < 100; i++) {
+		logs[i] = (-1)*log10((double)i/100);
+	}
 }
 Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 {
 	emptyWord = new SingleWord("BRAK ZNACZENIA", "");
 	ROE = &_ROE;
+	logs = new double[101];
+	logs[0] = 1000000000;
+	logs[100] = 0;
+	for(int i = 1; i < 100; i++) {
+		logs[i] = (-1)*log10((double)i/100);
+	}
+	
 	ifstream file;
 	file.open(file_to_open.c_str());
 	if(!file.is_open())throw Error::newError(Error::ERROR_OPEN_FILE, "", __LINE__, __FILE__);
@@ -530,17 +609,33 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 		ushort qRepetition;
 		file >> qRepetition;
 		file.ignore(INT_MAX, '\n');
-		time_t repetitionTime;
+		time_t new_repetitionTime;
 		ushort repetitionHowMany;
 		double repetitionGrade;
+		double *tempss;
 		for(int i = 0; i < qRepetition; i++) {
-			file >> repetitionTime;
+			file >> new_repetitionTime;
 			file >> repetitionHowMany;
 			file >> repetitionGrade;
 			file.ignore(INT_MAX, '\n');
-			repetitionsTime.push_back(repetitionTime);
-			repetitionsHowMany.push_back(repetitionHowMany);
-			repetitionsGrade.push_back(repetitionGrade);
+			
+			tempss = new double[11]; //zwalnianie pamięci dopiero w destruktorze kursu
+			tempss[0] = 1000;
+			tempss[1] = 900;
+			tempss[2] = 800;
+			tempss[3] = 700;
+			tempss[4] = 600;
+			tempss[5] = 500;
+			tempss[6] = 400;
+			tempss[7] = 300;
+			tempss[8] = 200;
+			tempss[9] = 100;
+			tempss[10] = 0;
+			
+			new_repetitionsLevels.push_back(tempss);
+			new_repetitionsTime.push_back(new_repetitionTime);
+			new_repetitionsAverageError.push_back(50.0);
+			new_repetitionsStabilization.push_back(1);
 		}
 		filename = file_to_open;
 		qAllSingleWords = numberWordsFL + numberWordsSL;
@@ -617,17 +712,120 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 		ushort qRepetition;
 		file >> qRepetition;
 		file.ignore(INT_MAX, '\n');
-		time_t repetitionTime;
+		time_t new_repetitionTime;
 		ushort repetitionHowMany;
 		double repetitionGrade;
+		double *tempss;
 		for(int i = 0; i < qRepetition; i++) {
-			file >> repetitionTime;
+			file >> new_repetitionTime;
 			file >> repetitionHowMany;
 			file >> repetitionGrade;
 			file.ignore(INT_MAX, '\n');
-			repetitionsTime.push_back(repetitionTime);
-			repetitionsHowMany.push_back(repetitionHowMany);
-			repetitionsGrade.push_back(repetitionGrade);
+			
+			tempss = new double[11]; //zwalnianie pamięci dopiero w destruktorze kursu
+			tempss[0] = 1000;
+			tempss[1] = 900;
+			tempss[2] = 800;
+			tempss[3] = 700;
+			tempss[4] = 600;
+			tempss[5] = 500;
+			tempss[6] = 400;
+			tempss[7] = 300;
+			tempss[8] = 200;
+			tempss[9] = 100;
+			tempss[10] = 0;
+			
+			new_repetitionsLevels.push_back(tempss);
+			new_repetitionsTime.push_back(new_repetitionTime);
+			new_repetitionsAverageError.push_back(50.0);
+			new_repetitionsStabilization.push_back(1);
+		}
+		filename = file_to_open;
+		qAllSingleWords = numberWordsFL + numberWordsSL;
+
+		SingleWord sword("", "");
+		ushort oplev;
+		ushort hralev;
+		string spelling;
+		time_t time_lastud;
+		qKnownSingleWords = 0;
+		ifChangeKurs = false;
+		for(ushort i = 0; i < numberWordsFL; i++) {
+			getline(file, spelling);
+			sword.setSpelling(spelling);
+			wordl1.push_back(new SingleWord(sword));
+			SingleWord::connectSingleWords(wordl1[i], emptyWord, 0, 0);
+		}
+		for(ushort i = 0; i < numberWordsSL; i++) {
+			getline(file, spelling);
+			sword.setSpelling(spelling);
+			wordl2.push_back(new SingleWord(sword));
+			SingleWord::connectSingleWords(wordl2[i], emptyWord, 0, 0);
+		}
+		ushort number1;
+		ushort number2;
+		ushort which_repetition;
+		ushort which_repetition2;
+		time_t last_repetition;
+		for(ushort i = 0; i < numberConnections; i++) {
+			file >> number1;
+			file >> number2;
+			file >> which_repetition;
+			file >> which_repetition2;
+			file >> last_repetition;
+
+			file.ignore(INT_MAX, '\n');
+			if(number1 >= wordl1.size() || (number2 >= wordl1.size()+wordl2.size() || number2 < wordl1.size()))throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
+			SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
+			SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
+			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, last_repetition, which_repetition2);
+		}
+
+		for(ushort i = 0; i < numberWordsFL; i++) {
+			if(wordl1[i]->isKnown())qKnownSingleWords++;
+		}
+		for(ushort i = 0; i < numberWordsSL; i++) {
+			if(wordl2[i]->isKnown())qKnownSingleWords++;
+		}
+		file.close();
+	}
+	else if(firstline == "new version3") {
+		ushort numberWordsFL;
+		ushort numberWordsSL;
+		file >> name;
+		file.ignore(INT_MAX, '\n');
+		file >> numberWordsFL;
+		file.ignore(INT_MAX, '\n');
+		file >> numberWordsSL;
+		file.ignore(INT_MAX, '\n');
+		file >> numberConnections;
+		file.ignore(INT_MAX, '\n');
+		file >> askQKW;
+		file.ignore(INT_MAX, '\n');
+		file >> askQNW;
+		file.ignore(INT_MAX, '\n');
+		ushort qRepetition;
+		file >> qRepetition;
+		file.ignore(INT_MAX, '\n');
+		
+		double* new_repetitionLevels;
+		time_t new_repetitionTime;
+		unsigned int new_repetitionAverageError;
+		unsigned int new_repetitionStabilization;
+		for(int i = 0; i < qRepetition; i++) {
+			new_repetitionLevels = new double[11]; //zwolnienie pamięci dopiero w destruktorze kursu
+			for(int j = 0; j < 11; j++) {
+				file >> new_repetitionLevels[j];
+			}
+			file >> new_repetitionTime;
+			file >> new_repetitionAverageError;
+			file >> new_repetitionStabilization;
+			file.ignore(INT_MAX, '\n');
+			
+			new_repetitionsLevels.push_back(new_repetitionLevels);
+			new_repetitionsTime.push_back(new_repetitionTime);
+			new_repetitionsAverageError.push_back(new_repetitionAverageError);
+			new_repetitionsStabilization.push_back(new_repetitionStabilization);
 		}
 		filename = file_to_open;
 		qAllSingleWords = numberWordsFL + numberWordsSL;
@@ -700,10 +898,23 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 		qKnownSingleWords = 0;
 		numberConnections = qAllSingleWords;
 		qAllSingleWords *= 2;
-			
-		repetitionsTime.push_back(3600*24);
-		repetitionsHowMany.push_back(0);
-		repetitionsGrade.push_back(0.0);
+		
+		double* tempss = new double[11]; //nie robić delete, dopiero w destruktorze kursu
+		tempss[0] = 1000;
+		tempss[1] = 900;
+		tempss[2] = 800;
+		tempss[3] = 700;
+		tempss[4] = 600;
+		tempss[5] = 500;
+		tempss[6] = 400;
+		tempss[7] = 300;
+		tempss[8] = 200;
+		tempss[9] = 100;
+		tempss[10] = 0;
+		new_repetitionsLevels.push_back(tempss);
+		new_repetitionsTime.push_back(3600*24);
+		new_repetitionsAverageError.push_back(50.0);
+		new_repetitionsStabilization.push_back(1);
 
 		//koniec wczytywania danych kursu
 		ushort _hralev, _oplev;
@@ -849,19 +1060,22 @@ void Kurs::saveKurs(const string &file_to_save)
 	ofstream file;
 	file.open(file_to_save.c_str());
 	if(!file.is_open())throw Error::newError(Error::ERROR_OPEN_FILE, "", __LINE__, __FILE__);
-	file << "new version2" << endl;
+	file << "new version3" << endl;
 	file << name << endl;
 	file << wordl1.size() << endl;
 	file << wordl2.size() << endl;
 	file << numberConnections << endl;
 	file << askQKW << endl;
 	file << askQNW << endl;
-	file << repetitionsTime.size() << endl; //dać zmienną rozmiaru
-	for(int i = 0; i < repetitionsTime.size(); i++) {
-		file << repetitionsTime[i] << "\t";
-		file << repetitionsHowMany[i] << "\t";
+	file << new_repetitionsTime.size() << endl; //dać zmienną rozmiaru
+	for(int i = 0; i < new_repetitionsTime.size(); i++) {
 		file.precision(10);
-		file << repetitionsGrade[i];
+		for(int j = 0; j < 11; j++) {
+			file << new_repetitionsLevels[i][j] << "\t";
+		}
+		file << new_repetitionsTime[i] << "\t";
+		file << new_repetitionsAverageError[i] << "\t";
+		file << new_repetitionsStabilization[i];
 		file << endl;
 	}
 	for(ushort i = 0; i < wordl1.size(); i++) {

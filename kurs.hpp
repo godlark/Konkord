@@ -44,8 +44,8 @@ class WordToRepetition {
 class compareWords {
     public:
         bool operator() (WordToRepetition swani1, WordToRepetition swani2) {
-            if(swani1.priority <= swani2.priority)return true;
-            if(swani1.priority > swani2.priority)return false;
+            if(swani1.priority >= swani2.priority)return true;
+            if(swani1.priority < swani2.priority)return false;
 		}
 };
 class Kurs
@@ -58,9 +58,12 @@ class Kurs
 		SingleWord *emptyWord;
 		std::vector<SingleWord*> wordl1;
 		std::vector<SingleWord*> wordl2;
-		std::vector<time_t> repetitionsTime; //in seconds
-		std::vector<unsigned int> repetitionsHowMany;
-		std::vector<double> repetitionsGrade;
+		
+		std::vector<double*> new_repetitionsLevels;
+		std::vector<time_t> new_repetitionsTime;
+		std::vector<double> new_repetitionsAverageError;
+		std::vector<unsigned int> new_repetitionsStabilization;
+		
 		ushort qAllSingleWords;
 		ushort qKnownSingleWords;
 		ushort askQKW; //ilość przepytywanych znanych słów
@@ -72,8 +75,8 @@ class Kurs
 		static std::string decode_text(const std::string &oryginal);
 		static std::string encode_text(const std::string &oryginal);
 		void increaseQKnownSingleWords(const short int &quantity);
-		void repairRepetition(const ushort &which_repetition, const double &oplev_connection);
-		void setRepetitionForConnection(const ushort &nr_word, const ushort &nr_connection, const double &oplev_connection);
+		void repairRepetitionLevels(const ushort &which_repetition, const double &deviation, const int &parttime);
+		double *logs;
 	public:
 		Kurs(const std::string &file_to_open, RegisterOfErrors &_ROE);
 		Kurs(const std::string &name, const std::string &lang1, const std::string &lang2, const std::string &filename, const ushort &askQKW, const ushort &askQNW,  RegisterOfErrors &_ROE);
@@ -100,7 +103,7 @@ class Kurs
 		SingleWord const* getSingleWord(const ushort &number) const;
 		std::vector<SingleWord const*> getSingleWords(const ushort &from, ushort &to) const;
 		bool isSingleWordFLorSL(const ushort &word_number) const; //first_language - true, second_language - false
-		void repairSingleWord(const ushort &word_number, const time_t &czas, std::vector<double> &oplev_connections);
+		void repairPredictions(const ushort &word_number, const time_t &czas, std::vector<double> &oplev_connections);
 		std::string readSingleWordsFromFile(const std::string &file_to_open);
 		void saveKurs(const std::string &file_to_save); //zrobić na consta
 		void setName(const std::string &_name);
