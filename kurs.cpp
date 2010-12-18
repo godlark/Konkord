@@ -379,6 +379,7 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 				new_repetitionsLevels[sword->getWhichRepetition(i)][10] = oplev_connections[i]*1000;
 				new_repetitionsLevels[sword->getWhichRepetition(i)][10] /= 1000-new_repetitionsAverageError[sword->getWhichRepetition(i)];
 				if(new_repetitionsLevels[sword->getWhichRepetition(i)][10] < 1)new_repetitionsLevels[sword->getWhichRepetition(i)][10] = 1;
+				if(new_repetitionsLevels[sword->getWhichRepetition(i)][10] > 1000)new_repetitionsLevels[sword->getWhichRepetition(i)][10] = 1000;
 				new_repetitionsTime[sword->getWhichRepetition(i)] += (nowTime-sword->getTimeLastRepetition(i)-sword->getWhichRepetition(i))*(old10Level-new_repetitionsLevels[sword->getWhichRepetition(i)][10])/(old10Level-oplev_connections[i]);
 			}
 			continue;
