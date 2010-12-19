@@ -98,6 +98,8 @@ void MainWindow::slotNewCourse() {
 
 void MainWindow::slotOpenCourse() {
 	QString filename = QFileDialog::getOpenFileName(this, tr("Otwórz plik"));
+	if (filename.isEmpty())
+        return;
     serviceOfTasks->doAction(11, filename.toStdString());
 }
 
@@ -107,6 +109,8 @@ void MainWindow::slotSaveCourse() {
 
 void MainWindow::slotSaveCourseAs() {
 	QString filename = QFileDialog::getSaveFileName(this, tr("Zapisz kurs"));
+	if (filename.isEmpty())
+        return;
     serviceOfTasks->doAction(15, filename.toStdString());
 }
 
@@ -165,6 +169,8 @@ void MainWindow::slotSetupCourse() {
 
 void MainWindow::slotReadWords() {
     QString filename = QFileDialog::getOpenFileName(this, tr("Otwórz plik"));
+    if (filename.isEmpty())
+        return;
     serviceOfTasks->doAction(18, filename.toStdString());
 }
 
