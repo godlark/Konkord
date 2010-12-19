@@ -64,7 +64,7 @@ class ServiceOfTasks
 		void printInfoCourse() const;//12
 		void printWordss() const; //13
 		void saveCourse();//14
-		void saveCourseAs();//15
+		void saveCourseAs(std::string filename);//15
 		void settingsCourse();//16
 		void switchCourse();//17
 		void readWordsFromFile(std::string filename);//18

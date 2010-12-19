@@ -106,7 +106,8 @@ void MainWindow::slotSaveCourse() {
 }
 
 void MainWindow::slotSaveCourseAs() {
-    serviceOfTasks->doAction(15);
+	QString filename = QFileDialog::getSaveFileName(this, tr("Zapisz kurs"));
+    serviceOfTasks->doAction(15, filename.toStdString());
 }
 
 void MainWindow::slotChangeCourse() {

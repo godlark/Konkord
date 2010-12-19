@@ -151,7 +151,6 @@ void ServiceOfTasks::repaskWords() {
 	ushort number_words;
 	time_t atime;
 	string spellingWord;
-	ushort oplev;
 	ushort number_connections;
 	ushort suggest_word_for_next_time;
 
@@ -226,7 +225,6 @@ void ServiceOfTasks::askUnknownWords() {
 	ushort number_words;
 	time_t atime;
 	string spellingWord;
-	ushort oplev;
 		
 	number_words = main_interface->dialogWindow("Podaj ilość słów, z których chcesz być przepytywany, podaj 0 dla domyślnej wartości ustawionej w kursie", 1)._ushort;
 	if(number_words == 0)number_words = courses[activ_course]->getAskQKW();
@@ -436,7 +434,7 @@ void ServiceOfTasks::doAction(ushort number, string options) {
 			saveCourse();
 			break;
 		case 15:
-			saveCourseAs();
+			saveCourseAs(options);
 			break;
 		case 16:
 			settingsCourse();
@@ -585,8 +583,7 @@ void ServiceOfTasks::saveCourse() {
 	saved_courses[activ_course] = true;
 	actionActive[13] = false;
 }
-void ServiceOfTasks::saveCourseAs() {
-	string filename = (*main_interface->dialogWindow("Podaj nazwę pliku, do którego chcesz zapisać kurs.", 0)._string);
+void ServiceOfTasks::saveCourseAs(string filename) {
 	try
 	{
 		courses[activ_course]->saveKurs(filename);
