@@ -811,7 +811,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 		
 		double* new_repetitionLevels;
 		time_t new_repetitionTime;
-		unsigned int new_repetitionAverageError;
+		double new_repetitionAverageError;
 		unsigned int new_repetitionStabilization;
 		for(int i = 0; i < qRepetition; i++) {
 			new_repetitionLevels = new double[11]; //zwolnienie pamięci dopiero w destruktorze kursu
