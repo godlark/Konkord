@@ -591,7 +591,6 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 	if(!file.is_open())throw Error::newError(Error::ERROR_OPEN_FILE, "", __LINE__, __FILE__);
 	string firstline;
 	getline(file, firstline);
-	time_t nowTime = time(NULL);
 	if(firstline == "new version") {
 		ushort numberWordsFL;
 		ushort numberWordsSL;
@@ -829,10 +828,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 		qAllSingleWords = numberWordsFL + numberWordsSL;
 
 		SingleWord sword("", "");
-		ushort oplev;
-		ushort hralev;
 		string spelling;
-		time_t time_lastud;
 		qKnownSingleWords = 0;
 		ifChangeKurs = false;
 		for(ushort i = 0; i < numberWordsFL; i++) {
@@ -918,7 +914,6 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 		ushort _hralev, _oplev;
 		time_t _time_lastud;
 		SingleWord sword("", "");
-		time_t nowTime = time(NULL);
 		for(ushort i = 0; i < numberConnections; i++) {
 			char _first[100], _second[100];
 			fscanf(plik, "%s\t%s\t%hu %hu %u\n", _first, _second, &_hralev, &_oplev, &_time_lastud);
