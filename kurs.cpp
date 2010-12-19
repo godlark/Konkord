@@ -745,10 +745,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 		qAllSingleWords = numberWordsFL + numberWordsSL;
 
 		SingleWord sword("", "");
-		ushort oplev;
-		ushort hralev;
 		string spelling;
-		time_t time_lastud;
 		qKnownSingleWords = 0;
 		ifChangeKurs = false;
 		for(ushort i = 0; i < numberWordsFL; i++) {
