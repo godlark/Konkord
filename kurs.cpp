@@ -391,7 +391,7 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 		}
 		predicted_score /= divider;
 		
-		deviation = ((predicted_score - oplev_connections[i])*1000)/predicted_score;
+		deviation = ((oplev_connections[i]-predicted_score)*1000)/predicted_score;
 		if(abs(deviation) <= new_repetitionsAverageError[sword->getWhichRepetition(i)]) {
 			new_repetitionsAverageError[sword->getWhichRepetition(i)] = new_repetitionsAverageError[sword->getWhichRepetition(i)] * new_repetitionsStabilization[sword->getWhichRepetition(i)] + abs(deviation);
 			new_repetitionsAverageError[sword->getWhichRepetition(i)] /= new_repetitionsStabilization[sword->getWhichRepetition(i)]+1;
@@ -406,7 +406,7 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 			else {
 				deviation += new_repetitionsAverageError[sword->getWhichRepetition(i)];
 			}
-			repairRepetitionLevels(sword->getWhichRepetition(i), deviation, (int)parttime);
+			repairRepetitionLevels(sword->getWhichRepetition(i), deviation, (int)parttime, predicted_score);
 			
 			ushort repetition = sword->getWhichRepetition(i);
 			if(deviation > 0) {
@@ -440,11 +440,12 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 	}
 	ifChangeKurs = true;
 }
-void Kurs::repairRepetitionLevels(const ushort &which_repetition, const double &deviation, const int &parttime) {
+void Kurs::repairRepetitionLevels(const ushort &which_repetition, const double &deviation, const int &parttime, const double &predicted_score) {
 	for(int i = 0; i < 11; i++) {
-		new_repetitionsLevels[which_repetition][i] += logs[abs(i*10-parttime/10)]*(1000+deviation);
+		new_repetitionsLevels[which_repetition][i] += logs[abs(i*10-parttime/10)]*(1000+deviation)*(predicted_score/1000);
 		new_repetitionsLevels[which_repetition][i] /= 1+logs[abs(i*10-parttime/10)];
 		if(new_repetitionsLevels[which_repetition][i] > 1000)new_repetitionsLevels[which_repetition][i] = 1000;
+		if(new_repetitionsLevels[which_repetition][i] < 0)new_repetitionsLevels[which_repetition][i] = 0;
 	}
 }
 void Kurs::setSingleWord(const ushort &number, const string &spelling, const string &sound) {
