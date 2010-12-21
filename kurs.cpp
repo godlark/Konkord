@@ -194,7 +194,7 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 		}
 		wtr.priority /= countConnections;
 		wtr.nr_word = i;
-		if(wtr.priority > 700) {
+		if(wtr.priority < 700) {
 			AhowManyWords++;
 		}
 		Q.push(wtr);
@@ -222,7 +222,7 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 		}
 		wtr.priority /= countConnections;
 		wtr.nr_word = i;
-		if(wtr.priority > 700) {
+		if(wtr.priority < 700) {
 			AhowManyWords++;
 		}
 		Q.push(wtr);
