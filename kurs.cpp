@@ -442,8 +442,8 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 }
 void Kurs::repairRepetitionLevels(const ushort &which_repetition, const double &deviation, const int &parttime) {
 	for(int i = 0; i < 11; i++) {
+		new_repetitionsLevels[which_repetition][i] += logs[abs(i*10-parttime/10)]*(1000+deviation);
 		new_repetitionsLevels[which_repetition][i] /= 1+logs[abs(i*10-parttime/10)];
-		new_repetitionsLevels[which_repetition][i] *= 1+logs[abs(i*10-parttime/10)]*(1000+deviation);
 		if(new_repetitionsLevels[which_repetition][i] > 1000)new_repetitionsLevels[which_repetition][i] = 1000;
 	}
 }
