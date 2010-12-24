@@ -365,8 +365,8 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 		divider = 0;
 		deviation = 0;
 		
-		if(oplev_connections[i] > max_oplev)oplev_connections[i] = 20;
-		oplev_connections[i] *= 50;
+		if(oplev_connections[i] > max_oplev)oplev_connections[i] = max_oplev;
+		oplev_connections[i] *= 1000/max_oplev;
 		
 		parttime = (double)(nowTime-sword->getTimeLastRepetition(i));
 		parttime *= 1000;
@@ -390,7 +390,7 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 			divider += logs[abs(j*10-(int)parttime/10)];
 		}
 		predicted_score /= divider;
-		
+				
 		deviation = ((oplev_connections[i]-predicted_score)*1000)/predicted_score;
 		if(abs(deviation) <= new_repetitionsAverageError[sword->getWhichRepetition(i)]) {
 			new_repetitionsAverageError[sword->getWhichRepetition(i)] = new_repetitionsAverageError[sword->getWhichRepetition(i)] * new_repetitionsStabilization[sword->getWhichRepetition(i)] + abs(deviation);

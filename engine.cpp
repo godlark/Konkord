@@ -266,7 +266,7 @@ void ServiceOfTasks::askUnknownWords() {
 			string temp2 = "Na ile oceniasz swoją poprawność znaczenia ";
 			temp2 += temp;
 			temp2 += " w skali od 1 do 20";
-			oplevs.push_back((double)main_interface->dialogWindow(temp2, 1)._ushort);
+			oplevs[j] = (double)main_interface->dialogWindow(temp2, 1)._ushort;
 			if(oplevs[j] > 20)oplevs[j] = 20;
 		}
 		courses[activ_course]->repairPredictions(swords[i], atime, oplevs);
