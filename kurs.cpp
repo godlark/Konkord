@@ -407,36 +407,36 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 				deviation += new_repetitionsAverageError[sword->getWhichRepetition(i)];
 			}
 			repairRepetitionLevels(sword->getWhichRepetition(i), deviation, (int)parttime, predicted_score);
-			
-			ushort repetition = sword->getWhichRepetition(i);
-			if(deviation > 0) {
-				repetition++;
-				if(repetition == new_repetitionsTime.size()) {
-					new_repetitionsLevels.push_back(NULL);
-					new_repetitionsLevels[repetition] = new double[11];
-					new_repetitionsLevels[repetition][0] = new_repetitionsLevels[repetition-1][0];
-					new_repetitionsLevels[repetition][1] = new_repetitionsLevels[repetition-1][1];
-					new_repetitionsLevels[repetition][2] = new_repetitionsLevels[repetition-1][2];
-					new_repetitionsLevels[repetition][3] = new_repetitionsLevels[repetition-1][3];
-					new_repetitionsLevels[repetition][4] = new_repetitionsLevels[repetition-1][4];
-					new_repetitionsLevels[repetition][5] = new_repetitionsLevels[repetition-1][5];
-					new_repetitionsLevels[repetition][6] = new_repetitionsLevels[repetition-1][6];
-					new_repetitionsLevels[repetition][7] = new_repetitionsLevels[repetition-1][7];
-					new_repetitionsLevels[repetition][8] = new_repetitionsLevels[repetition-1][8];
-					new_repetitionsLevels[repetition][9] = new_repetitionsLevels[repetition-1][9];
-					new_repetitionsLevels[repetition][10] = new_repetitionsLevels[repetition-1][10];
-					new_repetitionsTime.push_back(new_repetitionsTime[repetition-1]);
-					new_repetitionsAverageError.push_back(5.0);
-					new_repetitionsStabilization.push_back(1);
-				}
-			}
-			else {
-				if(repetition != 0) {
-					repetition--;
-				}
-			}
-			sword->setWhichRepetition(i, repetition);
 		}
+		ushort repetition = sword->getWhichRepetition(i);
+		if(deviation > 0) {
+			repetition++;
+			if(repetition == new_repetitionsTime.size()) {
+				new_repetitionsLevels.push_back(NULL);
+				new_repetitionsLevels[repetition] = new double[11];
+				new_repetitionsLevels[repetition][0] = new_repetitionsLevels[repetition-1][0];
+				new_repetitionsLevels[repetition][1] = new_repetitionsLevels[repetition-1][1];
+				new_repetitionsLevels[repetition][2] = new_repetitionsLevels[repetition-1][2];
+				new_repetitionsLevels[repetition][3] = new_repetitionsLevels[repetition-1][3];
+				new_repetitionsLevels[repetition][4] = new_repetitionsLevels[repetition-1][4];
+				new_repetitionsLevels[repetition][5] = new_repetitionsLevels[repetition-1][5];
+				new_repetitionsLevels[repetition][6] = new_repetitionsLevels[repetition-1][6];
+				new_repetitionsLevels[repetition][7] = new_repetitionsLevels[repetition-1][7];
+				new_repetitionsLevels[repetition][8] = new_repetitionsLevels[repetition-1][8];
+				new_repetitionsLevels[repetition][9] = new_repetitionsLevels[repetition-1][9];
+				new_repetitionsLevels[repetition][10] = new_repetitionsLevels[repetition-1][10];
+				new_repetitionsTime.push_back(new_repetitionsTime[repetition-1]);
+				new_repetitionsAverageError.push_back(5.0);
+				new_repetitionsStabilization.push_back(1);
+			}
+		}
+		else {
+			if(repetition != 0) {
+				repetition--;
+			}
+		}
+		sword->setWhichRepetition(i, repetition);
+		sword->setTimeLastRepetition(i, nowTime);
 	}
 	ifChangeKurs = true;
 }
