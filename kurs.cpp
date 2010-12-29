@@ -179,6 +179,7 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 		divider = 0;
 		predicted_score = 0;
 		parttime = 0;
+		wtr.priority = 0;
 		for(ushort j = 0; j < countConnections; j++) {
 			parttime = (double)(nowTime-wordl1[i]->getTimeLastRepetition(j));
 			parttime *= 1000;
@@ -193,7 +194,6 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 			wtr.priority += predicted_score;
 		}
 		wtr.priority /= countConnections;
-		cout << i << "\t" << wtr.priority << endl;
 		wtr.nr_word = i;
 		if(wtr.priority < 700) {
 			AhowManyWords++;
