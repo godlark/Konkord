@@ -193,6 +193,7 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 			wtr.priority += predicted_score;
 		}
 		wtr.priority /= countConnections;
+		cout << i << "\t" << wtr.priority << endl;
 		wtr.nr_word = i;
 		if(wtr.priority < 700) {
 			AhowManyWords++;
@@ -207,6 +208,7 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 		divider = 0;
 		predicted_score = 0;
 		parttime = 0;
+		wtr.priority = 0;
 		for(ushort j = 0; j < countConnections; j++) {
 			parttime = (double)(nowTime-wordl2[i]->getTimeLastRepetition(j));
 			parttime *= 1000;
@@ -368,6 +370,8 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 		if(oplev_connections[i] > max_oplev)oplev_connections[i] = max_oplev;
 		oplev_connections[i] *= 1000/max_oplev;
 		
+		sword->setTimeLastRepetition(i, nowTime);
+		
 		parttime = (double)(nowTime-sword->getTimeLastRepetition(i));
 		parttime *= 1000;
 		parttime /= (double)(new_repetitionsTime[sword->getWhichRepetition(i)]);
@@ -436,7 +440,6 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 			}
 		}
 		sword->setWhichRepetition(i, repetition);
-		sword->setTimeLastRepetition(i, nowTime);
 	}
 	ifChangeKurs = true;
 }
