@@ -34,6 +34,16 @@
 using namespace std;
 typedef unsigned short int ushort;
 
+string toString(int number) {
+	string s_number = "";
+	if(number == 0)s_number = "0";
+	while(number != 0) {
+		s_number = (char)(number%10+(int)'0') + s_number;
+		number -= number%10;
+		number /= 10;
+	}
+}
+
 Kurs::~Kurs() {
 	for(int i = 0; i < wordl1.size(); i++) {
 		wordl1[i]->deleteAllMeanings();
@@ -240,40 +250,24 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 
 	//pobieranie górnych słów z kolejki priorytetowej i dodawanie ich do WordsToRepetition
 	//dodawanie połączeń tych słów do ConnectionsToRepetition
+	SingleWord *sword;
 	for(ushort i = 0; i < howManyWords; i++) {
 		WordsToRepetition.push_back(Q.top().nr_word);//dodaje słowo do przepytania
-		SingleWord *sword;
+		
 		if(Q.top().nr_word < wordl1.size())sword = wordl1[Q.top().nr_word];
 		else sword = wordl2[Q.top().nr_word-wordl1.size()];
+		
 		int whereInOther;
 		for(ushort j = 0; j < sword->getNumberMeanings(); j++) {
-			//zamiana liczby na string
-			string s_number = "";
-			int temp_j =  j;
-			if(temp_j == 0)s_number = "0";
-			while(temp_j != 0) {
-				s_number = (char)(temp_j%10+(int)'0') + s_number;
-				temp_j -= temp_j%10;
-				temp_j /= 10;
-			}
-			//koniec zamiany liczby j na string
-			if(sword->getFlag(s_number) == "use") {//jeśli połączenie zostało już dodanie do ConnectionsToRepetition to pomiń i usuń z przepytywanych
+			string _j = toString(j);
+			if(sword->getFlag(_j) == "use") {//jeśli połączenie zostało już dodanie do ConnectionsToRepetition to pomiń i usuń z przepytywanych
 				WordsToRepetition.erase(WordsToRepetition.end()-1);
 				i--;
-				continue;
+				break;
 			}
 			whereInOther = sword->getMeaning(j)->findMeaning(sword);
-			//zamiana liczby whereInOther na string
-			s_number = "";
-			int temp_whereInOther =  whereInOther;
-			if(temp_whereInOther == 0)s_number = "0";
-			while(temp_whereInOther != 0) {
-				s_number = (char)(temp_whereInOther%10+(int)'0') + s_number;
-				temp_whereInOther -= temp_whereInOther%10;
-				temp_whereInOther /= 10;
-			}
-			//koniec zamiany liczby whereInOther na string
-			sword->getMeaning(j)->setFlag(s_number, "use");//ustawianie flagi, która informuje, że polączenie zostało już dodane
+			string _whereInOther = toString(whereInOther);
+			sword->getMeaning(j)->setFlag(_whereInOther, "use");//ustawianie flagi, która informuje, że polączenie zostało już dodane
 			ConnectionsToRepetition.push_back(Q.top().nr_word);//wstawianie nr_słowa
 			ConnectionsToRepetition.push_back(j);//wstawianie nr_połączenia
 		}
