@@ -66,7 +66,8 @@ class ServiceOfTasks
 		void saveCourse();//14
 		void saveCourseAs(std::string filename);//15
 		void settingsCourse();//16
-		void switchCourse();//17
+		void switchCourse(std::string nr_course);//17
+		std::vector<std::string> getCoursesNames();
 		void readWordsFromFile(std::string filename);//18
 		void findWords() const;//19
 		bool isActionActive(ushort numberOfAction) const; //isn't done

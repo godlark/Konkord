@@ -8,34 +8,40 @@
 #include <string>
 #include <vector>
 #include <QTextCodec>
+#include <QRadioButton>
+#include "maction.hpp"
 
 class MainWindow: public QMainWindow, public Interface {
     Q_OBJECT
 private:
+
     ServiceOfTasks *serviceOfTasks;
     QMenu *mainMenu;
-    QAction *closeCourse;
-    QAction *newCourse;
-    QAction *openCourse;
-    QAction *saveCourse;
-    QAction *saveCourseAs;
-    QAction *changeCourse;
-    QAction *closeProgram;
+    QMenu *menuChangeCourse;
+    MAction **courses2Change;
+    int numberCourses;
+    
+    MAction *closeCourse;
+    MAction *newCourse;
+    MAction *openCourse;
+    MAction *saveCourse;
+    MAction *saveCourseAs;
+    MAction *closeProgram;
 
     QMenu *courseMenu;
-    QAction *repeatWords;
-    QAction *learnWords;
-    QAction *editWord;
-    QAction *deleteWord;
-    QAction *connectWords;
-    QAction *disconnectWords;
-    QAction *addWord;
-    QAction *addWords;
-    QAction *printCourse;
-    QAction *AprintWords;
-    QAction *setupCourse;
-    QAction *readWords;
-    QAction *findWords;
+    MAction *repeatWords;
+    MAction *learnWords;
+    MAction *editWord;
+    MAction *deleteWord;
+    MAction *connectWords;
+    MAction *disconnectWords;
+    MAction *addWord;
+    MAction *addWords;
+    MAction *printCourse;
+    MAction *AprintWords;
+    MAction *setupCourse;
+    MAction *readWords;
+    MAction *findWords;
 
     void initializeMenus();
     void initializeActions();
@@ -50,6 +56,7 @@ public:
     char Yes_No_Cancel(std::string description);
     Variables optionWindow(std::string const *descriptions, Variable *values, ushort number);
     void printMessage(std::string title, std::string something);
+    void reloadListCourses();
     void run();
 public slots:
     void slotCloseCourse();
@@ -57,7 +64,7 @@ public slots:
     void slotOpenCourse();
     void slotSaveCourse();
     void slotSaveCourseAs();
-    void slotChangeCourse();
+    void slotChangeCourse(MAction*);
     void slotCloseProgram();
 
     void slotRepeatWords();

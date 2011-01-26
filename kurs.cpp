@@ -44,6 +44,15 @@ string toString(int number) {
 	}
 	return s_number;
 }
+int toInteger(string s_number) {
+    int size = s_number.length();
+    int number = 0;
+    int ten = 1;
+    for(int i = size-1; i >= 0; i--, ten *= 10) {
+	number += ten*((int)s_number[i]-48);
+    }
+    return number;
+}
 
 Kurs::~Kurs() {
 	for(int i = 0; i < wordl1.size(); i++) {
@@ -172,7 +181,7 @@ vector<ushort> Kurs::findWord(const boost::regex &searched_string) const {
 	return found_words;
 }
 vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
-	//howManyWords jest liczbą słów do przepytania, rozmiar zwracanego vectora to liczba słów do przepytania i liczba połączeń do powtórzenia
+	//howManyWords jest liczbą słów do przepytania, rozmiar zwracanego vectora to liczba słów do przepytania i liczba połączeń do powtórzenia
 	if(howManyWords > wordl1.size() + wordl2.size())howManyWords = wordl1.size() + wordl2.size();
 	ushort AhowManyWords = 0;
 	priority_queue<WordToRepetition, vector<WordToRepetition>, compareWords>Q;

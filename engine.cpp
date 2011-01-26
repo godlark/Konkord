@@ -440,7 +440,7 @@ void ServiceOfTasks::doAction(ushort number, string options) {
 			settingsCourse();
 			break;
 		case 17:
-			switchCourse();
+			switchCourse(options);
 			break;
 		case 18:
 			readWordsFromFile(options);
@@ -646,14 +646,16 @@ void ServiceOfTasks::simpleCloseCourse(ushort nr_course) {
 		activ_course = 0;
 	}
 }
-void ServiceOfTasks::switchCourse() {
-	string *coursesNames = new string[QOK];
-		for(ushort i = 0; i < QOK; i++) {
-			coursesNames[i] = courses[i]->getName();
-		}
-		activ_course = main_interface->radioWindow("Wybierz kurs\n", coursesNames, activ_course, QOK);
-		setStateActions();
-		delete [] coursesNames;
+void ServiceOfTasks::switchCourse(string nr_course) {
+	activ_course = toInteger(nr_course);
+	setStateActions();
+}
+vector<string> ServiceOfTasks::getCoursesNames() {
+	vector<string> coursesNames(QOK);
+	for(ushort i = 0; i < QOK; i++) {
+		coursesNames[i] = courses[i]->getName();
+	}
+	return coursesNames;
 }
 void ServiceOfTasks::readWordsFromFile(string filename) {
 	string message;

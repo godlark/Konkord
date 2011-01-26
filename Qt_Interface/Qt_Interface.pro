@@ -6,7 +6,8 @@ SOURCES += \
     ../nakladka.cpp \
     ../kurs.cpp \
     ../engine.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    maction.cpp
 
 HEADERS += \
     ../SingleWord.hpp \
@@ -15,4 +16,5 @@ HEADERS += \
     ../kurs.hpp \
     ../interface.hpp \
     ../engine.hpp \
-    mainwindow.hpp
+    mainwindow.hpp \
+    maction.hpp

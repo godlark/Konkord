@@ -48,6 +48,10 @@ class compareWords {
             if(swani1.priority < swani2.priority)return false;
 		}
 };
+
+std::string toString(int number);
+int toInteger(std::string s_number);
+
 class Kurs
 {
 	private:

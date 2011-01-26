@@ -16,13 +16,15 @@ MainWindow::MainWindow() {
 
 void MainWindow::initializeMenus() {
     mainMenu = new QMenu(tr("Główne"), this);
+    menuChangeCourse = new QMenu(tr("Przełącz kurs"), this);
+    
     menuBar()->addMenu(mainMenu);
     mainMenu->addAction(closeCourse);
     mainMenu->addAction(newCourse);
     mainMenu->addAction(openCourse);
     mainMenu->addAction(saveCourse);
     mainMenu->addAction(saveCourseAs);
-    mainMenu->addAction(changeCourse);
+    mainMenu->addMenu(menuChangeCourse);
     mainMenu->addAction(closeProgram);
 
     courseMenu = new QMenu(tr("Kurs"), this);
@@ -43,64 +45,80 @@ void MainWindow::initializeMenus() {
 }
 
 void MainWindow::initializeActions() {
-    closeCourse = new QAction(tr("&Zamknij kurs"), this);
-    newCourse = new QAction(tr("&Nowy kurs"), this);
-    openCourse = new QAction(tr("&Otwórz kurs"), this);
-    saveCourse = new QAction(tr("&Zapisz kurs"), this);
-    saveCourseAs = new QAction(tr("&Zapisz kurs jako"), this);
-    changeCourse = new QAction(tr("&Przełącz kurs"), this);
-    closeProgram = new QAction(tr("&Zamknij program"), this);
+    courses2Change = new MAction* [1];
+    courses2Change[0] = NULL;
+    
+    closeCourse = new MAction(tr("&Zamknij kurs"), this);
+    newCourse = new MAction(tr("&Nowy kurs"), this);
+    openCourse = new MAction(tr("&Otwórz kurs"), this);
+    saveCourse = new MAction(tr("&Zapisz kurs"), this);
+    saveCourseAs = new MAction(tr("&Zapisz kurs jako"), this);
+    closeProgram = new MAction(tr("&Zamknij program"), this);
 
-    repeatWords = new QAction(tr("&Powtórz poznane słowa"), this);
-    learnWords = new QAction(tr("&Naucz się nowych"), this);
-    editWord = new QAction(tr("&Edytuj słow"), this);
-    deleteWord = new QAction(tr("&Usuń słowo"), this);
-    connectWords = new QAction(tr("&Połącz słowa"), this);
-    disconnectWords = new QAction(tr("&Rozłącz słowa"), this);
-    addWord = new QAction(tr("&Dodaj słowo"), this);
-    addWords = new QAction(tr("&Dodaj słowa"), this);
-    printCourse = new QAction(tr("&Wyświetl informacje na temat kursu"), this);
-    AprintWords = new QAction(tr("&Wyświetl słowa"), this);
-    setupCourse = new QAction(tr("&Ustawienia kursu"), this);
-    readWords = new QAction(tr("&Wczytaj słowa z pliku"), this);
-    findWords = new QAction(tr("&Znajdź słowa"), this);
+    repeatWords = new MAction(tr("&Powtórz poznane słowa"), this);
+    learnWords = new MAction(tr("&Naucz się nowych"), this);
+    editWord = new MAction(tr("&Edytuj słow"), this);
+    deleteWord = new MAction(tr("&Usuń słowo"), this);
+    connectWords = new MAction(tr("&Połącz słowa"), this);
+    disconnectWords = new MAction(tr("&Rozłącz słowa"), this);
+    addWord = new MAction(tr("&Dodaj słowo"), this);
+    addWords = new MAction(tr("&Dodaj słowa"), this);
+    printCourse = new MAction(tr("&Wyświetl informacje na temat kursu"), this);
+    AprintWords = new MAction(tr("&Wyświetl słowa"), this);
+    setupCourse = new MAction(tr("&Ustawienia kursu"), this);
+    readWords = new MAction(tr("&Wczytaj słowa z pliku"), this);
+    findWords = new MAction(tr("&Znajdź słowa"), this);
 
-    connect(closeCourse, SIGNAL(triggered()), this, SLOT(slotCloseCourse()));
-    connect(newCourse, SIGNAL(triggered()), this, SLOT(slotNewCourse()));
-    connect(openCourse, SIGNAL(triggered()), this, SLOT(slotOpenCourse()));
-    connect(saveCourse, SIGNAL(triggered()), this, SLOT(slotSaveCourse()));
-    connect(saveCourseAs, SIGNAL(triggered()), this, SLOT(slotSaveCourseAs()));
-    connect(changeCourse, SIGNAL(triggered()), this, SLOT(slotChangeCourse()));
-    connect(closeProgram, SIGNAL(triggered()), this, SLOT(slotCloseProgram()));
+    connect(closeCourse, SIGNAL(_triggered(MAction*)), this, SLOT(slotCloseCourse()));
+    connect(newCourse, SIGNAL(_triggered(MAction*)), this, SLOT(slotNewCourse()));
+    connect(openCourse, SIGNAL(_triggered(MAction*)), this, SLOT(slotOpenCourse()));
+    connect(saveCourse, SIGNAL(_triggered(MAction*)), this, SLOT(slotSaveCourse()));
+    connect(saveCourseAs, SIGNAL(_triggered(MAction*)), this, SLOT(slotSaveCourseAs()));
+    connect(closeProgram, SIGNAL(_triggered(MAction*)), this, SLOT(slotCloseProgram()));
 
-    connect(repeatWords, SIGNAL(triggered()), this, SLOT(slotRepeatWords()));
-    connect(learnWords, SIGNAL(triggered()), this, SLOT(slotLearnWords()));
-    connect(editWord, SIGNAL(triggered()), this, SLOT(slotEditWord()));
-    connect(deleteWord, SIGNAL(triggered()), this, SLOT(slotDeleteWord()));
-    connect(connectWords, SIGNAL(triggered()), this, SLOT(slotConnectWords()));
-    connect(disconnectWords, SIGNAL(triggered()), this, SLOT(slotDisconnectWords()));
-    connect(addWord, SIGNAL(triggered()), this, SLOT(slotAddWord()));
-    connect(addWords, SIGNAL(triggered()), this, SLOT(slotAddWords()));
-    connect(printCourse, SIGNAL(triggered()), this, SLOT(slotPrintCourse()));
-    connect(AprintWords, SIGNAL(triggered()), this, SLOT(slotAPrintWords()));
-    connect(setupCourse, SIGNAL(triggered()), this, SLOT(slotSetupCourse()));
-    connect(readWords, SIGNAL(triggered()), this, SLOT(slotReadWords()));
-    connect(findWords, SIGNAL(triggered()), this, SLOT(slotFindWords()));
+    connect(repeatWords, SIGNAL(_triggered(MAction*)), this, SLOT(slotRepeatWords()));
+    connect(learnWords, SIGNAL(_triggered(MAction*)), this, SLOT(slotLearnWords()));
+    connect(editWord, SIGNAL(_triggered(MAction*)), this, SLOT(slotEditWord()));
+    connect(deleteWord, SIGNAL(_triggered(MAction*)), this, SLOT(slotDeleteWord()));
+    connect(connectWords, SIGNAL(_triggered(MAction*)), this, SLOT(slotConnectWords()));
+    connect(disconnectWords, SIGNAL(_triggered(MAction*)), this, SLOT(slotDisconnectWords()));
+    connect(addWord, SIGNAL(_triggered(MAction*)), this, SLOT(slotAddWord()));
+    connect(addWords, SIGNAL(_triggered(MAction*)), this, SLOT(slotAddWords()));
+    connect(printCourse, SIGNAL(_triggered(MAction*)), this, SLOT(slotPrintCourse()));
+    connect(AprintWords, SIGNAL(_triggered(MAction*)), this, SLOT(slotAPrintWords()));
+    connect(setupCourse, SIGNAL(_triggered(MAction*)), this, SLOT(slotSetupCourse()));
+    connect(readWords, SIGNAL(_triggered(MAction*)), this, SLOT(slotReadWords()));
+    connect(findWords, SIGNAL(_triggered(MAction*)), this, SLOT(slotFindWords()));
 }
 
 void MainWindow::slotCloseCourse() {
     serviceOfTasks->doAction(3);
+    reloadListCourses();
 }
 
 void MainWindow::slotNewCourse() {
     serviceOfTasks->doAction(10);
 }
 
+void MainWindow::reloadListCourses() {
+    std::vector<std::string> coursesNames = serviceOfTasks->getCoursesNames();
+    numberCourses = coursesNames.size();
+    menuChangeCourse->clear();
+    delete [] courses2Change;
+    courses2Change = new MAction* [coursesNames.size()];
+    for(int i = 0; i < coursesNames.size(); i++) {
+	courses2Change[i] = new MAction(tr(coursesNames[i].c_str()), this);
+	menuChangeCourse->addAction(courses2Change[i]);
+	connect(courses2Change[i], SIGNAL(_triggered(MAction*)), this, SLOT(slotChangeCourse(MAction*)));
+    }
+}
+
 void MainWindow::slotOpenCourse() {
-	QString filename = QFileDialog::getOpenFileName(this, tr("Otwórz plik"));
-	if (filename.isEmpty())
-        return;
+    QString filename = QFileDialog::getOpenFileName(this, tr("Otwórz plik"));
+    if (filename.isEmpty())return;
     serviceOfTasks->doAction(11, filename.toStdString());
+    
+    reloadListCourses();
 }
 
 void MainWindow::slotSaveCourse() {
@@ -114,8 +132,13 @@ void MainWindow::slotSaveCourseAs() {
     serviceOfTasks->doAction(15, filename.toStdString());
 }
 
-void MainWindow::slotChangeCourse() {
-    serviceOfTasks->doAction(17);
+void MainWindow::slotChangeCourse(MAction* which_course) {
+    cout << numberCourses << endl;
+    for(int i = 0; i < numberCourses; i++) {
+	if(courses2Change[i] == which_course) {
+	    serviceOfTasks->doAction(17, toString(i));
+	}
+    }
 }
 
 void MainWindow::slotCloseProgram() {
