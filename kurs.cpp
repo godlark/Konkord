@@ -364,7 +364,6 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 	double predicted_score;
 	double divider;
 	double deviation;
-	double old10Level;
 	for(ushort i = 0; i < sword->getNumberMeanings(); i++) {
 		predicted_score = 0;
 		parttime = 0;
@@ -380,15 +379,33 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 		parttime *= 1000;
 		parttime /= (double)(new_repetitionsTime[sword->getWhichRepetition(i)]);
 		
-		if(parttime > 1000) { //poprawić
+		
+		//Jeśli czas jaki minął od ostatniego powtórzenia słowa jest dłuższy niż maksymalny
+		if(parttime > 1000) {
 			deviation = ((new_repetitionsLevels[sword->getWhichRepetition(i)][10] - oplev_connections[i])*1000)/new_repetitionsLevels[sword->getWhichRepetition(i)][10];
 			if(abs(deviation) > new_repetitionsAverageError[sword->getWhichRepetition(i)]) {
-				old10Level = new_repetitionsLevels[sword->getWhichRepetition(i)][10];
+				double old10Level = new_repetitionsLevels[sword->getWhichRepetition(i)][10];
 				new_repetitionsLevels[sword->getWhichRepetition(i)][10] = oplev_connections[i]*1000;
 				new_repetitionsLevels[sword->getWhichRepetition(i)][10] /= 1000-new_repetitionsAverageError[sword->getWhichRepetition(i)];
 				if(new_repetitionsLevels[sword->getWhichRepetition(i)][10] < 1)new_repetitionsLevels[sword->getWhichRepetition(i)][10] = 1;
 				if(new_repetitionsLevels[sword->getWhichRepetition(i)][10] > 1000)new_repetitionsLevels[sword->getWhichRepetition(i)][10] = 1000;
+				
+				//Skalowanie na nowy przedział czasowy
+				const int old_time = new_repetitionsTime[sword->getWhichRepetition(i)];
 				new_repetitionsTime[sword->getWhichRepetition(i)] += (nowTime-sword->getTimeLastRepetition(i)-sword->getWhichRepetition(i))*(old10Level-new_repetitionsLevels[sword->getWhichRepetition(i)][10])/(old10Level-oplev_connections[i]);
+				const int &new_time = new_repetitionsTime[sword->getWhichRepetition(i)];
+				int divider2;
+				int predicted_score2;
+				for(int j = 1; j < 10; j++) {
+					divider2 = 0;
+					predicted_score2 = 0;
+					for(int k = 0; k < 10; k++) {
+						predicted_score2 += new_repetitionsLevels[sword->getWhichRepetition(i)][k]*logs[abs(k*10-((j*10)/(old_time/new_time)))];
+						divider2 += logs[abs(k*10-((j*10)/(old_time/new_time)))];
+					}
+					predicted_score2 /= divider2;
+					new_repetitionsLevels[sword->getWhichRepetition(i)][j] = predicted_score2;
+				}
 			}
 			continue;
 		}
