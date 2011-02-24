@@ -422,7 +422,7 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 			if(repetition == new_repetitionsTime.size()) {
 				new_repetitionsLevels.push_back(NULL);
 				new_repetitionsLevels[repetition] = new double[11];
-				new_repetitionsLevels[repetition][0] = new_repetitionsLevels[repetition-1][0];
+				new_repetitionsLevels[repetition][0] = 1000;
 				new_repetitionsLevels[repetition][1] = new_repetitionsLevels[repetition-1][1];
 				new_repetitionsLevels[repetition][2] = new_repetitionsLevels[repetition-1][2];
 				new_repetitionsLevels[repetition][3] = new_repetitionsLevels[repetition-1][3];
@@ -448,7 +448,7 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 	ifChangeKurs = true;
 }
 void Kurs::repairRepetitionLevels(const ushort &which_repetition, const double &deviation, const int &parttime, const double &predicted_score) {
-	for(int i = 0; i < 11; i++) {
+	for(int i = 1; i < 11; i++) {//new_repetitionsLevels[which_repetition][0] = 1000;
 		new_repetitionsLevels[which_repetition][i] += logs[abs(i*10-parttime/10)]*(1000+deviation)*(predicted_score/1000);
 		new_repetitionsLevels[which_repetition][i] /= 1+logs[abs(i*10-parttime/10)];
 		if(new_repetitionsLevels[which_repetition][i] > 1000)new_repetitionsLevels[which_repetition][i] = 1000;
