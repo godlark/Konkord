@@ -477,6 +477,8 @@ void Kurs::calibrateRepetitionLevels(const ushort &which_repetition, const int &
 		if(new_repetitionsLevels[which_repetition][j] > 1000)new_repetitionsLevels[which_repetition][j] = 1000;
 		if(new_repetitionsLevels[which_repetition][j] < 0)new_repetitionsLevels[which_repetition][j] = 0;
 	}
+	if(old_time > new_time)new_repetitionsStabilization[which_repetition] =  (new_repetitionsStabilization[which_repetition]*new_time)/old_time;
+	else new_repetitionsStabilization[which_repetition] =  (new_repetitionsStabilization[which_repetition]*old_time)/new_time;
 }
 void Kurs::setSingleWord(const ushort &number, const string &spelling, const string &sound) {
 	if(number >= qAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
