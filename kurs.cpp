@@ -390,22 +390,9 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 				if(new_repetitionsLevels[sword->getWhichRepetition(i)][10] < 1)new_repetitionsLevels[sword->getWhichRepetition(i)][10] = 1;
 				if(new_repetitionsLevels[sword->getWhichRepetition(i)][10] > 1000)new_repetitionsLevels[sword->getWhichRepetition(i)][10] = 1000;
 				
-				//Skalowanie na nowy przedział czasowy
 				const int old_time = new_repetitionsTime[sword->getWhichRepetition(i)];
 				new_repetitionsTime[sword->getWhichRepetition(i)] += (nowTime-sword->getTimeLastRepetition(i)-sword->getWhichRepetition(i))*(old10Level-new_repetitionsLevels[sword->getWhichRepetition(i)][10])/(old10Level-oplev_connections[i]);
-				const int &new_time = new_repetitionsTime[sword->getWhichRepetition(i)];
-				int divider2;
-				int predicted_score2;
-				for(int j = 1; j < 10; j++) {
-					divider2 = 0;
-					predicted_score2 = 0;
-					for(int k = 0; k < 10; k++) {
-						predicted_score2 += new_repetitionsLevels[sword->getWhichRepetition(i)][k]*logs[abs(k*10-((j*10)/(old_time/new_time)))];
-						divider2 += logs[abs(k*10-((j*10)/(old_time/new_time)))];
-					}
-					predicted_score2 /= divider2;
-					new_repetitionsLevels[sword->getWhichRepetition(i)][j] = predicted_score2;
-				}
+				calibrateRepetitionLevels(sword->getWhichRepetition(i), old_time, new_repetitionsTime[sword->getWhichRepetition(i)]);
 			}
 			continue;
 		}
@@ -465,11 +452,30 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 	ifChangeKurs = true;
 }
 void Kurs::repairRepetitionLevels(const ushort &which_repetition, const double &deviation, const int &parttime, const double &predicted_score) {
+	bool need_calibrate = false;
 	for(int i = 1; i < 11; i++) {//new_repetitionsLevels[which_repetition][0] = 1000;
 		new_repetitionsLevels[which_repetition][i] += logs[abs(i*10-parttime/10)]*(1000+deviation)*(predicted_score/1000);
 		new_repetitionsLevels[which_repetition][i] /= 1+logs[abs(i*10-parttime/10)];
 		if(new_repetitionsLevels[which_repetition][i] > 1000)new_repetitionsLevels[which_repetition][i] = 1000;
 		if(new_repetitionsLevels[which_repetition][i] < 0)new_repetitionsLevels[which_repetition][i] = 0;
+		if(new_repetitionsLevels[which_repetition][i] < (1000-i*100)/2)need_calibrate = true;
+	}
+	if(need_calibrate)calibrateRepetitionLevels(which_repetition, new_repetitionsTime[which_repetition], new_repetitionsTime[which_repetition]/2);
+}
+void Kurs::calibrateRepetitionLevels(const ushort &which_repetition, const int &old_time, const int& new_time) {
+	int divider;
+	int predicted_score;
+	for(int j = 1; j < 10; j++) {
+		divider = 0;
+		predicted_score = 0;
+		for(int k = 0; k < 10; k++) {
+			predicted_score += new_repetitionsLevels[which_repetition][k]*logs[abs(k*10-((j*10)/(old_time/new_time)))];
+			divider += logs[abs(k*10-((j*10)/(old_time/new_time)))];
+		}
+		predicted_score /= divider;
+		new_repetitionsLevels[which_repetition][j] = predicted_score;
+		if(new_repetitionsLevels[which_repetition][j] > 1000)new_repetitionsLevels[which_repetition][j] = 1000;
+		if(new_repetitionsLevels[which_repetition][j] < 0)new_repetitionsLevels[which_repetition][j] = 0;
 	}
 }
 void Kurs::setSingleWord(const ushort &number, const string &spelling, const string &sound) {

@@ -86,6 +86,7 @@ class Kurs
 		Kurs(const std::string &name, const std::string &lang1, const std::string &lang2, const std::string &filename, const ushort &askQKW, const ushort &askQNW,  RegisterOfErrors &_ROE);
 		void addSingleWords(const std::vector<std::string> &spellings, const std::vector<std::string> &sounds, const std::vector<std::string> &meanings_spelling, const std::vector<std::string> &meanings_sound);
 		void addSingleWord(const SingleWord &singleWord, const ushort &where);
+		void calibrateRepetitionLevels(const ushort &which_repetition, const int &old_time, const int& new_time);
 		void connectSingleWords(const ushort &number1, const ushort &number2);
 		void disconnectSingleWords(const ushort &number1, const ushort &number2);
 		void delSingleWord(const ushort &number);
