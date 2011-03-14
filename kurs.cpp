@@ -469,8 +469,8 @@ void Kurs::calibrateRepetitionLevels(const ushort &which_repetition, const int &
 		divider = 0;
 		predicted_score = 0;
 		for(int k = 0; k < 10; k++) {
-			predicted_score += new_repetitionsLevels[which_repetition][k]*logs[abs(k*10-((j*10)/(old_time/new_time)))];
-			divider += logs[abs(k*10-((j*10)/(old_time/new_time)))];
+			predicted_score += new_repetitionsLevels[which_repetition][k]*logs[abs(k*10-(j*10*new_time)/old_time)];
+			divider += logs[abs(k*10-(j*10*new_time)/old_time)];
 		}
 		predicted_score /= divider;
 		new_repetitionsLevels[which_repetition][j] = predicted_score;
@@ -479,6 +479,7 @@ void Kurs::calibrateRepetitionLevels(const ushort &which_repetition, const int &
 	}
 	if(old_time > new_time)new_repetitionsStabilization[which_repetition] =  (new_repetitionsStabilization[which_repetition]*new_time)/old_time;
 	else new_repetitionsStabilization[which_repetition] =  (new_repetitionsStabilization[which_repetition]*old_time)/new_time;
+	new_repetitionsTime[which_repetition] = new_time;
 }
 void Kurs::setSingleWord(const ushort &number, const string &spelling, const string &sound) {
 	if(number >= qAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
