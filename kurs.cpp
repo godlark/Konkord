@@ -382,19 +382,16 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 		
 		//Jeśli czas jaki minął od ostatniego powtórzenia słowa jest dłuższy niż maksymalny
 		if(parttime > 1000) {
-			deviation = ((new_repetitionsLevels[sword->getWhichRepetition(i)][10] - oplev_connections[i])*1000)/new_repetitionsLevels[sword->getWhichRepetition(i)][10];
-			if(abs(deviation) > new_repetitionsAverageError[sword->getWhichRepetition(i)]) {
-				double old10Level = new_repetitionsLevels[sword->getWhichRepetition(i)][10];
-				new_repetitionsLevels[sword->getWhichRepetition(i)][10] = oplev_connections[i]*1000;
-				new_repetitionsLevels[sword->getWhichRepetition(i)][10] /= 1000-new_repetitionsAverageError[sword->getWhichRepetition(i)];
-				if(new_repetitionsLevels[sword->getWhichRepetition(i)][10] < 1)new_repetitionsLevels[sword->getWhichRepetition(i)][10] = 1;
-				if(new_repetitionsLevels[sword->getWhichRepetition(i)][10] > 1000)new_repetitionsLevels[sword->getWhichRepetition(i)][10] = 1000;
-				
-				const int old_time = new_repetitionsTime[sword->getWhichRepetition(i)];
-				new_repetitionsTime[sword->getWhichRepetition(i)] += (nowTime-sword->getTimeLastRepetition(i)-sword->getWhichRepetition(i))*(old10Level-new_repetitionsLevels[sword->getWhichRepetition(i)][10])/(old10Level-oplev_connections[i]);
-				calibrateRepetitionLevels(sword->getWhichRepetition(i), old_time, new_repetitionsTime[sword->getWhichRepetition(i)]);
+			if(abs((new_repetitionsLevels[sword->getWhichRepetition(i)][10]-new_repetitionsLevels[sword->getWhichRepetition(i)][9])*10/new_repetitionsLevels[sword->getWhichRepetition(i)][9]) < new_repetitionsAverageError[sword->getWhichRepetition(i)]) {
+				parttime = 1000;
 			}
-			continue;
+			else if(abs((new_repetitionsLevels[sword->getWhichRepetition(i)][10]-new_repetitionsLevels[sword->getWhichRepetition(i)][9])*10/new_repetitionsLevels[sword->getWhichRepetition(i)][10]) < new_repetitionsAverageError[sword->getWhichRepetition(i)]) {
+				parttime = 1000;
+			}
+			else {
+				calibrateRepetitionLevels(sword->getWhichRepetition(i), new_repetitionsTime[sword->getWhichRepetition(i)], nowTime-sword->getTimeLastRepetition(i)-sword->getWhichRepetition(i));
+				continue;
+			}
 		}
 		
 		for(int j = 0; j < 11; j++) {
@@ -442,11 +439,6 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 				new_repetitionsStabilization.push_back(1);
 			}
 		}
-		else {
-			if(repetition != 0) {
-				repetition--;
-			}
-		}
 		sword->setWhichRepetition(i, repetition);
 	}
 	ifChangeKurs = true;
@@ -458,7 +450,7 @@ void Kurs::repairRepetitionLevels(const ushort &which_repetition, const double &
 		new_repetitionsLevels[which_repetition][i] /= 1+logs[abs(i*10-parttime/10)];
 		if(new_repetitionsLevels[which_repetition][i] > 1000)new_repetitionsLevels[which_repetition][i] = 1000;
 		if(new_repetitionsLevels[which_repetition][i] < 0)new_repetitionsLevels[which_repetition][i] = 0;
-		if(new_repetitionsLevels[which_repetition][i] < (1000-i*100)/2)need_calibrate = true;
+		if(new_repetitionsLevels[which_repetition][i] < 500-i*50)need_calibrate = true;
 	}
 	if(need_calibrate)calibrateRepetitionLevels(which_repetition, new_repetitionsTime[which_repetition], new_repetitionsTime[which_repetition]/2);
 }
