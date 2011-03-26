@@ -373,8 +373,6 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 		if(oplev_connections[i] > max_oplev)oplev_connections[i] = max_oplev;
 		oplev_connections[i] *= 1000/max_oplev;
 		
-		sword->setTimeLastRepetition(i, nowTime);
-		
 		parttime = (double)(nowTime-sword->getTimeLastRepetition(i));
 		parttime *= 1000;
 		parttime /= (double)(new_repetitionsTime[sword->getWhichRepetition(i)]);
@@ -390,9 +388,12 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 			}
 			else {
 				calibrateRepetitionLevels(sword->getWhichRepetition(i), new_repetitionsTime[sword->getWhichRepetition(i)], nowTime-sword->getTimeLastRepetition(i)-sword->getWhichRepetition(i));
+				sword->setTimeLastRepetition(i, nowTime);
 				continue;
 			}
 		}
+		
+		sword->setTimeLastRepetition(i, nowTime);
 		
 		for(int j = 0; j < 11; j++) {
 			predicted_score += new_repetitionsLevels[sword->getWhichRepetition(i)][j]*logs[abs(j*10-(int)parttime/10)];
