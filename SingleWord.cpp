@@ -82,36 +82,39 @@ time_t SingleWord::getTimeNextRepetition(const ushort &number_meaning, const vec
 	if(*repetitionsOfMeanings[number_meaning] >= repetitionsTime.size())throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	return *lastRepetitionsOfM[number_meaning] + repetitionsTime[*repetitionsOfMeanings[number_meaning]];
 }
-bool SingleWord::connectSingleWords(SingleWord *sw1, SingleWord *sw2, const ushort &which_repetition, const time_t &last_repetition, int which_repetition2) {//zmienić kolejność argumentów
+void SingleWord::connectSingleWords(SingleWord *sw1, SingleWord *sw2, const ushort &which_repetition, const time_t &last_repetition, int which_repetition2) {//zmienić kolejność argumentów
+	//ASSERT IN
+	assert(sw1 != NULL && sw2 != NULL);
+	assert(!sw1->isConnectedWith(sw2));
+	
 	if(which_repetition2 == -1)which_repetition2 = which_repetition;
 		
-	if(!sw1->isConnectedWith(sw2)) {
-		int temp1 = sw1->meanings.size();
-		sw1->meanings.push_back(sw2);
-		sw1->repetitionsOfMeanings.push_back(NULL);
-		sw1->repetitionsOfMeanings[temp1] = new ushort;
-		*(sw1->repetitionsOfMeanings[temp1]) = which_repetition;
-		sw1->lastRepetitionsOfM.push_back(NULL);
+	int temp1 = sw1->meanings.size();
+	sw1->meanings.push_back(sw2);
+	sw1->repetitionsOfMeanings.push_back(NULL);
+	sw1->repetitionsOfMeanings[temp1] = new ushort;
+	*(sw1->repetitionsOfMeanings[temp1]) = which_repetition;
+	sw1->lastRepetitionsOfM.push_back(NULL);
 
-		sw1->lastRepetitionsOfM[temp1] = new time_t;
-		time_t nowTime = time(NULL);
-		if(last_repetition >= nowTime) *(sw1->lastRepetitionsOfM[temp1]) = nowTime;
-		else *(sw1->lastRepetitionsOfM[temp1]) =  last_repetition;
+	sw1->lastRepetitionsOfM[temp1] = new time_t;
+	time_t nowTime = time(NULL);
+	if(last_repetition >= nowTime) *(sw1->lastRepetitionsOfM[temp1]) = nowTime;
+	else *(sw1->lastRepetitionsOfM[temp1]) =  last_repetition;
 
-		sw1->q_meanings++;
-		sw1->known = (sw1->known || last_repetition != 0);
-		int temp2 = sw2->meanings.size();
-		sw2->meanings.push_back(sw1);
-		sw2->repetitionsOfMeanings.push_back(NULL);
-		sw2->repetitionsOfMeanings[temp2] = new ushort;
-		*(sw2->repetitionsOfMeanings[temp2]) = (ushort)which_repetition2;//niewspólna cecha dla dwóch słów
-		sw2->lastRepetitionsOfM.push_back(NULL); 
-		sw2->lastRepetitionsOfM[temp2] = sw1->lastRepetitionsOfM[temp1];//wspólna cecha dwa dwóch słów
-		sw2->q_meanings++;
-		sw2->known = (sw2->known || last_repetition != 0);
-		return true;
-	}
-	else return false;
+	sw1->q_meanings++;
+	sw1->known = (sw1->known || last_repetition != 0);
+	int temp2 = sw2->meanings.size();
+	sw2->meanings.push_back(sw1);
+	sw2->repetitionsOfMeanings.push_back(NULL);
+	sw2->repetitionsOfMeanings[temp2] = new ushort;
+	*(sw2->repetitionsOfMeanings[temp2]) = (ushort)which_repetition2;//niewspólna cecha dla dwóch słów
+	sw2->lastRepetitionsOfM.push_back(NULL); 
+	sw2->lastRepetitionsOfM[temp2] = sw1->lastRepetitionsOfM[temp1];//wspólna cecha dwa dwóch słów
+	sw2->q_meanings++;
+	sw2->known = (sw2->known || last_repetition != 0);
+	
+	//ASSERT OUT
+	assert(sw1->isConnectedWith(sw2) && sw2->isConnectedWith(sw1));
 }
 void SingleWord::deleteAllMeanings() {
 	int inSW2;
@@ -137,30 +140,34 @@ void SingleWord::deleteAllMeanings() {
 	q_meanings = 0;
 	known = false;
 }
-bool SingleWord::disconnectSingleWords(SingleWord* sw1, SingleWord* sw2) {
+void SingleWord::disconnectSingleWords(SingleWord* sw1, SingleWord* sw2) {
+	//ASSERT IN
+	assert(sw1 != NULL && sw2 != NULL);
+	assert(sw1->isConnectedWith(sw2));
+	
 	int inSW1 = sw1->findMeaning(sw2);
 	int inSW2 = sw2->findMeaning(sw1);
-	if(inSW1 != -1) {
-		sw1->meanings.erase(sw1->meanings.begin()+inSW1);
-		delete sw1->repetitionsOfMeanings[inSW1];
-		delete sw1->lastRepetitionsOfM[inSW1];
-		sw1->repetitionsOfMeanings.erase(sw1->repetitionsOfMeanings.begin()+inSW1);
-		sw1->lastRepetitionsOfM.erase(sw1->lastRepetitionsOfM.begin()+inSW1);
-		sw1->q_meanings--;
-		for(int i = 0; i < sw1->q_meanings; i++) {
-			sw1->known = (sw1->lastRepetitionsOfM[i] != 0 || sw1->known);
-		}
-		delete sw2->repetitionsOfMeanings[inSW2];
-		sw2->meanings.erase(sw2->meanings.begin()+inSW2);
-		sw2->repetitionsOfMeanings.erase(sw2->repetitionsOfMeanings.begin()+inSW2);
-		sw2->lastRepetitionsOfM.erase(sw2->lastRepetitionsOfM.begin()+inSW2);
-		sw2->q_meanings--;
-		for(int i = 0; i < sw2->q_meanings; i++) {
-			sw2->known = (sw2->lastRepetitionsOfM[i] != 0 || sw2->known);
-		}
-		return true;
+	
+	sw1->meanings.erase(sw1->meanings.begin()+inSW1);
+	delete sw1->repetitionsOfMeanings[inSW1];
+	delete sw1->lastRepetitionsOfM[inSW1];
+	sw1->repetitionsOfMeanings.erase(sw1->repetitionsOfMeanings.begin()+inSW1);
+	sw1->lastRepetitionsOfM.erase(sw1->lastRepetitionsOfM.begin()+inSW1);
+	sw1->q_meanings--;
+	for(int i = 0; i < sw1->q_meanings; i++) {
+		sw1->known = (sw1->lastRepetitionsOfM[i] != 0 || sw1->known);
 	}
-	else return false;
+	delete sw2->repetitionsOfMeanings[inSW2];
+	sw2->meanings.erase(sw2->meanings.begin()+inSW2);
+	sw2->repetitionsOfMeanings.erase(sw2->repetitionsOfMeanings.begin()+inSW2);
+	sw2->lastRepetitionsOfM.erase(sw2->lastRepetitionsOfM.begin()+inSW2);
+	sw2->q_meanings--;
+	for(int i = 0; i < sw2->q_meanings; i++) {
+		sw2->known = (sw2->lastRepetitionsOfM[i] != 0 || sw2->known);
+	}
+
+	//ASSERT OUT
+	assert(!sw1->isConnectedWith(sw2) && !sw2->isConnectedWith(sw1));
 }
 bool SingleWord::isEmpty() const{
 	return q_meanings == 0 ? true : false;

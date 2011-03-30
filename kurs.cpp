@@ -35,6 +35,9 @@ using namespace std;
 typedef unsigned short int ushort;
 
 string toString(int number) {
+	//ASSERT IN
+	assert(number >= 0);
+	
 	string s_number = "";
 	if(number == 0)s_number = "0";
 	while(number != 0) {
@@ -45,6 +48,9 @@ string toString(int number) {
 	return s_number;
 }
 int toInteger(string s_number) {
+	//ASSERT IN
+	assert(s_number.length() > 0);
+	
     int size = s_number.length();
     int number = 0;
     int ten = 1;
@@ -56,19 +62,26 @@ int toInteger(string s_number) {
 
 Kurs::~Kurs() {
 	for(int i = 0; i < wordl1.size(); i++) {
+		assert(wordl1[i] != NULL);
 		wordl1[i]->deleteAllMeanings();
 		delete wordl1[i];
 	}
 	for(int i = 0; i < wordl2.size(); i++) {
+		assert(wordl1[i] != NULL);
 		wordl2[i]->deleteAllMeanings();
 		delete wordl2[i];
 	}
+	assert(logs != NULL);
+	assert(emptyWord != NULL);
 	delete logs;
 	delete emptyWord;
 }
 void Kurs::addSingleWords(const vector<string> &spellings, const vector<string> &sounds, const vector<string> &meanings_spelling, const vector<string> &meanings_sound) {
+	//ASSERT IN
+	assert(spellings.size() == sounds.size() && meanings_spelling.size() == meanings_sound.size());
+	assert(spellings.size() != 0 && meanings_spelling.size() != 0);
+	
 	SingleWord *tempsw;
-	if(spellings.size() != sounds.size() || meanings_spelling.size() != meanings_sound.size())throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	for(ushort i = 0; i < spellings.size(); i++) {
 		tempsw = new SingleWord(spellings[i], sounds[i]);
 		wordl1.push_back(tempsw);
@@ -77,15 +90,26 @@ void Kurs::addSingleWords(const vector<string> &spellings, const vector<string> 
 		tempsw = new SingleWord(meanings_spelling[i], meanings_sound[i]);
 		wordl2.push_back(tempsw);
 		for(ushort j = wordl1.size() - sounds.size(); j < wordl1.size(); j++) {
-			if(SingleWord::connectSingleWords(wordl2[wordl2.size()-1], wordl1[j], 0, 0)) {//łączy ostatnio dodane słowo dodane do wordl2 z...
-				numberConnections++;
-			}
+			SingleWord::connectSingleWords(wordl2[wordl2.size()-1], wordl1[j], 0, 0); //łączy ostatnio dodane słowo dodane do wordl2 z...
+			numberConnections++;
 		}
 	}
 	qAllSingleWords = wordl1.size() + wordl2.size();
 	ifChangeKurs = true;
+	
+	//ASSERT OUT
+	for(int i = 0; i < spellings.size(); i++) {
+		assert(wordl1[wordl1.size()-spellings.size()+i]->getSpelling() == spellings[i]);
+		for(int j = 0; j < meanings_spelling.size(); j++) {
+			assert(wordl2[wordl2.size()-meanings_spelling.size()+j]->getSpelling() == meanings_spelling[j]);
+			assert(wordl1[wordl1.size()-spellings.size()+i]->isConnectedWith(wordl2[wordl2.size()-meanings_spelling.size()+j]));
+		}
+	}
 }
 void Kurs::addSingleWord(const SingleWord &singleWord, const ushort &where) {
+	//ASSERT IN
+	assert(where == 0 && where == 1);
+	
 	ushort number;
 	if(where == 0) {
 		wordl1.push_back(new SingleWord(&singleWord));
@@ -101,26 +125,29 @@ void Kurs::addSingleWord(const SingleWord &singleWord, const ushort &where) {
 	ifChangeKurs = true;
 }
 void Kurs::connectSingleWords(const ushort &number1, const ushort &number2) {
-	if(number1 >= wordl1.size() || (number2 >= wordl1.size()+wordl2.size() || number2 < wordl1.size()))throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
-	if(SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], 0, 0)) {
-		numberConnections++;
-		if(wordl1[number1]->getMeaning(0) == emptyWord)SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
-		if(wordl2[number2-wordl1.size()]->getMeaning(0) == emptyWord)SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
-		ifChangeKurs = true;
-	}
-	//else jakieś powiadomienie
+	//ASSERT IN
+	assert(number1 < wordl1.size() && (number2 < wordl1.size()+wordl2.size() && number2 > wordl1.size()));
+	
+	SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], 0, 0);
+	numberConnections++;
+	if(wordl1[number1]->getMeaning(0) == emptyWord)SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
+	if(wordl2[number2-wordl1.size()]->getMeaning(0) == emptyWord)SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
+	ifChangeKurs = true;
 }
 void Kurs::disconnectSingleWords(const ushort &number1, const ushort &number2) {
-	if(number1 >= wordl1.size() || (number2 >= wordl1.size()+wordl2.size() || number2 < wordl1.size()))throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
-	if(SingleWord::disconnectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()])) {
-		numberConnections--;
-		if(wordl1[number1]->getNumberMeanings() == 0)SingleWord::connectSingleWords(wordl1[number1], emptyWord, 0, 0);
-		if(wordl2[number2-wordl1.size()]->getNumberMeanings() == 0)SingleWord::connectSingleWords(wordl2[number2-wordl1.size()], emptyWord, 0, 0);
-		ifChangeKurs = true;
-	}
-	//else jakieś powiadomienie
+	//ASSERT IN
+	assert(number1 < wordl1.size() && (number2 < wordl1.size()+wordl2.size() && number2 > wordl1.size()));
+	
+	SingleWord::disconnectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()]);
+	numberConnections--;
+	if(wordl1[number1]->getNumberMeanings() == 0)SingleWord::connectSingleWords(wordl1[number1], emptyWord, 0, 0);
+	if(wordl2[number2-wordl1.size()]->getNumberMeanings() == 0)SingleWord::connectSingleWords(wordl2[number2-wordl1.size()], emptyWord, 0, 0);
+	ifChangeKurs = true;
 }
 void Kurs::delSingleWord(const ushort &number) {
+	//ASSERT IN
+	assert(number < wordl1.size() || (number < wordl1.size()+wordl2.size() && number > wordl1.size()));
+	
 	ushort qAllMeanings;
 	SingleWord* meaning;
 	vector<SingleWord*>::iterator position;
@@ -150,19 +177,6 @@ void Kurs::delSingleWord(const ushort &number) {
 		delete wordl2[number-wordl1.size()];
 		wordl2.erase(wordl2.begin() + number-wordl1.size());
 	}
-	/*if(number < wordl1.size()) {
-		wordl1[number]->deleteAllMeanings();
-		if(wordl1[number]->isKnown())qKnownSingleWords--;
-		delete wordl1[number];
-		wordl1.erase(wordl1.begin() + number);
-	}
-	else if(number < wordl1.size() + wordl2.size()) {
-		wordl2[number-wordl1.size()]->deleteAllMeanings();
-		if(wordl2[number-wordl1.size()]->isKnown())qKnownSingleWords--;
-		delete wordl2[number-wordl1.size()];
-		wordl2.erase(wordl2.begin() + number-wordl1.size());
-	}*/
-	else throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	qAllSingleWords = wordl1.size() + wordl2.size();
 	ifChangeKurs = true;
 }
@@ -387,7 +401,7 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 				parttime = 1000;
 			}
 			else {
-				calibrateRepetitionLevels(sword->getWhichRepetition(i), new_repetitionsTime[sword->getWhichRepetition(i)], nowTime-sword->getTimeLastRepetition(i)-sword->getWhichRepetition(i));
+				calibrateRepetitionLevels(sword->getWhichRepetition(i), new_repetitionsTime[sword->getWhichRepetition(i)], nowTime-sword->getTimeLastRepetition(i));
 				sword->setTimeLastRepetition(i, nowTime);
 				continue;
 			}
@@ -456,13 +470,13 @@ void Kurs::repairRepetitionLevels(const ushort &which_repetition, const double &
 	if(need_calibrate)calibrateRepetitionLevels(which_repetition, new_repetitionsTime[which_repetition], new_repetitionsTime[which_repetition]/2);
 }
 void Kurs::calibrateRepetitionLevels(const ushort &which_repetition, const int &old_time, const int& new_time) {
-	int divider;
-	int predicted_score;
+	double divider;
+	double predicted_score;
 	for(int j = 1; j < 10; j++) {
 		divider = 0;
 		predicted_score = 0;
 		for(int k = 0; k < 10; k++) {
-			predicted_score += new_repetitionsLevels[which_repetition][k]*logs[abs(k*10-(j*10*new_time)/old_time)];
+			predicted_score += new_repetitionsLevels[which_repetition][k]*logs[abs(k*10-(j*10*new_time)/old_time) < 100 ? abs(k*10-(j*10*new_time)/old_time) : 99];
 			divider += logs[abs(k*10-(j*10*new_time)/old_time)];
 		}
 		predicted_score /= divider;

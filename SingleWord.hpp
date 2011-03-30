@@ -27,6 +27,7 @@
 
 #include <string>
 #include <vector>
+#include <cassert>
 
 typedef unsigned short int ushort;
 
@@ -82,8 +83,8 @@ class SingleWord {
 		SingleWord(SingleWord const *sw);
 		~SingleWord();
 		
-		static bool connectSingleWords(SingleWord *sw1, SingleWord *sw2, const ushort &which_repetition, const time_t &last_repetition, int which_repetition2 = -1);
-		static bool disconnectSingleWords(SingleWord *sw1, SingleWord *sw2);//powiadamianie o pustych słowach
+		static void connectSingleWords(SingleWord *sw1, SingleWord *sw2, const ushort &which_repetition, const time_t &last_repetition, int which_repetition2 = -1);
+		static void disconnectSingleWords(SingleWord *sw1, SingleWord *sw2);
 };
 
 #endif	/* _SINGLEWORD_H */
