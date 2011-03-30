@@ -459,6 +459,12 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 	ifChangeKurs = true;
 }
 void Kurs::repairRepetitionLevels(const ushort &which_repetition, const double &deviation, const int &parttime, const double &predicted_score) {
+	//ASSERT IN
+	assert(which_repetition < new_repetitionsLevels.size());
+	assert(predicted_score <= 1000 && predicted_score >= 0);
+	assert(parttime <= 1000 && parttime >= 0);
+	assert(deviation != 0);
+	
 	bool need_calibrate = false;
 	for(int i = 1; i < 11; i++) {//new_repetitionsLevels[which_repetition][0] = 1000;
 		new_repetitionsLevels[which_repetition][i] += logs[abs(i*10-parttime/10)]*(1000+deviation)*(predicted_score/1000);
@@ -468,6 +474,8 @@ void Kurs::repairRepetitionLevels(const ushort &which_repetition, const double &
 		if(new_repetitionsLevels[which_repetition][i] < 500-i*50)need_calibrate = true;
 	}
 	if(need_calibrate)calibrateRepetitionLevels(which_repetition, new_repetitionsTime[which_repetition], new_repetitionsTime[which_repetition]/2);
+	
+	//ASSERT OUT
 }
 void Kurs::calibrateRepetitionLevels(const ushort &which_repetition, const int &old_time, const int& new_time) {
 	//ASSERT IN
@@ -493,6 +501,8 @@ void Kurs::calibrateRepetitionLevels(const ushort &which_repetition, const int &
 	else new_repetitionsStabilization[which_repetition] =  (new_repetitionsStabilization[which_repetition]*old_time)/new_time;
 	if(new_repetitionsStabilization[which_repetition] < 1)new_repetitionsStabilization[which_repetition] = 1;
 	new_repetitionsTime[which_repetition] = new_time;
+	
+	//ASSERT OUT
 }
 void Kurs::setSingleWord(const ushort &number, const string &spelling, const string &sound) {
 	if(number >= qAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
