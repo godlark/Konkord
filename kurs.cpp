@@ -67,7 +67,7 @@ Kurs::~Kurs() {
 		delete wordl1[i];
 	}
 	for(int i = 0; i < wordl2.size(); i++) {
-		assert(wordl1[i] != NULL);
+		assert(wordl2[i] != NULL);
 		wordl2[i]->deleteAllMeanings();
 		delete wordl2[i];
 	}
@@ -721,10 +721,10 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 			file >> last_repetition;
 				
 			file.ignore(INT_MAX, '\n');
-			if(number1 >= wordl1.size() || (number2 >= wordl1.size()+wordl2.size() || number2 < wordl1.size()))throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
-			SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
-			SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
-			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, last_repetition);
+			assert(number1 < wordl1.size() && (number2 < wordl1.size()+wordl2.size() && number2 >= wordl1.size()));
+			if(emptyWord->isConnectedWith(wordl1[number1]))SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
+			if(emptyWord->isConnectedWith(wordl2[number2-wordl1.size()]))SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
+			if(!wordl1[number1]->isConnectedWith(wordl2[number2-wordl1.size()]))SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, last_repetition);
 		}
 
 		for(ushort i = 0; i < numberWordsFL; i++) {
@@ -813,10 +813,10 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 			file >> last_repetition;
 
 			file.ignore(INT_MAX, '\n');
-			if(number1 >= wordl1.size() || (number2 >= wordl1.size()+wordl2.size() || number2 < wordl1.size()))throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
-			SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
-			SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
-			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, last_repetition, which_repetition2);
+			assert(number1 < wordl1.size() && (number2 < wordl1.size()+wordl2.size() && number2 >= wordl1.size()));
+			if(emptyWord->isConnectedWith(wordl1[number1]))SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
+			if(emptyWord->isConnectedWith(wordl2[number2-wordl1.size()]))SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
+			if(!wordl1[number1]->isConnectedWith(wordl2[number2-wordl1.size()]))SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, last_repetition);
 		}
 
 		for(ushort i = 0; i < numberWordsFL; i++) {
@@ -897,10 +897,10 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 			file >> last_repetition;
 
 			file.ignore(INT_MAX, '\n');
-			if(number1 >= wordl1.size() || (number2 >= wordl1.size()+wordl2.size() || number2 < wordl1.size()))throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
-			SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
-			SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
-			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, last_repetition, which_repetition2);
+			assert(number1 < wordl1.size() && (number2 < wordl1.size()+wordl2.size() && number2 >= wordl1.size()));
+			if(emptyWord->isConnectedWith(wordl1[number1]))SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
+			if(emptyWord->isConnectedWith(wordl2[number2-wordl1.size()]))SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
+			if(!wordl1[number1]->isConnectedWith(wordl2[number2-wordl1.size()]))SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, last_repetition);
 		}
 
 		for(ushort i = 0; i < numberWordsFL; i++) {
