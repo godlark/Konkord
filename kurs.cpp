@@ -432,6 +432,7 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 			}
 			repairRepetitionLevels(sword->getWhichRepetition(i), deviation, (int)parttime, predicted_score);
 		}
+		
 		ushort repetition = sword->getWhichRepetition(i);
 		if(deviation > 0) {
 			repetition++;
@@ -455,6 +456,10 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 			}
 		}
 		sword->setWhichRepetition(i, repetition);
+		
+		//ASSERT OUT
+		if(new_repetitionsAverageError[sword->getWhichRepetition(i)] > 1000)new_repetitionsAverageError[sword->getWhichRepetition(i)] = 1000;
+		if(new_repetitionsAverageError[sword->getWhichRepetition(i)] < 0.001)new_repetitionsAverageError[sword->getWhichRepetition(i)] = 0.001;
 	}
 	ifChangeKurs = true;
 }
@@ -489,8 +494,8 @@ void Kurs::calibrateRepetitionLevels(const ushort &which_repetition, const int &
 		divider = 0;
 		predicted_score = 0;
 		for(int k = 0; k < 10; k++) {
-			predicted_score += new_repetitionsLevels[which_repetition][k]*logs[abs(k*10-(j*10*new_time)/old_time) < 100 ? abs(k*10-(j*10*new_time)/old_time) : 99];
-			divider += logs[abs(k*10-(j*10*new_time)/old_time) < 100 ? abs(k*10-(j*10*new_time)/old_time) : 99];
+			predicted_score += new_repetitionsLevels[which_repetition][k]*logs[abs(k*10-(j*10*new_time)/old_time) < 101 ? abs(k*10-(j*10*new_time)/old_time) : 100];
+			divider += logs[abs(k*10-(j*10*new_time)/old_time) < 101 ? abs(k*10-(j*10*new_time)/old_time) : 100];
 		}
 		predicted_score /= divider;
 		new_repetitionsLevels[which_repetition][j] = predicted_score;
