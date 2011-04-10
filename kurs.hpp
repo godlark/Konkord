@@ -40,12 +40,17 @@ class WordToRepetition {
     public :
         ushort nr_word;
 		double priority;
+		double parttime;
 };
 class compareWords {
     public:
         bool operator() (WordToRepetition swani1, WordToRepetition swani2) {
-            if(swani1.priority >= swani2.priority)return true;
+            if(swani1.priority > swani2.priority)return true;
             if(swani1.priority < swani2.priority)return false;
+            if(swani1.priority == swani2.priority) {
+				if(swani1.parttime >= swani2.parttime)return false;
+				if(swani2.parttime < swani2.parttime)return true;
+			} 
 		}
 };
 

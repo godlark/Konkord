@@ -210,16 +210,18 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 		if(wordl1[i]->isConnectedWith(emptyWord) || !wordl1[i]->isKnown())continue; //ze słów pustych i nie poznanych nie można przeptywać
 		
 		ushort countConnections = wordl1[i]->getNumberMeanings();
-		divider = 0;
-		predicted_score = 0;
 		parttime = 0;
 		wtr.priority = 0;
+		wtr.parttime = 0;
 		for(ushort j = 0; j < countConnections; j++) {
 			parttime = (double)(nowTime-wordl1[i]->getTimeLastRepetition(j));
 			parttime *= 1000;
 			parttime /= (double)(new_repetitionsTime[wordl1[i]->getWhichRepetition(j)]);
+			wtr.parttime += parttime;
 			if(parttime > 1000)parttime = 1000;
-		
+			
+			predicted_score = 0;
+			divider = 0;
 			for(int k = 0; k < 11; k++) {
 				predicted_score += new_repetitionsLevels[wordl1[i]->getWhichRepetition(j)][k]*logs[abs(k*10-(int)parttime/10)];
 				divider += logs[abs(k*10-(int)parttime/10)];
@@ -228,6 +230,7 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 			wtr.priority += predicted_score;
 		}
 		wtr.priority /= countConnections;
+		wtr.parttime /= countConnections;
 		wtr.nr_word = i;
 		if(wtr.priority < 700) {
 			AhowManyWords++;
@@ -239,16 +242,18 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 		if(wordl2[i]->isConnectedWith(emptyWord) || !wordl2[i]->isKnown())continue; //ze słów pustych i nie poznanych nie można przeptywać
 		
 		ushort countConnections = wordl2[i]->getNumberMeanings();
-		divider = 0;
-		predicted_score = 0;
 		parttime = 0;
 		wtr.priority = 0;
+		wtr.parttime = 0;
 		for(ushort j = 0; j < countConnections; j++) {
 			parttime = (double)(nowTime-wordl2[i]->getTimeLastRepetition(j));
 			parttime *= 1000;
 			parttime /= (double)(new_repetitionsTime[wordl2[i]->getWhichRepetition(j)]);
+			wtr.parttime += parttime;
 			if(parttime > 1000)parttime = 1000;
-		
+			
+			predicted_score = 0;
+			divider = 0;
 			for(int k = 0; k < 11; k++) {
 				predicted_score += new_repetitionsLevels[wordl2[i]->getWhichRepetition(j)][k]*logs[abs(k*10-(int)parttime/10)];
 				divider += logs[abs(k*10-(int)parttime/10)];
@@ -257,6 +262,7 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 			wtr.priority += predicted_score;
 		}
 		wtr.priority /= countConnections;
+		wtr.parttime /= countConnections;
 		wtr.nr_word = i+wordl1.size();
 		if(wtr.priority < 700) {
 			AhowManyWords++;
