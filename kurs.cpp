@@ -424,8 +424,8 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 		deviation = ((oplev_connections[i]-predicted_score)*1000)/predicted_score;
 		if(abs(deviation) <= new_repetitionsAverageError[sword->getWhichRepetition(i)]) {
 			new_repetitionsAverageError[sword->getWhichRepetition(i)] = new_repetitionsAverageError[sword->getWhichRepetition(i)] * new_repetitionsStabilization[sword->getWhichRepetition(i)] + abs(deviation);
-			new_repetitionsAverageError[sword->getWhichRepetition(i)] /= new_repetitionsStabilization[sword->getWhichRepetition(i)]+1;
-			new_repetitionsStabilization[sword->getWhichRepetition(i)]++;
+			new_repetitionsAverageError[sword->getWhichRepetition(i)] /= new_repetitionsStabilization[sword->getWhichRepetition(i)]+(abs(deviation)/new_repetitionsAverageError[sword->getWhichRepetition(i)]);
+			new_repetitionsStabilization[sword->getWhichRepetition(i)] += (abs(deviation)/new_repetitionsAverageError[sword->getWhichRepetition(i)]);
 		}
 		else {
 			new_repetitionsAverageError[sword->getWhichRepetition(i)] = new_repetitionsAverageError[sword->getWhichRepetition(i)] * (new_repetitionsStabilization[sword->getWhichRepetition(i)]-1) + new_repetitionsAverageError[sword->getWhichRepetition(i)] + (abs(deviation) - new_repetitionsAverageError[sword->getWhichRepetition(i)])/2;
@@ -631,7 +631,7 @@ Kurs::Kurs(const string &name, const string &lang1, const string &lang2, const s
 	new_repetitionsTime[0] = (3600*24);
 	new_repetitionsAverageError = vector<double>(1);
 	new_repetitionsAverageError[0] = 50.0;
-	new_repetitionsStabilization = vector<unsigned int>(1);
+	new_repetitionsStabilization = vector<double>(1);
 	new_repetitionsStabilization[0] = 1;
 	
 	ROE = &_ROE;
@@ -878,7 +878,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 		double* new_repetitionLevels;
 		time_t new_repetitionTime;
 		double new_repetitionAverageError;
-		unsigned int new_repetitionStabilization;
+		double new_repetitionStabilization;
 		for(int i = 0; i < qRepetition; i++) {
 			new_repetitionLevels = new double[11]; //zwolnienie pamięci dopiero w destruktorze kursu
 			for(int j = 0; j < 11; j++) {

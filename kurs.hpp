@@ -71,7 +71,7 @@ class Kurs
 		std::vector<double*> new_repetitionsLevels;
 		std::vector<time_t> new_repetitionsTime;
 		std::vector<double> new_repetitionsAverageError;
-		std::vector<unsigned int> new_repetitionsStabilization;
+		std::vector<double> new_repetitionsStabilization;
 		
 		ushort qAllSingleWords;
 		ushort qKnownSingleWords;
