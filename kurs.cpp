@@ -424,7 +424,7 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 		deviation = ((oplev_connections[i]-predicted_score)*1000)/predicted_score;
 		if(abs(deviation) <= new_repetitionsAverageError[sword->getWhichRepetition(i)]) {
 			new_repetitionsAverageError[sword->getWhichRepetition(i)] = new_repetitionsAverageError[sword->getWhichRepetition(i)] * new_repetitionsStabilization[sword->getWhichRepetition(i)] + abs(deviation);
-			new_repetitionsAverageError[sword->getWhichRepetition(i)] /= new_repetitionsStabilization[sword->getWhichRepetition(i)]+(abs(deviation)/new_repetitionsAverageError[sword->getWhichRepetition(i)]);
+			new_repetitionsAverageError[sword->getWhichRepetition(i)] /= new_repetitionsStabilization[sword->getWhichRepetition(i)]+1;
 			new_repetitionsStabilization[sword->getWhichRepetition(i)] += (abs(deviation)/new_repetitionsAverageError[sword->getWhichRepetition(i)]);
 		}
 		else {
