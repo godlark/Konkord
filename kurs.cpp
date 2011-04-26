@@ -90,7 +90,7 @@ void Kurs::addSingleWords(const vector<string> &spellings, const vector<string> 
 		tempsw = new SingleWord(meanings_spelling[i], meanings_sound[i]);
 		wordl2.push_back(tempsw);
 		for(ushort j = wordl1.size() - sounds.size(); j < wordl1.size(); j++) {
-			SingleWord::connectSingleWords(wordl2[wordl2.size()-1], wordl1[j], 0, 0); //łączy ostatnio dodane słowo dodane do wordl2 z...
+			SingleWord::connectSingleWords(wordl2[wordl2.size()-1], wordl1[j], 0, 0, 0); //łączy ostatnio dodane słowo dodane do wordl2 z...
 			numberConnections++;
 		}
 	}
@@ -114,12 +114,12 @@ void Kurs::addSingleWord(const SingleWord &singleWord, const ushort &where) {
 	if(where == 0) {
 		wordl1.push_back(new SingleWord(&singleWord));
 		number = wordl1.size()-1;
-		SingleWord::connectSingleWords(wordl1[number], emptyWord, 0, 0);
+		SingleWord::connectSingleWords(wordl1[number], emptyWord, 0, 0, 0);
 	}
 	else {
 		wordl2.push_back(new SingleWord(&singleWord));
 		number = wordl1.size() + wordl2.size() - 1;
-		SingleWord::connectSingleWords(wordl2[number-wordl1.size()], emptyWord, 0, 0);
+		SingleWord::connectSingleWords(wordl2[number-wordl1.size()], emptyWord, 0, 0, 0);
 	}
 	qAllSingleWords = wordl1.size() + wordl2.size();
 	ifChangeKurs = true;
@@ -128,7 +128,7 @@ void Kurs::connectSingleWords(const ushort &number1, const ushort &number2) {
 	//ASSERT IN
 	assert(number1 < wordl1.size() && (number2 < wordl1.size()+wordl2.size() && number2 > wordl1.size()));
 	
-	SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], 0, 0);
+	SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], 0, 0, 0);
 	numberConnections++;
 	if(wordl1[number1]->getMeaning(0) == emptyWord)SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
 	if(wordl2[number2-wordl1.size()]->getMeaning(0) == emptyWord)SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
@@ -140,8 +140,8 @@ void Kurs::disconnectSingleWords(const ushort &number1, const ushort &number2) {
 	
 	SingleWord::disconnectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()]);
 	numberConnections--;
-	if(wordl1[number1]->getNumberMeanings() == 0)SingleWord::connectSingleWords(wordl1[number1], emptyWord, 0, 0);
-	if(wordl2[number2-wordl1.size()]->getNumberMeanings() == 0)SingleWord::connectSingleWords(wordl2[number2-wordl1.size()], emptyWord, 0, 0);
+	if(wordl1[number1]->getNumberMeanings() == 0)SingleWord::connectSingleWords(wordl1[number1], emptyWord, 0, 0, 0);
+	if(wordl2[number2-wordl1.size()]->getNumberMeanings() == 0)SingleWord::connectSingleWords(wordl2[number2-wordl1.size()], emptyWord, 0, 0, 0);
 	ifChangeKurs = true;
 }
 void Kurs::delSingleWord(const ushort &number) {
@@ -157,7 +157,7 @@ void Kurs::delSingleWord(const ushort &number) {
 			meaning = (wordl1[number]->getMeaning(i)); //znaczenia słowa z tablicy wordl1 jest w tablicy wordl2
 			SingleWord::disconnectSingleWords(wordl1[number], meaning);
 			if(meaning->getNumberMeanings() == 0) {
-				SingleWord::connectSingleWords(meaning, emptyWord, 0, 0);
+				SingleWord::connectSingleWords(meaning, emptyWord, 0, 0, 0);
 			}
 			numberConnections--;
 		}
@@ -170,7 +170,7 @@ void Kurs::delSingleWord(const ushort &number) {
 			meaning = (wordl2[number-wordl1.size()]->getMeaning(i)); //znaczenia słowa z tablicy wordl1 jest w tablicy wordl2
 			SingleWord::disconnectSingleWords(wordl2[number-wordl1.size()], meaning);
 			if(meaning->getNumberMeanings() == 0) {
-				SingleWord::connectSingleWords(meaning, emptyWord, 0, 0);
+				SingleWord::connectSingleWords(meaning, emptyWord, 0, 0, 0);
 			}
 			numberConnections--;
 		}
@@ -397,7 +397,6 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 		parttime *= 1000;
 		parttime /= (double)(new_repetitionsTime[sword->getWhichRepetition(i)]);
 		
-		
 		//Jeśli czas jaki minął od ostatniego powtórzenia słowa jest dłuższy niż maksymalny
 		if(parttime > 1000) {
 			if(abs((new_repetitionsLevels[sword->getWhichRepetition(i)][10]-new_repetitionsLevels[sword->getWhichRepetition(i)][9])*10/new_repetitionsLevels[sword->getWhichRepetition(i)][9]) < new_repetitionsAverageError[sword->getWhichRepetition(i)]) {
@@ -589,13 +588,13 @@ void Kurs::unitSingleWords(const ushort &number1, const ushort &number2) {//ulep
 		wordl2[number1-wordl1.size()]->joinOtherSingleWord(wordl2[number2-wordl1.size()]);
 		if(wordl2[number2-wordl1.size()]->isKnown() == false)qKnownSingleWords--;
 		wordl2.erase(wordl2.begin() + number2 - wordl1.size());
-		if(wordl2[number1-wordl1.size()]->getNumberMeanings() == 0)SingleWord::connectSingleWords(wordl2[number1-wordl1.size()], emptyWord, 0, 0);
+		if(wordl2[number1-wordl1.size()]->getNumberMeanings() == 0)SingleWord::connectSingleWords(wordl2[number1-wordl1.size()], emptyWord, 0, 0, 0);
 	}
 	else if(number1 < wordl1.size() && number2 < wordl1.size()) {
 		wordl1[number1]->joinOtherSingleWord(wordl1[number2]);
 		if(wordl1[number2]->isKnown() == false)qKnownSingleWords--;
 		wordl1.erase(wordl1.begin() + number2);
-		if(wordl1[number1]->getNumberMeanings() == 0)SingleWord::connectSingleWords(wordl1[number1], emptyWord, 0, 0);
+		if(wordl1[number1]->getNumberMeanings() == 0)SingleWord::connectSingleWords(wordl1[number1], emptyWord, 0, 0, 0);
 	}
 	qAllSingleWords = wordl1.size() + wordl2.size();
 }
@@ -724,7 +723,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 				
 			sword.setSpelling(spelling);
 			wordl1.push_back(new SingleWord(sword));
-			SingleWord::connectSingleWords(wordl1[i], emptyWord, 0, 0);
+			SingleWord::connectSingleWords(wordl1[i], emptyWord, 0, 0, 0);
 		}
 		for(ushort i = 0; i < numberWordsSL; i++) {
 			getline(file, spelling);
@@ -735,7 +734,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 
 			sword.setSpelling(spelling);
 			wordl2.push_back(new SingleWord(sword));
-			SingleWord::connectSingleWords(wordl2[i], emptyWord, 0, 0);
+			SingleWord::connectSingleWords(wordl2[i], emptyWord, 0, 0, 0);
 		}
 		ushort number1;
 		ushort number2;
@@ -752,7 +751,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 			if(emptyWord->isConnectedWith(wordl1[number1]))SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
 			if(emptyWord->isConnectedWith(wordl2[number2-wordl1.size()]))SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
 			assert(!wordl1[number1]->isConnectedWith(wordl2[number2-wordl1.size()]));
-			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, last_repetition);
+			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, which_repetition, last_repetition);
 		}
 
 		for(ushort i = 0; i < numberWordsFL; i++) {
@@ -820,13 +819,13 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 			getline(file, spelling);
 			sword.setSpelling(spelling);
 			wordl1.push_back(new SingleWord(sword));
-			SingleWord::connectSingleWords(wordl1[i], emptyWord, 0, 0);
+			SingleWord::connectSingleWords(wordl1[i], emptyWord, 0, 0, 0);
 		}
 		for(ushort i = 0; i < numberWordsSL; i++) {
 			getline(file, spelling);
 			sword.setSpelling(spelling);
 			wordl2.push_back(new SingleWord(sword));
-			SingleWord::connectSingleWords(wordl2[i], emptyWord, 0, 0);
+			SingleWord::connectSingleWords(wordl2[i], emptyWord, 0, 0, 0);
 		}
 		ushort number1;
 		ushort number2;
@@ -845,7 +844,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 			if(emptyWord->isConnectedWith(wordl1[number1]))SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
 			if(emptyWord->isConnectedWith(wordl2[number2-wordl1.size()]))SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
 			assert(!wordl1[number1]->isConnectedWith(wordl2[number2-wordl1.size()]));
-			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, last_repetition);
+			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, which_repetition2, last_repetition);
 		}
 
 		for(ushort i = 0; i < numberWordsFL; i++) {
@@ -905,13 +904,13 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 			getline(file, spelling);
 			sword.setSpelling(spelling);
 			wordl1.push_back(new SingleWord(sword));
-			SingleWord::connectSingleWords(wordl1[i], emptyWord, 0, 0);
+			SingleWord::connectSingleWords(wordl1[i], emptyWord, 0, 0, 0);
 		}
 		for(ushort i = 0; i < numberWordsSL; i++) {
 			getline(file, spelling);
 			sword.setSpelling(spelling);
 			wordl2.push_back(new SingleWord(sword));
-			SingleWord::connectSingleWords(wordl2[i], emptyWord, 0, 0);
+			SingleWord::connectSingleWords(wordl2[i], emptyWord, 0, 0, 0);
 		}
 		ushort number1;
 		ushort number2;
@@ -930,7 +929,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 			if(emptyWord->isConnectedWith(wordl1[number1]))SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
 			if(emptyWord->isConnectedWith(wordl2[number2-wordl1.size()]))SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
 			assert(!wordl1[number1]->isConnectedWith(wordl2[number2-wordl1.size()]));
-			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, last_repetition);
+			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, which_repetition2, last_repetition);
 		}
 
 		for(ushort i = 0; i < numberWordsFL; i++) {
@@ -994,7 +993,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 			wordl1.push_back(new SingleWord(sword));
 			sword.setSpelling(decode_text(_second));
 			wordl2.push_back(new SingleWord(sword));
-			SingleWord::connectSingleWords(wordl1[i], wordl2[i], 0, _time_lastud);
+			SingleWord::connectSingleWords(wordl1[i], wordl2[i], 0, 0, _time_lastud);
 		}
 		fclose(plik);
 		//restore memory

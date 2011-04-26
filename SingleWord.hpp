@@ -83,7 +83,7 @@ class SingleWord {
 		SingleWord(SingleWord const *sw);
 		~SingleWord();
 		
-		static void connectSingleWords(SingleWord *sw1, SingleWord *sw2, const ushort &which_repetition, const time_t &last_repetition, int which_repetition2 = -1);
+		static void connectSingleWords(SingleWord *sw1, SingleWord *sw2, const ushort &which_repetition, const ushort &which_repetition2, const time_t &last_repetition);
 		static void disconnectSingleWords(SingleWord *sw1, SingleWord *sw2);
 };
 

@@ -82,12 +82,10 @@ time_t SingleWord::getTimeNextRepetition(const ushort &number_meaning, const vec
 	if(*repetitionsOfMeanings[number_meaning] >= repetitionsTime.size())throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	return *lastRepetitionsOfM[number_meaning] + repetitionsTime[*repetitionsOfMeanings[number_meaning]];
 }
-void SingleWord::connectSingleWords(SingleWord *sw1, SingleWord *sw2, const ushort &which_repetition, const time_t &last_repetition, int which_repetition2) {//zmienić kolejność argumentów
+void SingleWord::connectSingleWords(SingleWord *sw1, SingleWord *sw2, const ushort &which_repetition, const ushort &which_repetition2, const time_t &last_repetition) {
 	//ASSERT IN
 	assert(sw1 != NULL && sw2 != NULL);
 	assert(!sw1->isConnectedWith(sw2));
-	
-	if(which_repetition2 == -1)which_repetition2 = which_repetition;
 		
 	int temp1 = sw1->meanings.size();
 	sw1->meanings.push_back(sw2);
@@ -181,7 +179,7 @@ bool SingleWord::isConnectedWith(SingleWord* meaning) const{
 void SingleWord::joinOtherSingleWord(SingleWord* sword) {
 	for(ushort i = 0; i < sword->q_meanings; i++) {
 		if(isConnectedWith(sword->meanings[i]))continue;
-		else connectSingleWords(this, sword, 0, 0);
+		else connectSingleWords(this, sword, 0, 0, 0);
 	}
 }
 int SingleWord::findMeaning(SingleWord *meaning) const{
