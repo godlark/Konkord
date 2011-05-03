@@ -494,17 +494,24 @@ void Kurs::calibrateRepetitionLevels(const ushort &which_repetition, const int &
 	
 	double divider;
 	double predicted_score;
+	
+	vector<double> temp(11);
+	temp[0] = 1000;
+	temp[10] = new_repetitionsLevels[which_repetition][10];
 	for(int j = 1; j < 10; j++) {
 		divider = 0;
 		predicted_score = 0;
 		for(int k = 0; k < 10; k++) {
-			predicted_score += new_repetitionsLevels[which_repetition][k]*logs[abs(k*10-(j*10*new_time)/old_time) < 101 ? abs(k*10-(j*10*new_time)/old_time) : 100];
-			divider += logs[abs(k*10-(j*10*new_time)/old_time) < 101 ? abs(k*10-(j*10*new_time)/old_time) : 100];
+			predicted_score += new_repetitionsLevels[which_repetition][k]*logs[abs(j*10-(k*10*old_time/new_time)) < 101 ? abs(j*10-(k*10*old_time/new_time)) : 100];
+			divider += logs[abs(j*10-(k*10*old_time/new_time)) < 101 ? abs(j*10-(k*10*old_time/new_time)) : 100];
 		}
 		predicted_score /= divider;
-		new_repetitionsLevels[which_repetition][j] = predicted_score;
-		if(new_repetitionsLevels[which_repetition][j] > 1000)new_repetitionsLevels[which_repetition][j] = 1000;
-		if(new_repetitionsLevels[which_repetition][j] < 0)new_repetitionsLevels[which_repetition][j] = 0;
+		temp[j] = predicted_score;
+		if(temp[j] > 1000)temp[j] = 1000;
+		if(temp[j] < 0)temp[j] = 0;
+	}
+	for(int i = 0; i < 11; i++) {
+		new_repetitionsLevels[which_repetition][i] = temp[i];
 	}
 	if(old_time > new_time)new_repetitionsStabilization[which_repetition] =  (new_repetitionsStabilization[which_repetition]*new_time)/old_time;
 	else new_repetitionsStabilization[which_repetition] =  (new_repetitionsStabilization[which_repetition]*old_time)/new_time;
