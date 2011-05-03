@@ -108,7 +108,6 @@ void Kurs::addSingleWords(const vector<string> &spellings, const vector<string> 
 }
 void Kurs::addSingleWord(const SingleWord &singleWord, const ushort &where) {
 	//ASSERT IN
-	assert(where == 0 && where == 1);
 	
 	ushort number;
 	if(where == 0) {
@@ -399,10 +398,10 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 		
 		//Jeśli czas jaki minął od ostatniego powtórzenia słowa jest dłuższy niż maksymalny
 		if(parttime > 1000) {
-			if(abs((new_repetitionsLevels[sword->getWhichRepetition(i)][10]-new_repetitionsLevels[sword->getWhichRepetition(i)][9])*10/new_repetitionsLevels[sword->getWhichRepetition(i)][9]) < new_repetitionsAverageError[sword->getWhichRepetition(i)]) {
+			if(abs((new_repetitionsLevels[sword->getWhichRepetition(i)][10]-new_repetitionsLevels[sword->getWhichRepetition(i)][9])*1000/new_repetitionsLevels[sword->getWhichRepetition(i)][9]) < new_repetitionsAverageError[sword->getWhichRepetition(i)]/10) {
 				parttime = 1000;
 			}
-			else if(abs((new_repetitionsLevels[sword->getWhichRepetition(i)][10]-new_repetitionsLevels[sword->getWhichRepetition(i)][9])*10/new_repetitionsLevels[sword->getWhichRepetition(i)][10]) < new_repetitionsAverageError[sword->getWhichRepetition(i)]) {
+			else if(abs((new_repetitionsLevels[sword->getWhichRepetition(i)][10]-new_repetitionsLevels[sword->getWhichRepetition(i)][9])*1000/new_repetitionsLevels[sword->getWhichRepetition(i)][10]) < new_repetitionsAverageError[sword->getWhichRepetition(i)]/10) {
 				parttime = 1000;
 			}
 			else {
