@@ -495,9 +495,9 @@ void Kurs::calibrateRepetitionLevels(const ushort &which_repetition, const int &
 	double divider;
 	double predicted_score;
 	
-	vector<double> temp(11);
-	temp[0] = 1000;
-	temp[10] = new_repetitionsLevels[which_repetition][10];
+	vector<double> repetitionLevel(11);
+	repetitionLevel[0] = 1000;
+	repetitionLevel[10] = new_repetitionsLevels[which_repetition][10];
 	for(int j = 1; j < 10; j++) {
 		divider = 0;
 		predicted_score = 0;
@@ -506,12 +506,12 @@ void Kurs::calibrateRepetitionLevels(const ushort &which_repetition, const int &
 			divider += logs[abs(j*10-(k*10*old_time/new_time)) < 101 ? abs(j*10-(k*10*old_time/new_time)) : 100];
 		}
 		predicted_score /= divider;
-		temp[j] = predicted_score;
-		if(temp[j] > 1000)temp[j] = 1000;
-		if(temp[j] < 0)temp[j] = 0;
+		repetitionLevel[j] = predicted_score;
+		if(repetitionLevel[j] > 1000)repetitionLevel[j] = 1000;
+		if(repetitionLevel[j] < 0)repetitionLevel[j] = 0;
 	}
 	for(int i = 0; i < 11; i++) {
-		new_repetitionsLevels[which_repetition][i] = temp[i];
+		new_repetitionsLevels[which_repetition][i] = repetitionLevel[i];
 	}
 	if(old_time > new_time)new_repetitionsStabilization[which_repetition] =  (new_repetitionsStabilization[which_repetition]*new_time)/old_time;
 	else new_repetitionsStabilization[which_repetition] =  (new_repetitionsStabilization[which_repetition]*old_time)/new_time;
