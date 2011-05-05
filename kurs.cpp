@@ -127,10 +127,10 @@ void Kurs::connectSingleWords(const ushort &number1, const ushort &number2) {
 	//ASSERT IN
 	assert(number1 < wordl1.size() && (number2 < wordl1.size()+wordl2.size() && number2 > wordl1.size()));
 	
+	if(wordl1[number1]->isConnectedWith(emptyWord))SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
+	if(wordl2[number2-wordl1.size()]->isConnectedWith(emptyWord))SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
 	SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], 0, 0, 0);
 	numberConnections++;
-	if(wordl1[number1]->getMeaning(0) == emptyWord)SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
-	if(wordl2[number2-wordl1.size()]->getMeaning(0) == emptyWord)SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
 	ifChangeKurs = true;
 }
 void Kurs::disconnectSingleWords(const ushort &number1, const ushort &number2) {
@@ -375,9 +375,12 @@ bool Kurs::isSingleWordFLorSL(const ushort &word_number) const {
 	return word_number < wordl1.size() ? true : false; //not sesne ist throw Error for word_number > qAllSingleWords
 }
 void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vector<double> &oplev_connections) {
+	//ASSERT IN
+	assert(word_number < wordl1.size()+wordl2.size());
 	SingleWord *sword = word_number < wordl1.size() ? wordl1[word_number] : wordl2[word_number-wordl1.size()];
+	assert(oplev_connections.size() == sword->getNumberMeanings());
+
 	double max_oplev = 20;
-	if(oplev_connections.size() < sword->getNumberMeanings())throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	time_t nowTime = time(NULL);
 	double parttime;
 	double predicted_score;
@@ -437,6 +440,10 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 			repairRepetitionLevels(sword->getWhichRepetition(i), deviation, (int)parttime, predicted_score);
 		}
 		
+		//CONTROLING
+		if(new_repetitionsAverageError[sword->getWhichRepetition(i)] > 1000)new_repetitionsAverageError[sword->getWhichRepetition(i)] = 1000;
+		if(new_repetitionsAverageError[sword->getWhichRepetition(i)] < 0.001)new_repetitionsAverageError[sword->getWhichRepetition(i)] = 0.001;
+		
 		ushort repetition = sword->getWhichRepetition(i);
 		if(deviation > 0) {
 			repetition++;
@@ -460,12 +467,10 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 			}
 		}
 		sword->setWhichRepetition(i, repetition);
-		
-		//ASSERT OUT
-		if(new_repetitionsAverageError[sword->getWhichRepetition(i)] > 1000)new_repetitionsAverageError[sword->getWhichRepetition(i)] = 1000;
-		if(new_repetitionsAverageError[sword->getWhichRepetition(i)] < 0.001)new_repetitionsAverageError[sword->getWhichRepetition(i)] = 0.001;
 	}
 	ifChangeKurs = true;
+	
+	//ASSERT OUT
 }
 void Kurs::repairRepetitionLevels(const ushort &which_repetition, const double &deviation, const int &parttime, const double &predicted_score) {
 	//ASSERT IN
@@ -521,16 +526,20 @@ void Kurs::calibrateRepetitionLevels(const ushort &which_repetition, const int &
 	//ASSERT OUT
 }
 void Kurs::setSingleWord(const ushort &number, const string &spelling, const string &sound) {
-	if(number >= qAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
+	//ASSERT IN
+	assert(number < wordl1.size()+wordl2.size());
+	
 	SingleWord *sword = number < wordl1.size() ? wordl1[number] : wordl2[number-wordl1.size()];
 	sword->setSpelling(spelling);
 	sword->setSound(sound);
 }
 void Kurs::setMeaningForSingleWord(const ushort &number_word, const ushort &number_meaning, const string &spelling, const string &sound) {
-	if(number_word >= qAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
+	//ASSERT IN
+	assert(number_word < wordl1.size()+wordl2.size());
 	SingleWord *sword = number_word < wordl1.size() ? wordl1[number_word] : wordl2[number_word-wordl1.size()];
-	if(number_meaning >= sword->getNumberMeanings())throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
-	if(sword->getMeaning(number_meaning) == emptyWord)throw Error::newError(Error::IMPOSSIBLE, "", __LINE__, __FILE__);
+	assert(number_meaning < sword->getNumberMeanings());
+	assert(sword->getMeaning(number_meaning) != emptyWord);
+	
 	sword->getMeaning(number_meaning)->setSpelling(spelling);
 	sword->getMeaning(number_meaning)->setSound(sound);
 }
@@ -587,9 +596,12 @@ string Kurs::readSingleWordsFromFile(const string &file_to_open)
 	return message;
 }
 void Kurs::unitSingleWords(const ushort &number1, const ushort &number2) {//ulepszyć
+	//ASSERT IN
+	assert(number1 < wordl1.size() + wordl2.size() && number2 < wordl1.size() + wordl2.size());
+	assert(number1 != number2);
+	
 	if(wordl1[number1]->getMeaning(0) == emptyWord)SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
 	if(wordl2[number2-wordl1.size()]->getMeaning(0) == emptyWord)SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
-	if(number1 >= qAllSingleWords || number2 >= qAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "",__LINE__, __FILE__);
 	if(number1 >= wordl1.size() && number2 >= wordl1.size()) {
 		wordl2[number1-wordl1.size()]->joinOtherSingleWord(wordl2[number2-wordl1.size()]);
 		if(wordl2[number2-wordl1.size()]->isKnown() == false)qKnownSingleWords--;
