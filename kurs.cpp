@@ -380,7 +380,7 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 	SingleWord *sword = word_number < wordl1.size() ? wordl1[word_number] : wordl2[word_number-wordl1.size()];
 	assert(oplev_connections.size() == sword->getNumberMeanings());
 
-	double max_oplev = 20;
+	double max_oplev = 6;
 	time_t nowTime = time(NULL);
 	double parttime;
 	double predicted_score;

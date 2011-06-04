@@ -183,9 +183,9 @@ void ServiceOfTasks::repaskWords() {
 			sprintf(temp, "%hu", j+1);
 			string temp2 = "Na ile oceniasz swoją poprawność znaczenia ";
 			temp2 += temp;
-			temp2 += " w skali od 1 do 20";
+			temp2 += " w skali od 0 do 6";
 			oplevs[j] = (double)main_interface->dialogWindow(temp2, 1)._ushort;
-			if(oplevs[j] > 20)oplevs[j] = 20;
+			if(oplevs[j] > 6)oplevs[j] = 6;
 		}
 		courses[activ_course]->repairPredictions(swords[i], atime, oplevs);
 	}
@@ -265,9 +265,9 @@ void ServiceOfTasks::askUnknownWords() {
 			sprintf(temp, "%hu", j);
 			string temp2 = "Na ile oceniasz swoją poprawność znaczenia ";
 			temp2 += temp;
-			temp2 += " w skali od 1 do 20";
+			temp2 += " w skali od 0 do 6";
 			oplevs[j] = (double)main_interface->dialogWindow(temp2, 1)._ushort;
-			if(oplevs[j] > 20)oplevs[j] = 20;
+			if(oplevs[j] > 6)oplevs[j] = 6;
 		}
 		courses[activ_course]->repairPredictions(swords[i], atime, oplevs);
 	}
