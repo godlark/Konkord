@@ -639,352 +639,90 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 	ifstream file;
 	file.open(file_to_open.c_str());
 	if(!file.is_open())throw Error::newError(Error::ERROR_OPEN_FILE, "", __LINE__, __FILE__);
-	string firstline;
-	getline(file, firstline);
-	if(firstline == "new version") {
-		ushort numberWordsFL;
-		ushort numberWordsSL;
-		file >> name;
-		file.ignore(INT_MAX, '\n');
-		file >> numberWordsFL;
-		file.ignore(INT_MAX, '\n');
-		file >> numberWordsSL;
-		file.ignore(INT_MAX, '\n');
-		file >> numberConnections;
-		file.ignore(INT_MAX, '\n');
-		file >> askQKW;
-		file.ignore(INT_MAX, '\n');
-		file >> askQNW;
-		file.ignore(INT_MAX, '\n');
-		ushort qRepetition;
-		file >> qRepetition;
-		file.ignore(INT_MAX, '\n');
-		time_t new_repetitionTime;
-		ushort repetitionHowMany;
-		double repetitionGrade;
-		double *tempss;
-		for(int i = 0; i < qRepetition; i++) {
-			file >> new_repetitionTime;
-			file >> repetitionHowMany;
-			file >> repetitionGrade;
-			file.ignore(INT_MAX, '\n');
-			
-			tempss = new double[12]; //zwalnianie pamięci dopiero w destruktorze kursu
-			tempss[0] = 1000;
-			tempss[1] = 900;
-			tempss[2] = 800;
-			tempss[3] = 700;
-			tempss[4] = 600;
-			tempss[5] = 500;
-			tempss[6] = 400;
-			tempss[7] = 300;
-			tempss[8] = 200;
-			tempss[9] = 100;
-			tempss[10] = 0;
-			tempss[11] = 0;
-			
-			new_repetitionsLevels.push_back(tempss);
-			new_repetitionsTime.push_back(new_repetitionTime);
-			new_repetitionsAverageError.push_back(50.0);
-			new_repetitionsStabilization.push_back(1);
-		}
-		filename = file_to_open;
-		qAllSingleWords = numberWordsFL + numberWordsSL;
-			
-		SingleWord sword("", "");
-		ushort oplev;
-		ushort hralev;
-		string spelling;
-		time_t time_lastud;
-		qKnownSingleWords = 0;
-		ifChangeKurs = false;
-		for(ushort i = 0; i < numberWordsFL; i++) {
-			getline(file, spelling);
-			file >> oplev;
-			file >> hralev;
-			file >> time_lastud;
-			file.ignore(INT_MAX, '\n');
-				
-			sword.setSpelling(spelling);
-			wordl1.push_back(new SingleWord(sword));
-			SingleWord::connectSingleWords(wordl1[i], emptyWord, 0, 0, 0);
-		}
-		for(ushort i = 0; i < numberWordsSL; i++) {
-			getline(file, spelling);
-			file >> oplev;
-			file >> hralev;
-			file >> time_lastud;
-			file.ignore(INT_MAX, '\n');
-
-			sword.setSpelling(spelling);
-			wordl2.push_back(new SingleWord(sword));
-			SingleWord::connectSingleWords(wordl2[i], emptyWord, 0, 0, 0);
-		}
-		ushort number1;
-		ushort number2;
-		ushort which_repetition;
-		time_t last_repetition;
-		for(ushort i = 0; i < numberConnections; i++) {
-			file >> number1;
-			file >> number2;
-			file >> which_repetition;
-			file >> last_repetition;
-				
-			file.ignore(INT_MAX, '\n');
-			assert(number1 < wordl1.size() && (number2 < wordl1.size()+wordl2.size() && number2 >= wordl1.size()));
-			if(emptyWord->isConnectedWith(wordl1[number1]))SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
-			if(emptyWord->isConnectedWith(wordl2[number2-wordl1.size()]))SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
-			assert(!wordl1[number1]->isConnectedWith(wordl2[number2-wordl1.size()]));
-			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, which_repetition, last_repetition);
-		}
-
-		for(ushort i = 0; i < numberWordsFL; i++) {
-			if(wordl1[i]->isKnown())qKnownSingleWords++;
-		}
-		for(ushort i = 0; i < numberWordsSL; i++) {
-			if(wordl2[i]->isKnown())qKnownSingleWords++;
-		}
-		file.close();
-	}
-	else if(firstline == "new version2") {
-		ushort numberWordsFL;
-		ushort numberWordsSL;
-		file >> name;
-		file.ignore(INT_MAX, '\n');
-		file >> numberWordsFL;
-		file.ignore(INT_MAX, '\n');
-		file >> numberWordsSL;
-		file.ignore(INT_MAX, '\n');
-		file >> numberConnections;
-		file.ignore(INT_MAX, '\n');
-		file >> askQKW;
-		file.ignore(INT_MAX, '\n');
-		file >> askQNW;
-		file.ignore(INT_MAX, '\n');
-		ushort qRepetition;
-		file >> qRepetition;
-		file.ignore(INT_MAX, '\n');
-		time_t new_repetitionTime;
-		ushort repetitionHowMany;
-		double repetitionGrade;
-		double *tempss;
-		for(int i = 0; i < qRepetition; i++) {
-			file >> new_repetitionTime;
-			file >> repetitionHowMany;
-			file >> repetitionGrade;
-			file.ignore(INT_MAX, '\n');
-			
-			tempss = new double[12]; //zwalnianie pamięci dopiero w destruktorze kursu
-			tempss[0] = 1000;
-			tempss[1] = 900;
-			tempss[2] = 800;
-			tempss[3] = 700;
-			tempss[4] = 600;
-			tempss[5] = 500;
-			tempss[6] = 400;
-			tempss[7] = 300;
-			tempss[8] = 200;
-			tempss[9] = 100;
-			tempss[10] = 0;
-			tempss[11] = 0;
-			
-			new_repetitionsLevels.push_back(tempss);
-			new_repetitionsTime.push_back(new_repetitionTime);
-			new_repetitionsAverageError.push_back(50.0);
-			new_repetitionsStabilization.push_back(1);
-		}
-		filename = file_to_open;
-		qAllSingleWords = numberWordsFL + numberWordsSL;
-
-		SingleWord sword("", "");
-		string spelling;
-		qKnownSingleWords = 0;
-		ifChangeKurs = false;
-		for(ushort i = 0; i < numberWordsFL; i++) {
-			getline(file, spelling);
-			sword.setSpelling(spelling);
-			wordl1.push_back(new SingleWord(sword));
-			SingleWord::connectSingleWords(wordl1[i], emptyWord, 0, 0, 0);
-		}
-		for(ushort i = 0; i < numberWordsSL; i++) {
-			getline(file, spelling);
-			sword.setSpelling(spelling);
-			wordl2.push_back(new SingleWord(sword));
-			SingleWord::connectSingleWords(wordl2[i], emptyWord, 0, 0, 0);
-		}
-		ushort number1;
-		ushort number2;
-		ushort which_repetition;
-		ushort which_repetition2;
-		time_t last_repetition;
-		for(ushort i = 0; i < numberConnections; i++) {
-			file >> number1;
-			file >> number2;
-			file >> which_repetition;
-			file >> which_repetition2;
-			file >> last_repetition;
-
-			file.ignore(INT_MAX, '\n');
-			assert(number1 < wordl1.size() && (number2 < wordl1.size()+wordl2.size() && number2 >= wordl1.size()));
-			if(emptyWord->isConnectedWith(wordl1[number1]))SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
-			if(emptyWord->isConnectedWith(wordl2[number2-wordl1.size()]))SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
-			assert(!wordl1[number1]->isConnectedWith(wordl2[number2-wordl1.size()]));
-			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, which_repetition2, last_repetition);
-		}
-
-		for(ushort i = 0; i < numberWordsFL; i++) {
-			if(wordl1[i]->isKnown())qKnownSingleWords++;
-		}
-		for(ushort i = 0; i < numberWordsSL; i++) {
-			if(wordl2[i]->isKnown())qKnownSingleWords++;
-		}
-		file.close();
-	}
-	else if(firstline == "new version3") {
-		ushort numberWordsFL;
-		ushort numberWordsSL;
-		file >> name;
-		file.ignore(INT_MAX, '\n');
-		file >> numberWordsFL;
-		file.ignore(INT_MAX, '\n');
-		file >> numberWordsSL;
-		file.ignore(INT_MAX, '\n');
-		file >> numberConnections;
-		file.ignore(INT_MAX, '\n');
-		file >> askQKW;
-		file.ignore(INT_MAX, '\n');
-		file >> askQNW;
-		file.ignore(INT_MAX, '\n');
-		ushort qRepetition;
-		file >> qRepetition;
-		file.ignore(INT_MAX, '\n');
+	
+	ushort numberWordsFL;
+	ushort numberWordsSL;
+	file >> name;
+	file.ignore(INT_MAX, '\n');
+	file >> numberWordsFL;
+	file.ignore(INT_MAX, '\n');
+	file >> numberWordsSL;
+	file.ignore(INT_MAX, '\n');
+	file >> numberConnections;
+	file.ignore(INT_MAX, '\n');
+	file >> askQKW;
+	file.ignore(INT_MAX, '\n');
+	file >> askQNW;
+	file.ignore(INT_MAX, '\n');
+	ushort qRepetition;
+	file >> qRepetition;
+	file.ignore(INT_MAX, '\n');
 		
-		double* new_repetitionLevels;
-		time_t new_repetitionTime;
-		double new_repetitionAverageError;
-		double new_repetitionStabilization;
-		for(int i = 0; i < qRepetition; i++) {
-			new_repetitionLevels = new double[11]; //zwolnienie pamięci dopiero w destruktorze kursu
-			for(int j = 0; j < 12; j++) {
-				file >> new_repetitionLevels[j];
-			}
-			file >> new_repetitionTime;
-			file >> new_repetitionAverageError;
-			file >> new_repetitionStabilization;
-			file.ignore(INT_MAX, '\n');
+	double* new_repetitionLevels;
+	time_t new_repetitionTime;
+	double new_repetitionAverageError;
+	double new_repetitionStabilization;
+	for(int i = 0; i < qRepetition; i++) {
+		new_repetitionLevels = new double[11]; //zwolnienie pamięci dopiero w destruktorze kursu
+		for(int j = 0; j < 12; j++) {
+			file >> new_repetitionLevels[j];
+		}
+		file >> new_repetitionTime;
+		file >> new_repetitionAverageError;
+		file >> new_repetitionStabilization;
+		file.ignore(INT_MAX, '\n');
 			
-			new_repetitionsLevels.push_back(new_repetitionLevels);
-			new_repetitionsTime.push_back(new_repetitionTime);
-			new_repetitionsAverageError.push_back(new_repetitionAverageError);
-			new_repetitionsStabilization.push_back(new_repetitionStabilization);
-		}
-		filename = file_to_open;
-		qAllSingleWords = numberWordsFL + numberWordsSL;
-
-		SingleWord sword("", "");
-		string spelling;
-		qKnownSingleWords = 0;
-		ifChangeKurs = false;
-		for(ushort i = 0; i < numberWordsFL; i++) {
-			getline(file, spelling);
-			sword.setSpelling(spelling);
-			wordl1.push_back(new SingleWord(sword));
-			SingleWord::connectSingleWords(wordl1[i], emptyWord, 0, 0, 0);
-		}
-		for(ushort i = 0; i < numberWordsSL; i++) {
-			getline(file, spelling);
-			sword.setSpelling(spelling);
-			wordl2.push_back(new SingleWord(sword));
-			SingleWord::connectSingleWords(wordl2[i], emptyWord, 0, 0, 0);
-		}
-		ushort number1;
-		ushort number2;
-		ushort which_repetition;
-		ushort which_repetition2;
-		time_t last_repetition;
-		for(ushort i = 0; i < numberConnections; i++) {
-			file >> number1;
-			file >> number2;
-			file >> which_repetition;
-			file >> which_repetition2;
-			file >> last_repetition;
-
-			file.ignore(INT_MAX, '\n');
-			assert(number1 < wordl1.size() && (number2 < wordl1.size()+wordl2.size() && number2 >= wordl1.size()));
-			if(emptyWord->isConnectedWith(wordl1[number1]))SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
-			if(emptyWord->isConnectedWith(wordl2[number2-wordl1.size()]))SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
-			assert(!wordl1[number1]->isConnectedWith(wordl2[number2-wordl1.size()]));
-			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, which_repetition2, last_repetition);
-		}
-
-		for(ushort i = 0; i < numberWordsFL; i++) {
-			if(wordl1[i]->isKnown())qKnownSingleWords++;
-		}
-		for(ushort i = 0; i < numberWordsSL; i++) {
-			if(wordl2[i]->isKnown())qKnownSingleWords++;
-		}
-		file.close();
+		new_repetitionsLevels.push_back(new_repetitionLevels);
+		new_repetitionsTime.push_back(new_repetitionTime);
+		new_repetitionsAverageError.push_back(new_repetitionAverageError);
+		new_repetitionsStabilization.push_back(new_repetitionStabilization);
 	}
-	else {
-		file.close();
-		FILE *plik;
-		plik = fopen(file_to_open.c_str(), "r");
-		if(plik == NULL)throw Error::newError(Error::ERROR_OPEN_FILE, "Kurs::Kurs(string file_to_open)", __LINE__, __FILE__);
-		ifChangeKurs = false;
-		//początek wczytywania danych kursu
-		char _name[100];
-		fscanf(plik, "%s", _name);
-		name = decode_text(_name);
-		char _lang1[100], _lang2[100];
-		fscanf(plik, "%s %s", _lang1, _lang2);
-		lang1 = decode_text(_lang1);
-		lang2 = decode_text(_lang2);
-		char _filename[100];
-		fscanf(plik, "%s %hu %hu", _filename, &askQKW, &askQNW);
-		//filename = decode_text(_filename);
-		filename = file_to_open;
-		fscanf(plik, "%hu %hu", &qAllSingleWords, &qKnownSingleWords);
-		qKnownSingleWords = 0;
-		numberConnections = qAllSingleWords;
-		qAllSingleWords *= 2;
-		
-		double* tempss = new double[12]; //nie robić delete, dopiero w destruktorze kursu
-		tempss[0] = 1000;
-		tempss[1] = 900;
-		tempss[2] = 800;
-		tempss[3] = 700;
-		tempss[4] = 600;
-		tempss[5] = 500;
-		tempss[6] = 400;
-		tempss[7] = 300;
-		tempss[8] = 200;
-		tempss[9] = 100;
-		tempss[10] = 0;
-		tempss[11] = 0;
-		new_repetitionsLevels.push_back(tempss);
-		new_repetitionsTime.push_back(3600*24);
-		new_repetitionsAverageError.push_back(50.0);
-		new_repetitionsStabilization.push_back(1);
+	filename = file_to_open;
+	qAllSingleWords = numberWordsFL + numberWordsSL;
 
-		//koniec wczytywania danych kursu
-		ushort _hralev, _oplev;
-		time_t _time_lastud;
-		SingleWord sword("", "");
-		for(ushort i = 0; i < numberConnections; i++) {
-			char _first[100], _second[100];
-			fscanf(plik, "%s\t%s\t%hu %hu %u\n", _first, _second, &_hralev, &_oplev, &_time_lastud);
-			
-			sword.setSpelling(decode_text(_first));
-			if(_oplev != 0)qKnownSingleWords += 2;
-			wordl1.push_back(new SingleWord(sword));
-			sword.setSpelling(decode_text(_second));
-			wordl2.push_back(new SingleWord(sword));
-			SingleWord::connectSingleWords(wordl1[i], wordl2[i], 0, 0, _time_lastud);
-		}
-		fclose(plik);
-		//restore memory
-			
+	SingleWord sword("", "");
+	string spelling;
+	qKnownSingleWords = 0;
+	ifChangeKurs = false;
+	for(ushort i = 0; i < numberWordsFL; i++) {
+		getline(file, spelling);
+		sword.setSpelling(spelling);
+		wordl1.push_back(new SingleWord(sword));
+		SingleWord::connectSingleWords(wordl1[i], emptyWord, 0, 0, 0);
 	}
+	for(ushort i = 0; i < numberWordsSL; i++) {
+		getline(file, spelling);
+		sword.setSpelling(spelling);
+		wordl2.push_back(new SingleWord(sword));
+		SingleWord::connectSingleWords(wordl2[i], emptyWord, 0, 0, 0);
+	}
+	ushort number1;
+	ushort number2;
+	ushort which_repetition;
+	ushort which_repetition2;
+	time_t last_repetition;
+	for(ushort i = 0; i < numberConnections; i++) {
+		file >> number1;
+		file >> number2;
+		file >> which_repetition;
+		file >> which_repetition2;
+		file >> last_repetition;
+
+		file.ignore(INT_MAX, '\n');
+		assert(number1 < wordl1.size() && (number2 < wordl1.size()+wordl2.size() && number2 >= wordl1.size()));
+		if(emptyWord->isConnectedWith(wordl1[number1]))SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
+		if(emptyWord->isConnectedWith(wordl2[number2-wordl1.size()]))SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
+		assert(!wordl1[number1]->isConnectedWith(wordl2[number2-wordl1.size()]));
+		SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, which_repetition2, last_repetition);
+	}
+
+	for(ushort i = 0; i < numberWordsFL; i++) {
+		if(wordl1[i]->isKnown())qKnownSingleWords++;
+	}
+	for(ushort i = 0; i < numberWordsSL; i++) {
+		if(wordl2[i]->isKnown())qKnownSingleWords++;
+	}
+	file.close();
 }
 ushort Kurs::compare_words(const string &aa, const string &bb)
 {
@@ -1109,7 +847,6 @@ void Kurs::saveKurs(const string &file_to_save)
 	ofstream file;
 	file.open(file_to_save.c_str());
 	if(!file.is_open())throw Error::newError(Error::ERROR_OPEN_FILE, "", __LINE__, __FILE__);
-	file << "new version3" << endl;
 	file << name << endl;
 	file << wordl1.size() << endl;
 	file << wordl2.size() << endl;
