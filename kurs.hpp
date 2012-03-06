@@ -28,6 +28,7 @@
 #include <boost/regex.hpp>
 #include <string>
 #include <vector>
+#include "fann.h"
 
 typedef unsigned short int ushort;
 
@@ -68,10 +69,7 @@ class Kurs
 		std::vector<SingleWord*> wordl1;
 		std::vector<SingleWord*> wordl2;
 		
-		std::vector<double*> new_repetitionsLevels;
-		std::vector<time_t> new_repetitionsTime;
-		std::vector<double> new_repetitionsAverageError;
-		std::vector<double> new_repetitionsStabilization;
+		std::vector<struct fann*> repetitionLevels;
 		
 		ushort qAllSingleWords;
 		ushort qKnownSingleWords;
@@ -84,14 +82,13 @@ class Kurs
 		static std::string decode_text(const std::string &oryginal);
 		static std::string encode_text(const std::string &oryginal);
 		void increaseQKnownSingleWords(const short int &quantity);
-		void repairRepetitionLevels(const ushort &which_repetition, const double &deviation, const int &parttime, const double& predicted_score);
+		int makePredictions(double &parttime, const ushort &which_repetition);
 		double *logs;
 	public:
 		Kurs(const std::string &file_to_open, RegisterOfErrors &_ROE);
 		Kurs(const std::string &name, const std::string &lang1, const std::string &lang2, const std::string &filename, const ushort &askQKW, const ushort &askQNW,  RegisterOfErrors &_ROE);
 		void addSingleWords(const std::vector<std::string> &spellings, const std::vector<std::string> &sounds, const std::vector<std::string> &meanings_spelling, const std::vector<std::string> &meanings_sound);
 		void addSingleWord(const SingleWord &singleWord, const ushort &where);
-		void longenRepetitionLevels(const ushort &which_repetition);
 		void connectSingleWords(const ushort &number1, const ushort &number2);
 		void disconnectSingleWords(const ushort &number1, const ushort &number2);
 		void delSingleWord(const ushort &number);
@@ -113,7 +110,6 @@ class Kurs
 		SingleWord const* getSingleWord(const ushort &number) const;
 		std::vector<SingleWord const*> getSingleWords(const ushort &from, ushort &to) const;
 		bool isSingleWordFLorSL(const ushort &word_number) const; //first_language - true, second_language - false
-		int makePredictions(double &parttime, const ushort &which_repetition);
 		void repairPredictions(const ushort &word_number, const time_t &czas, std::vector<double> &oplev_connections);
 		std::string readSingleWordsFromFile(const std::string &file_to_open);
 		void saveKurs(const std::string &file_to_save); //zrobić na consta
