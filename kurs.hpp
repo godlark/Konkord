@@ -113,6 +113,7 @@ class Kurs
 		SingleWord const* getSingleWord(const ushort &number) const;
 		std::vector<SingleWord const*> getSingleWords(const ushort &from, ushort &to) const;
 		bool isSingleWordFLorSL(const ushort &word_number) const; //first_language - true, second_language - false
+		int makePredictions(double &parttime, const ushort &which_repetition);
 		void repairPredictions(const ushort &word_number, const time_t &czas, std::vector<double> &oplev_connections);
 		std::string readSingleWordsFromFile(const std::string &file_to_open);
 		void saveKurs(const std::string &file_to_save); //zrobić na consta
