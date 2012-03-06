@@ -204,7 +204,6 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 	
 	double parttime;
 	double predicted_score;
-	double divider;
 	for(ushort i = 0; i < wordl1.size(); i++) {
 		if(wordl1[i]->isConnectedWith(emptyWord) || !wordl1[i]->isKnown())continue; //ze słów pustych i nie poznanych nie można przeptywać
 		
@@ -217,15 +216,16 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 			parttime *= 1000;
 			parttime /= (double)(new_repetitionsTime[wordl1[i]->getWhichRepetition(j)]);
 			wtr.parttime += parttime;
-			if(parttime > 1000)parttime = 1000;
 			
-			predicted_score = 0;
-			divider = 0;
-			for(int k = 0; k < 11; k++) {
-				predicted_score += new_repetitionsLevels[wordl1[i]->getWhichRepetition(j)][k]*logs[abs(k*10-(int)parttime/10)];
-				divider += logs[abs(k*10-(int)parttime/10)];
+			if(parttime > 1000) {
+			    predicted_score = new_repetitionsLevels[wordl1[i]->getWhichRepetition(j)][11];
 			}
-			predicted_score /= divider;
+			else {
+			    int level = (parttime/100)*100;
+			    predicted_score = new_repetitionsLevels[wordl1[i]->getWhichRepetition(j)][level/100]*(100-parttime+level);
+			    predicted_score += new_repetitionsLevels[wordl1[i]->getWhichRepetition(j)][level/100+1]*(parttime-level);
+			    predicted_score /= 100;
+			}
 			wtr.priority += predicted_score;
 		}
 		wtr.priority /= countConnections;
@@ -249,15 +249,16 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 			parttime *= 1000;
 			parttime /= (double)(new_repetitionsTime[wordl2[i]->getWhichRepetition(j)]);
 			wtr.parttime += parttime;
-			if(parttime > 1000)parttime = 1000;
 			
-			predicted_score = 0;
-			divider = 0;
-			for(int k = 0; k < 11; k++) {
-				predicted_score += new_repetitionsLevels[wordl2[i]->getWhichRepetition(j)][k]*logs[abs(k*10-(int)parttime/10)];
-				divider += logs[abs(k*10-(int)parttime/10)];
+			if(parttime > 1000) {
+			    predicted_score = new_repetitionsLevels[wordl2[i]->getWhichRepetition(j)][11];
 			}
-			predicted_score /= divider;
+			else {
+			    int level = (parttime/100)*100;
+			    predicted_score = new_repetitionsLevels[wordl2[i]->getWhichRepetition(j)][level/100]*(100-parttime+level);
+			    predicted_score += new_repetitionsLevels[wordl2[i]->getWhichRepetition(j)][level/100+1]*(parttime-level);
+			    predicted_score /= 100;
+			}
 			wtr.priority += predicted_score;
 		}
 		wtr.priority /= countConnections;
@@ -399,28 +400,18 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 		parttime *= 1000;
 		parttime /= (double)(new_repetitionsTime[sword->getWhichRepetition(i)]);
 		
-		//Jeśli czas jaki minął od ostatniego powtórzenia słowa jest dłuższy niż maksymalny
 		if(parttime > 1000) {
-			if(abs((new_repetitionsLevels[sword->getWhichRepetition(i)][10]-new_repetitionsLevels[sword->getWhichRepetition(i)][9])*1000/new_repetitionsLevels[sword->getWhichRepetition(i)][9]) < new_repetitionsAverageError[sword->getWhichRepetition(i)]/10) {
-				parttime = 1000;
-			}
-			else if(abs((new_repetitionsLevels[sword->getWhichRepetition(i)][10]-new_repetitionsLevels[sword->getWhichRepetition(i)][9])*1000/new_repetitionsLevels[sword->getWhichRepetition(i)][10]) < new_repetitionsAverageError[sword->getWhichRepetition(i)]/10) {
-				parttime = 1000;
-			}
-			else {
-				calibrateRepetitionLevels(sword->getWhichRepetition(i), new_repetitionsTime[sword->getWhichRepetition(i)], nowTime-sword->getTimeLastRepetition(i));
-				sword->setTimeLastRepetition(i, nowTime);
-				continue;
-			}
+			predicted_score = new_repetitionsLevels[sword->getWhichRepetition(i)][11];
+			parttime = 1001;
+		}
+		else {
+			int level = (parttime/100)*100;
+			predicted_score = new_repetitionsLevels[sword->getWhichRepetition(i)][level/100]*(100-parttime+level);
+			predicted_score += new_repetitionsLevels[sword->getWhichRepetition(i)][level/100+1]*(parttime-level);
+			predicted_score /= 100;
 		}
 		
 		sword->setTimeLastRepetition(i, nowTime);
-		
-		for(int j = 0; j < 11; j++) {
-			predicted_score += new_repetitionsLevels[sword->getWhichRepetition(i)][j]*logs[abs(j*10-(int)parttime/10)];
-			divider += logs[abs(j*10-(int)parttime/10)];
-		}
-		predicted_score /= divider;
 				
 		deviation = ((oplev_connections[i]-predicted_score)*1000)/predicted_score;
 		if(abs(deviation) <= new_repetitionsAverageError[sword->getWhichRepetition(i)]) {
@@ -438,6 +429,7 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 				deviation += new_repetitionsAverageError[sword->getWhichRepetition(i)];
 			}
 			repairRepetitionLevels(sword->getWhichRepetition(i), deviation, (int)parttime, predicted_score);
+			if(abs(new_repetitionsLevels[sword->getWhichRepetition(i)][10]-new_repetitionsLevels[sword->getWhichRepetition(i)][11])/new_repetitionsLevels[sword->getWhichRepetition(i)][11] < new_repetitionsAverageError[sword->getWhichRepetition(i)])longenRepetitionLevels(sword->getWhichRepetition(i));
 		}
 		
 		//CONTROLING
@@ -449,8 +441,8 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 			repetition++;
 			if(repetition == new_repetitionsTime.size()) {
 				new_repetitionsLevels.push_back(NULL);
-				new_repetitionsLevels[repetition] = new double[11];
-				new_repetitionsLevels[repetition][0] = 1000;
+				new_repetitionsLevels[repetition] = new double[12];
+				new_repetitionsLevels[repetition][0] = new_repetitionsLevels[repetition-1][0];
 				new_repetitionsLevels[repetition][1] = new_repetitionsLevels[repetition-1][1];
 				new_repetitionsLevels[repetition][2] = new_repetitionsLevels[repetition-1][2];
 				new_repetitionsLevels[repetition][3] = new_repetitionsLevels[repetition-1][3];
@@ -461,6 +453,7 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 				new_repetitionsLevels[repetition][8] = new_repetitionsLevels[repetition-1][8];
 				new_repetitionsLevels[repetition][9] = new_repetitionsLevels[repetition-1][9];
 				new_repetitionsLevels[repetition][10] = new_repetitionsLevels[repetition-1][10];
+				new_repetitionsLevels[repetition][11] = new_repetitionsLevels[repetition-1][11];
 				new_repetitionsTime.push_back(new_repetitionsTime[repetition-1]);
 				new_repetitionsAverageError.push_back(5.0);
 				new_repetitionsStabilization.push_back(1);
@@ -476,46 +469,49 @@ void Kurs::repairRepetitionLevels(const ushort &which_repetition, const double &
 	//ASSERT IN
 	assert(which_repetition < new_repetitionsLevels.size());
 	assert(predicted_score <= 1000 && predicted_score >= 0);
-	assert(parttime <= 1000 && parttime >= 0);
+	assert(parttime <= 1001 && parttime >= 0);
 	assert(deviation != 0);
 	
-	bool need_calibrate = false;
-	for(int i = 1; i < 11; i++) {//new_repetitionsLevels[which_repetition][0] = 1000;
-		new_repetitionsLevels[which_repetition][i] += logs[abs(i*10-parttime/10)]*(1000+deviation)*(predicted_score/1000);
-		new_repetitionsLevels[which_repetition][i] /= 1+logs[abs(i*10-parttime/10)];
-		if(new_repetitionsLevels[which_repetition][i] > 1000)new_repetitionsLevels[which_repetition][i] = 1000;
-		if(new_repetitionsLevels[which_repetition][i] < 0)new_repetitionsLevels[which_repetition][i] = 0;
-		if(new_repetitionsLevels[which_repetition][i] < 500-i*50)need_calibrate = true;
+	//TODO: Uzależnienie od odległości od poziomów
+	int level = (parttime/100)*100;
+	
+	if(level == 0) {
+	    new_repetitionsLevels[which_repetition][level/100+1] *= (1+deviation/1000);
 	}
-	if(need_calibrate)calibrateRepetitionLevels(which_repetition, new_repetitionsTime[which_repetition], new_repetitionsTime[which_repetition]/2);
+	else if(level == 10) {
+	    new_repetitionsLevels[which_repetition][level/100+1] *= (1+deviation/1000);
+	}
+	else {
+	    new_repetitionsLevels[which_repetition][level/100] *= (1+deviation/1000);
+	    new_repetitionsLevels[which_repetition][level/100+1] *= (1+deviation/1000);
+	}
 	
 	//ASSERT OUT
 }
-void Kurs::calibrateRepetitionLevels(const ushort &which_repetition, const int &old_time, const int& new_time) {
+void Kurs::longenRepetitionLevels(const ushort &which_repetition) {
 	//ASSERT IN
-	assert(old_time != 0);
-	assert(new_time != 0);
 	assert(which_repetition < new_repetitionsLevels.size());
 	
-	double divider;
-	double predicted_score;
+	int new_time = new_repetitionsTime[which_repetition]*10/9;
+	int old_time = new_repetitionsTime[which_repetition];
 	
-	vector<double> repetitionLevel(11);
-	repetitionLevel[0] = 1000;
-	repetitionLevel[10] = new_repetitionsLevels[which_repetition][10];
+	vector<double> repetitionLevel(12);
+	repetitionLevel[0] = new_repetitionsLevels[which_repetition][0];
+	repetitionLevel[11] = new_repetitionsLevels[which_repetition][11];
+	repetitionLevel[10] = new_repetitionsLevels[which_repetition][11];
+	
+	double parttime;
+	
 	for(int j = 1; j < 10; j++) {
-		divider = 0;
-		predicted_score = 0;
-		for(int k = 0; k < 10; k++) {
-			predicted_score += new_repetitionsLevels[which_repetition][k]*logs[abs(j*10-(k*10*old_time/new_time)) < 101 ? abs(j*10-(k*10*old_time/new_time)) : 100];
-			divider += logs[abs(j*10-(k*10*old_time/new_time)) < 101 ? abs(j*10-(k*10*old_time/new_time)) : 100];
-		}
-		predicted_score /= divider;
-		repetitionLevel[j] = predicted_score;
-		if(repetitionLevel[j] > 1000)repetitionLevel[j] = 1000;
-		if(repetitionLevel[j] < 0)repetitionLevel[j] = 0;
+		parttime = new_time/10*j;
+		parttime *= 1000;
+		parttime /= old_time;
+		int level = (parttime/100)*100;
+		repetitionLevel[j] = new_repetitionsLevels[which_repetition][level/100]*(100-parttime+level);
+	        repetitionLevel[j] += new_repetitionsLevels[which_repetition][level/100+1]*(parttime-level);
+	        repetitionLevel[j] /= 100;
 	}
-	for(int i = 0; i < 11; i++) {
+	for(int i = 0; i < 12; i++) {
 		new_repetitionsLevels[which_repetition][i] = repetitionLevel[i];
 	}
 	if(old_time > new_time)new_repetitionsStabilization[which_repetition] =  (new_repetitionsStabilization[which_repetition]*new_time)/old_time;
@@ -630,7 +626,7 @@ Kurs::Kurs(const string &name, const string &lang1, const string &lang2, const s
 	wordl1 = vector<SingleWord *>(0);
 	wordl2 = vector<SingleWord *>(0);
 	
-	double* tempss = new double[11]; //nie robić delete, dopiero w destruktorze kursu
+	double* tempss = new double[12]; //nie robić delete, dopiero w destruktorze kursu
 	tempss[0] = 1000;
 	tempss[1] = 900;
 	tempss[2] = 800;
@@ -642,6 +638,7 @@ Kurs::Kurs(const string &name, const string &lang1, const string &lang2, const s
 	tempss[8] = 200;
 	tempss[9] = 100;
 	tempss[10] = 0;
+	tempss[11] = 0;
 	new_repetitionsLevels = vector<double*>(1);
 	new_repetitionsLevels[0] = tempss;
 	new_repetitionsTime = vector<time_t>(1);
@@ -653,23 +650,11 @@ Kurs::Kurs(const string &name, const string &lang1, const string &lang2, const s
 	
 	ROE = &_ROE;
 	emptyWord = new SingleWord("BRAK ZNACZENIA", "");
-	logs = new double[101];
-	logs[0] = 1000000000;
-	logs[100] = 0;
-	for(int i = 1; i < 100; i++) {
-		logs[i] = (-1)*log10((double)i/100);
-	}
 }
 Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 {
 	emptyWord = new SingleWord("BRAK ZNACZENIA", "");
 	ROE = &_ROE;
-	logs = new double[101];
-	logs[0] = 1000000000;
-	logs[100] = 0;
-	for(int i = 1; i < 100; i++) {
-		logs[i] = (-1)*log10((double)i/100);
-	}
 	
 	ifstream file;
 	file.open(file_to_open.c_str());
@@ -704,7 +689,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 			file >> repetitionGrade;
 			file.ignore(INT_MAX, '\n');
 			
-			tempss = new double[11]; //zwalnianie pamięci dopiero w destruktorze kursu
+			tempss = new double[12]; //zwalnianie pamięci dopiero w destruktorze kursu
 			tempss[0] = 1000;
 			tempss[1] = 900;
 			tempss[2] = 800;
@@ -716,6 +701,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 			tempss[8] = 200;
 			tempss[9] = 100;
 			tempss[10] = 0;
+			tempss[11] = 0;
 			
 			new_repetitionsLevels.push_back(tempss);
 			new_repetitionsTime.push_back(new_repetitionTime);
@@ -808,7 +794,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 			file >> repetitionGrade;
 			file.ignore(INT_MAX, '\n');
 			
-			tempss = new double[11]; //zwalnianie pamięci dopiero w destruktorze kursu
+			tempss = new double[12]; //zwalnianie pamięci dopiero w destruktorze kursu
 			tempss[0] = 1000;
 			tempss[1] = 900;
 			tempss[2] = 800;
@@ -820,6 +806,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 			tempss[8] = 200;
 			tempss[9] = 100;
 			tempss[10] = 0;
+			tempss[11] = 0;
 			
 			new_repetitionsLevels.push_back(tempss);
 			new_repetitionsTime.push_back(new_repetitionTime);
@@ -898,7 +885,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 		double new_repetitionStabilization;
 		for(int i = 0; i < qRepetition; i++) {
 			new_repetitionLevels = new double[11]; //zwolnienie pamięci dopiero w destruktorze kursu
-			for(int j = 0; j < 11; j++) {
+			for(int j = 0; j < 12; j++) {
 				file >> new_repetitionLevels[j];
 			}
 			file >> new_repetitionTime;
@@ -981,7 +968,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 		numberConnections = qAllSingleWords;
 		qAllSingleWords *= 2;
 		
-		double* tempss = new double[11]; //nie robić delete, dopiero w destruktorze kursu
+		double* tempss = new double[12]; //nie robić delete, dopiero w destruktorze kursu
 		tempss[0] = 1000;
 		tempss[1] = 900;
 		tempss[2] = 800;
@@ -993,6 +980,7 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 		tempss[8] = 200;
 		tempss[9] = 100;
 		tempss[10] = 0;
+		tempss[11] = 0;
 		new_repetitionsLevels.push_back(tempss);
 		new_repetitionsTime.push_back(3600*24);
 		new_repetitionsAverageError.push_back(50.0);
@@ -1151,7 +1139,7 @@ void Kurs::saveKurs(const string &file_to_save)
 	file << new_repetitionsTime.size() << endl; //dać zmienną rozmiaru
 	for(int i = 0; i < new_repetitionsTime.size(); i++) {
 		file.precision(10);
-		for(int j = 0; j < 11; j++) {
+		for(int j = 0; j < 12; j++) {
 			file << new_repetitionsLevels[i][j] << "\t";
 		}
 		file << new_repetitionsTime[i] << "\t";
