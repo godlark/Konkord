@@ -203,7 +203,6 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 	//pobieranie słów z tablic i dodawanie ich do kolejki priorytetowej sortującej według zmiennej priority
 	
 	double parttime;
-	double predicted_score;
 	for(ushort i = 0; i < wordl1.size(); i++) {
 		if(wordl1[i]->isConnectedWith(emptyWord) || !wordl1[i]->isKnown())continue; //ze słów pustych i nie poznanych nie można przeptywać
 		
@@ -216,17 +215,7 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 			parttime *= 1000;
 			parttime /= (double)(new_repetitionsTime[wordl1[i]->getWhichRepetition(j)]);
 			wtr.parttime += parttime;
-			
-			if(parttime > 1000) {
-			    predicted_score = new_repetitionsLevels[wordl1[i]->getWhichRepetition(j)][11];
-			}
-			else {
-			    int level = (parttime/100)*100;
-			    predicted_score = new_repetitionsLevels[wordl1[i]->getWhichRepetition(j)][level/100]*(100-parttime+level);
-			    predicted_score += new_repetitionsLevels[wordl1[i]->getWhichRepetition(j)][level/100+1]*(parttime-level);
-			    predicted_score /= 100;
-			}
-			wtr.priority += predicted_score;
+			wtr.priority += makePredictions(parttime, wordl1[i]->getWhichRepetition(j));
 		}
 		wtr.priority /= countConnections;
 		wtr.parttime /= countConnections;
@@ -249,17 +238,7 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &howManyWords) const{
 			parttime *= 1000;
 			parttime /= (double)(new_repetitionsTime[wordl2[i]->getWhichRepetition(j)]);
 			wtr.parttime += parttime;
-			
-			if(parttime > 1000) {
-			    predicted_score = new_repetitionsLevels[wordl2[i]->getWhichRepetition(j)][11];
-			}
-			else {
-			    int level = (parttime/100)*100;
-			    predicted_score = new_repetitionsLevels[wordl2[i]->getWhichRepetition(j)][level/100]*(100-parttime+level);
-			    predicted_score += new_repetitionsLevels[wordl2[i]->getWhichRepetition(j)][level/100+1]*(parttime-level);
-			    predicted_score /= 100;
-			}
-			wtr.priority += predicted_score;
+			wtr.priority += makePredictions(parttime, wordl2[i]->getWhichRepetition(j));
 		}
 		wtr.priority /= countConnections;
 		wtr.parttime /= countConnections;
@@ -375,6 +354,19 @@ vector<SingleWord const*> Kurs::getSingleWords(const ushort &from, ushort &_to) 
 bool Kurs::isSingleWordFLorSL(const ushort &word_number) const {
 	return word_number < wordl1.size() ? true : false; //not sesne ist throw Error for word_number > qAllSingleWords
 }
+int Kurs::makePredictions(double &parttime, const ushort &which_repetition) const {
+    if(parttime > 1000) {
+	parttime = 1001;
+	new_repetitionsLevels[which_repetition][11];
+    }
+    else {
+	int level = (parttime/100)*100;
+	double predicted_score = new_repetitionsLevels[which_repetition][level/100]*(100-parttime+level);
+	predicted_score += new_repetitionsLevels[which_repetition][level/100+1]*(parttime-level);
+	predicted_score /= 100;
+	return predicted_score;
+    }
+}
 void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vector<double> &oplev_connections) {
 	//ASSERT IN
 	assert(word_number < wordl1.size()+wordl2.size());
@@ -400,16 +392,7 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 		parttime *= 1000;
 		parttime /= (double)(new_repetitionsTime[sword->getWhichRepetition(i)]);
 		
-		if(parttime > 1000) {
-			predicted_score = new_repetitionsLevels[sword->getWhichRepetition(i)][11];
-			parttime = 1001;
-		}
-		else {
-			int level = (parttime/100)*100;
-			predicted_score = new_repetitionsLevels[sword->getWhichRepetition(i)][level/100]*(100-parttime+level);
-			predicted_score += new_repetitionsLevels[sword->getWhichRepetition(i)][level/100+1]*(parttime-level);
-			predicted_score /= 100;
-		}
+		predicted_score = makePredictions(parttime, sword->getWhichRepetition(i));
 		
 		sword->setTimeLastRepetition(i, nowTime);
 				
@@ -429,7 +412,7 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 				deviation += new_repetitionsAverageError[sword->getWhichRepetition(i)];
 			}
 			repairRepetitionLevels(sword->getWhichRepetition(i), deviation, (int)parttime, predicted_score);
-			if(abs(new_repetitionsLevels[sword->getWhichRepetition(i)][10]-new_repetitionsLevels[sword->getWhichRepetition(i)][11])/new_repetitionsLevels[sword->getWhichRepetition(i)][11] < new_repetitionsAverageError[sword->getWhichRepetition(i)])longenRepetitionLevels(sword->getWhichRepetition(i));
+			if(abs(new_repetitionsLevels[sword->getWhichRepetition(i)][10]-new_repetitionsLevels[sword->getWhichRepetition(i)][11])/new_repetitionsLevels[sword->getWhichRepetition(i)][11]*1000 > new_repetitionsAverageError[sword->getWhichRepetition(i)])longenRepetitionLevels(sword->getWhichRepetition(i));
 		}
 		
 		//CONTROLING
@@ -506,10 +489,7 @@ void Kurs::longenRepetitionLevels(const ushort &which_repetition) {
 		parttime = new_time/10*j;
 		parttime *= 1000;
 		parttime /= old_time;
-		int level = (parttime/100)*100;
-		repetitionLevel[j] = new_repetitionsLevels[which_repetition][level/100]*(100-parttime+level);
-	        repetitionLevel[j] += new_repetitionsLevels[which_repetition][level/100+1]*(parttime-level);
-	        repetitionLevel[j] /= 100;
+		repetitionLevel[j] = makePredictions(parttime, which_repetition);
 	}
 	for(int i = 0; i < 12; i++) {
 		new_repetitionsLevels[which_repetition][i] = repetitionLevel[i];
