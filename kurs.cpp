@@ -346,9 +346,9 @@ bool Kurs::isSingleWordFLorSL(const ushort &word_number) const {
 	return word_number < wordl1.size() ? true : false; //not sesne ist throw Error for word_number > qAllSingleWords
 }
 int Kurs::makePredictions(const int &time, const ushort &which_repetition) const {
-    float *inputs = new float[1];
-    inputs[0] = 1/(float)time;
-    float *outputs = fann_run(repetitionsLevel[which_repetition], inputs);
+    double *inputs = new double[1];
+    inputs[0] = 1/(double)time;
+    double *outputs = repetitionsLevels[which_repetition]->run(inputs);
     return (int)(outputs[0]*1000);
 }
 void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vector<double> &oplev_connections) {
@@ -361,8 +361,8 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 	time_t nowTime = time(NULL);
 	double predicted_score;
 	double deviation;
-	float *inputs = new float[1];
-	float *outputs = new float[1];
+	double *inputs = new double[1];
+	double *outputs = new double[1];
 	for(ushort i = 0; i < sword->getNumberMeanings(); i++) {
 		predicted_score = 0;
 		deviation = 0;
@@ -373,9 +373,9 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 		predicted_score = makePredictions(nowTime-sword->getTimeLastRepetition(i), sword->getWhichRepetition(i));
 		
 		// FANN TRAINING
-		inputs[0] = 1/(float)(nowTime-sword->getTimeLastRepetition(i));
+		inputs[0] = 1/(double)(nowTime-sword->getTimeLastRepetition(i));
 		outputs[0] = oplev_connections[i]/1000;
-		fann_train(repetitionsLevels[sword->getWhichRepetition(i)], inputs, outputs);
+		repetitionsLevels[sword->getWhichRepetition(i)]->train(inputs, outputs);
 		// END FANN TRAINING
 		
 		sword->setTimeLastRepetition(i, nowTime);	
@@ -383,8 +383,10 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 		ushort repetition = sword->getWhichRepetition(i);
 		if(deviation > 0) {
 			repetition++;
-			if(repetition == new_repetitionsTime.size()) {
-				repetitionsLevels.push_back(fann_create_standard(3, 1, 10, 1));
+			if(repetition == repetitionsLevels.size()) {
+				repetitionsLevels.push_back(NULL);
+				repetitionsLevels[repetition] = new FANN::neural_net();
+				repetitionsLevels[repetition]->create_standard(3, 1, 10, 1);
 			}
 		}
 		sword->setWhichRepetition(i, repetition);
@@ -498,8 +500,9 @@ Kurs::Kurs(const string &name, const string &lang1, const string &lang2, const s
 	wordl1 = vector<SingleWord *>(0);
 	wordl2 = vector<SingleWord *>(0);
 	
-	repetitionsLevels = vector<struct fann>(1);
-	repetitionsLevels[0] = fann_create_standard(3, 1, 10, 1);
+	repetitionsLevels = vector<FANN::neural_net *>(1);
+	repetitionsLevels[0] = new FANN::neural_net();
+	repetitionsLevels[0]->create_standard(3, 1, 10, 1);
 
 	
 	ROE = &_ROE;
@@ -539,8 +542,10 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 	    for(int i = 0; i < qRepetition; i++) {
 	    	file >> ann_filename;
 		file.ignore(INT_MAX, '\n');
-			
-		repetitionsLevels.push_back(fann_create_from_file(ann_filename.c_str()));
+		
+		repetitionsLevels.push_back(NULL);
+		repetitionsLevels[i] = new FANN::neural_net();
+		repetitionsLevels[i]->create_from_file(ann_filename);
 	    }
 	    filename = file_to_open;
 	    qAllSingleWords = numberWordsFL + numberWordsSL;
@@ -621,7 +626,9 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 		file >> new_repetitionStabilization;
 		file.ignore(INT_MAX, '\n');
 			
-		repetitionsLevels.push_back(fann_create_standard(3, 1, 10, 1));
+		repetitionsLevels.push_back(NULL);
+		repetitionsLevels[i] = new FANN::neural_net();
+		repetitionsLevels[i]->create_standard(3, 1, 10, 1);
 	    }
 	    filename = file_to_open;
 	    qAllSingleWords = numberWordsFL + numberWordsSL;
@@ -804,7 +811,7 @@ void Kurs::saveKurs(const string &file_to_save)
 	string ann_filename = file_to_save+"_level";
 	for(int i = 0; i < repetitionsLevels.size(); i++) {
 		file << ann_filename+char('0'+i) << endl;
-		fann_save(repetitionsLevels[i], string(ann_filename+char('0'+i)).c_str());
+		repetitionsLevels[i]->save(ann_filename+char('0'+i));
 	}
 	for(ushort i = 0; i < wordl1.size(); i++) {
 		file << wordl1[i]->getSpelling() << endl;

@@ -28,7 +28,8 @@
 #include <boost/regex.hpp>
 #include <string>
 #include <vector>
-#include "fann.h"
+#include "doublefann.h"
+#include "fann_cpp.h"
 
 typedef unsigned short int ushort;
 
@@ -69,7 +70,7 @@ class Kurs
 		std::vector<SingleWord*> wordl1;
 		std::vector<SingleWord*> wordl2;
 		
-		std::vector<struct fann*> repetitionLevels;
+		std::vector<FANN::neural_net*> repetitionsLevels;
 		
 		ushort qAllSingleWords;
 		ushort qKnownSingleWords;
@@ -82,7 +83,7 @@ class Kurs
 		static std::string decode_text(const std::string &oryginal);
 		static std::string encode_text(const std::string &oryginal);
 		void increaseQKnownSingleWords(const short int &quantity);
-		int makePredictions(double &parttime, const ushort &which_repetition);
+		int makePredictions(const int &time, const ushort &which_repetition) const;
 		double *logs;
 	public:
 		Kurs(const std::string &file_to_open, RegisterOfErrors &_ROE);

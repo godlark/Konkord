@@ -7,4 +7,4 @@ OBJ=engine.o kurs.o main.o nakladka.o RegisterOfErrors.o SingleWord.o
 	$(CXX) -ggdb3 -c $^ -o $@
 
 konkord.e: $(OBJ)
-	$(CXX) $^ -ggdb3 -lboost_regex-mt -o $@
+	$(CXX) $^ -ggdb3 -lboost_regex-mt -lfann -o $@
