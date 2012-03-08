@@ -612,14 +612,13 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 	    file >> qRepetition;
 	    file.ignore(INT_MAX, '\n');
 		
-	    double* new_repetitionLevels;
+	    double new_repetitionLevels;
 	    time_t new_repetitionTime;
 	    double new_repetitionAverageError;
 	    double new_repetitionStabilization;
 	    for(int i = 0; i < qRepetition; i++) {
-	    	new_repetitionLevels = new double[11]; //zwolnienie pamięci dopiero w destruktorze kursu
 		for(int j = 0; j < 12; j++) {
-			file >> new_repetitionLevels[j];
+			file >> new_repetitionLevels;
 		}
 		file >> new_repetitionTime;
 		file >> new_repetitionAverageError;
@@ -801,6 +800,7 @@ void Kurs::saveKurs(const string &file_to_save)
 	ofstream file;
 	file.open(file_to_save.c_str());
 	if(!file.is_open())throw Error::newError(Error::ERROR_OPEN_FILE, "", __LINE__, __FILE__);
+	file << "new version" << endl;
 	file << name << endl;
 	file << wordl1.size() << endl;
 	file << wordl2.size() << endl;
