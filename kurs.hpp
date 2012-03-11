@@ -1,8 +1,8 @@
 /*				Konkord 
- *		    Version 0.0.2009.04.19
+ *			Version 0.0.2009.04.19
  *	This program was created for learning words
- *		    from different languages.
- *    Copyright(C) 2009 Sławomir Domagała	
+ *			from different languages.
+ *	Copyright(C) 2009 Sławomir Domagała	
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,22 +34,22 @@
 typedef unsigned short int ushort;
 
 class SingleWordAndIndex {
-    public:
-        ushort index;
-        const SingleWord *sword;
+	public:
+		ushort index;
+		const SingleWord *sword;
 };
 class WordToRepetition {
-    public :
-        ushort nr_word;
+	public :
+		ushort nr_word;
 		double priority;
 		double parttime;
 };
 class compareWords {
-    public:
-        bool operator() (WordToRepetition swani1, WordToRepetition swani2) {
-            if(swani1.priority > swani2.priority)return true;
-            if(swani1.priority < swani2.priority)return false;
-            if(swani1.priority == swani2.priority) {
+	public:
+		bool operator() (WordToRepetition swani1, WordToRepetition swani2) {
+			if(swani1.priority > swani2.priority)return true;
+			if(swani1.priority < swani2.priority)return false;
+			if(swani1.priority == swani2.priority) {
 				if(swani1.parttime >= swani2.parttime)return false;
 				if(swani2.parttime < swani2.parttime)return true;
 			} 
