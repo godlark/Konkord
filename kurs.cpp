@@ -347,11 +347,11 @@ vector<SingleWord const*> Kurs::getSingleWords(const ushort &from, ushort &_to) 
 bool Kurs::isSingleWordFLorSL(const ushort &word_number) const {
 	return word_number < wordl1.size() ? true : false; //not sesne ist throw Error for word_number > qAllSingleWords
 }
-int Kurs::makePredictions(const int &time, const ushort &which_repetition) const {
+double Kurs::makePredictions(const int &time, const ushort &which_repetition) const {
 	double *inputs = new double[1];
 	inputs[0] = 1/(double)time;
 	double *outputs = repetitionsLevels[which_repetition]->run(inputs);
-	return (int)(outputs[0]*1000);
+	return outputs[0]*1000;
 }
 void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vector<double> &oplev_connections) {
 	//ASSERT IN
@@ -377,6 +377,7 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 		// FANN TRAINING
 		inputs[0] = 1/(double)(nowTime-sword->getTimeLastRepetition(i));
 		outputs[0] = oplev_connections[i]/1000;
+		cout << inputs[0] << "\t" << outputs[0] << "\t";
 		repetitionsLevels[sword->getWhichRepetition(i)]->train(inputs, outputs);
 		// END FANN TRAINING
 		

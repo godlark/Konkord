@@ -83,8 +83,7 @@ class Kurs
 		static std::string decode_text(const std::string &oryginal);
 		static std::string encode_text(const std::string &oryginal);
 		void increaseQKnownSingleWords(const short int &quantity);
-		int makePredictions(const int &time, const ushort &which_repetition) const;
-		double *logs;
+		double makePredictions(const int &time, const ushort &which_repetition) const;
 	public:
 		Kurs(const std::string &file_to_open, RegisterOfErrors &_ROE);
 		Kurs(const std::string &name, const std::string &lang1, const std::string &lang2, const std::string &filename, const ushort &askQKW, const ushort &askQNW,  RegisterOfErrors &_ROE);
