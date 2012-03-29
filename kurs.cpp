@@ -377,7 +377,6 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 		// FANN TRAINING
 		inputs[0] = 1/(double)(nowTime-sword->getTimeLastRepetition(i));
 		outputs[0] = oplev_connections[i]/1000;
-		cout << inputs[0] << "\t" << outputs[0] << "\t";
 		repetitionsLevels[sword->getWhichRepetition(i)]->train(inputs, outputs);
 		// END FANN TRAINING
 		
@@ -388,8 +387,7 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 			repetition++;
 			if(repetition == repetitionsLevels.size()) {
 				repetitionsLevels.push_back(NULL);
-				repetitionsLevels[repetition] = new FANN::neural_net();
-				repetitionsLevels[repetition]->create_standard(3, 1, 10, 1);
+				repetitionsLevels[repetition] = new FANN::neural_net(*repetitionsLevels[repetition-1]);
 			}
 		}
 		sword->setWhichRepetition(i, repetition);
