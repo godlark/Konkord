@@ -70,12 +70,11 @@ class Kurs
 		std::vector<SingleWord*> wordl1;
 		std::vector<SingleWord*> wordl2;
 		
-		std::vector<FANN::neural_net*> repetitionsLevels;
+		FANN::neural_net* repetition_ann;
+		std::string repetition_train_file;
 		
 		ushort qAllSingleWords;
 		ushort qKnownSingleWords;
-		ushort askQKW; //ilość przepytywanych znanych słów
-		ushort askQNW;	//ilość przepytywanych nowych słów
 		bool ifChangeKurs; //czy zmieniono kurs od ostatniego zapisania lub wczytania
 		RegisterOfErrors *ROE;
 		ushort numberConnections;
@@ -105,12 +104,11 @@ class Kurs
 		ushort getQKnownSingleWords() const;
 		ushort getQSingleWords_1() const; //std::vector<SingleWord> wordl1;
 		ushort getQSingleWords_2() const; //std::vector<SingleWord> wordl1;
-		ushort getAskQKW() const;
-		ushort getAskQNW() const;
 		SingleWord const* getSingleWord(const ushort &number) const;
 		std::vector<SingleWord const*> getSingleWords(const ushort &from, ushort &to) const;
 		bool isSingleWordFLorSL(const ushort &word_number) const; //first_language - true, second_language - false
-		void repairPredictions(const ushort &word_number, const time_t &czas, std::vector<double> &oplev_connections);
+		void repairPredictions();
+		void setRepetitionData(const ushort &word_number, const time_t &czas, std::vector<double> &oplev_connections);
 		std::string readSingleWordsFromFile(const std::string &file_to_open);
 		void saveKurs(const std::string &file_to_save); //zrobić na consta
 		void setName(const std::string &_name);
@@ -118,8 +116,6 @@ class Kurs
 		void setLang2(const std::string &_lang2);
 		void setFilename(const std::string &_filename);
 		void setIfChangeKurs(const bool &_ifChangeKurs);
-		void setAskQKW(const ushort &_askQKW);
-		void setAskQNW(const ushort &_askQNW);
 		void setWord(const ushort &number, const std::string &first, const std::string &second);
 		void setSingleWord(const ushort &number, const std::string &spelling, const std::string &sound);
 		void setMeaningForSingleWord(const ushort &number_word, const ushort &number_meaning, const std::string &spelling, const std::string &sound);

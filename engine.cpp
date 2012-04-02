@@ -154,8 +154,7 @@ void ServiceOfTasks::repaskWords() {
 	ushort number_connections;
 	ushort suggest_word_for_next_time;
 
-	number_words = main_interface->dialogWindow("Podaj ilość słów, z których chcesz być przepytywany, podaj 0 dla domyślnej wartości ustawionej w kursie", 1)._ushort;
-	if(number_words == 0)number_words = courses[activ_course]->getAskQKW();
+	number_words = main_interface->dialogWindow("Podaj ilość słów, z których chcesz być przepytywany", 1)._ushort;
 	vector <ushort> swords = courses[activ_course]->getWordsToRepetition(number_words);
 	number_connections = (swords.size()-number_words-1)/2;
 	suggest_word_for_next_time = swords[0];
@@ -187,8 +186,10 @@ void ServiceOfTasks::repaskWords() {
 			oplevs[j] = (double)main_interface->dialogWindow(temp2, 1)._ushort;
 			if(oplevs[j] > 6)oplevs[j] = 6;
 		}
-		courses[activ_course]->repairPredictions(swords[i], atime, oplevs);
+		courses[activ_course]->setRepetitionData(swords[i], atime, oplevs);
 	}
+	courses[activ_course]->repairPredictions();
+	
 	
 	vector<ushort> connectionsToRepetition = vector<ushort> (0);
         for(unsigned int i = number_words+1; i < swords.size(); i++) {
@@ -226,8 +227,7 @@ void ServiceOfTasks::askUnknownWords() {
 	time_t atime;
 	string spellingWord;
 		
-	number_words = main_interface->dialogWindow("Podaj ilość słów, z których chcesz być przepytywany, podaj 0 dla domyślnej wartości ustawionej w kursie", 1)._ushort;
-	if(number_words == 0)number_words = courses[activ_course]->getAskQKW();
+	number_words = main_interface->dialogWindow("Podaj ilość słów, z których chcesz być przepytywany", 1)._ushort;
 	vector <ushort> swords = courses[activ_course]->getUnknownSingleWords(number_words);
 	number_words = swords.size();
 		
@@ -269,7 +269,7 @@ void ServiceOfTasks::askUnknownWords() {
 			oplevs[j] = (double)main_interface->dialogWindow(temp2, 1)._ushort;
 			if(oplevs[j] > 6)oplevs[j] = 6;
 		}
-		courses[activ_course]->repairPredictions(swords[i], atime, oplevs);
+		courses[activ_course]->setRepetitionData(swords[i], atime, oplevs);
 	}
 	saved_courses[activ_course] = false;
 	setStateActions();
@@ -516,8 +516,8 @@ void ServiceOfTasks::openCourse(string filename) {
 	setStateActions();
 }
 void ServiceOfTasks::printInfoCourse() const{
-	string *descriptions = new string[9];
-	Variable *values = new Variable[9];
+	string *descriptions = new string[7];
+	Variable *values = new Variable[7];
 	descriptions[0] = "Nazwa kursu";
 	values[0].type = 0;
 	values[0]._string = new string(courses[activ_course]->getName());
@@ -531,22 +531,16 @@ void ServiceOfTasks::printInfoCourse() const{
 	descriptions[3] = "Nazwa pliku, do którego domyślnie zapisywany jest kurs";
 	values[3].type = 0;
 	values[3]._string = new string(courses[activ_course]->getFilename());
-	descriptions[4] = "Ilość poznawanych słów co lekcję";
-	values[4].type = 1;
-	values[4]._ushort = courses[activ_course]->getAskQNW();
-	descriptions[5] = "Ilość słów, których chcesz być przepytywany";
-	values[5].type = 1;
-	values[5]._ushort = courses[activ_course]->getAskQKW();
 	descriptions[6] = "Ilość wszystkich słów w kursie";
-	values[6].type = 1;
-	values[6]._ushort = courses[activ_course]->getQAllSingleWords();
+	values[4].type = 1;
+	values[4]._ushort = courses[activ_course]->getQAllSingleWords();
 	descriptions[7] = "Ilość poznanych słów";
-	values[7].type = 1;
-	values[7]._ushort = courses[activ_course]->getQKnownSingleWords();
+	values[5].type = 1;
+	values[5]._ushort = courses[activ_course]->getQKnownSingleWords();
 	descriptions[8] = "Czy kurs został zapisany po dokonaniu zmian";
-	values[8].type = 1;
-	values[8]._string = courses[activ_course]->isKursChanged() ? new string("NIE") : new string("TAK");
-	main_interface->infoWindow(descriptions, values, 9);
+	values[6].type = 1;
+	values[6]._string = courses[activ_course]->isKursChanged() ? new string("NIE") : new string("TAK");
+	main_interface->infoWindow(descriptions, values, 7);
 		
 	//restore memory
 	delete [] descriptions;
@@ -594,8 +588,8 @@ void ServiceOfTasks::saveCourseAs(string filename) {
 	}
 }
 void ServiceOfTasks::settingsCourse() {
-	string *descriptions = new string[6];
-	Variable *values = new Variable[6];
+	string *descriptions = new string[4];
+	Variable *values = new Variable[4];
 	descriptions[0] = "Nazwa kursu";
 	values[0].type = 0;
 	values[0]._string = new string(courses[activ_course]->getName());
@@ -608,21 +602,13 @@ void ServiceOfTasks::settingsCourse() {
 	descriptions[3] = "Nazwa pliku, do którego domyślnie zapisywany jest kurs";
 	values[3].type = 0;
 	values[3]._string = new string(courses[activ_course]->getFilename());
-	descriptions[4] = "Ilość poznawanych słów co lekcję";
-	values[4].type = 1;
-	values[4]._ushort = courses[activ_course]->getAskQNW();
-	descriptions[5] = "Ilość słów, których chcesz być przepytywany";
-	values[5].type = 1;
-	values[5]._ushort = courses[activ_course]->getAskQKW();
 		
-	values = main_interface->optionWindow(descriptions, values, 6).v;
+	values = main_interface->optionWindow(descriptions, values, 4).v;
 		
 	courses[activ_course]->setName(*(values[0]._string));
 	courses[activ_course]->setLang1(*(values[1]._string));
 	courses[activ_course]->setLang2(*(values[2]._string));
 	courses[activ_course]->setFilename(*(values[3]._string));
-	courses[activ_course]->setAskQNW(values[4]._ushort);
-	courses[activ_course]->setAskQKW(values[5]._ushort);
 		
 	saved_courses[activ_course] = false;
 		

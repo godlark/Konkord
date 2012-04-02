@@ -71,10 +71,7 @@ Kurs::~Kurs() {
 		wordl2[i]->deleteAllMeanings();
 		delete wordl2[i];
 	}
-	for(int i = 0; i < repetitionsLevels.size(); i++) {
-		assert(repetitionsLevels[i] != NULL);
-		delete repetitionsLevels[i];
-	}
+	delete repetition_ann;
 	assert(emptyWord != NULL);
 	delete emptyWord;
 }
@@ -348,12 +345,36 @@ bool Kurs::isSingleWordFLorSL(const ushort &word_number) const {
 	return word_number < wordl1.size() ? true : false; //not sesne ist throw Error for word_number > qAllSingleWords
 }
 double Kurs::makePredictions(const int &time, const ushort &which_repetition) const {
-	double *inputs = new double[1];
+	double *inputs = new double[2];
 	inputs[0] = 1/(double)time;
-	double *outputs = repetitionsLevels[which_repetition]->run(inputs);
-	return outputs[0]*1000;
+	inputs[1] = which_repetition;
+	double *outputs = repetition_ann->run(inputs);
+	if(outputs[0]*6 < 0.0001)return 0.0001;
+	else return outputs[0]*6;
 }
-void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vector<double> &oplev_connections) {
+void Kurs::repairPredictions() {
+	fstream train_file;
+	train_file.open(repetition_train_file.c_str(), fstream::in);
+	
+	int nLines = 0;
+	string line;
+	getline(train_file, line); //get the first line
+	string whole_file = "";
+	while(getline(train_file, line)) {
+		nLines++;
+		whole_file += line+'\n';
+	}
+	train_file.close();
+	
+	train_file.open(repetition_train_file.c_str(), fstream::out);
+	train_file << nLines/2 << "\t" << 2 << "\t" << 1 << endl;
+	train_file << whole_file;
+	train_file.close();
+	
+	repetition_ann->cascadetrain_on_file(repetition_train_file, 30, 0, 0.00001);
+}
+
+void Kurs::setRepetitionData(const ushort &word_number, const time_t &czas, vector<double> &oplev_connections) {
 	//ASSERT IN
 	assert(word_number < wordl1.size()+wordl2.size());
 	SingleWord *sword = word_number < wordl1.size() ? wordl1[word_number] : wordl2[word_number-wordl1.size()];
@@ -363,33 +384,30 @@ void Kurs::repairPredictions(const ushort &word_number, const time_t &czas, vect
 	time_t nowTime = time(NULL);
 	double predicted_score;
 	double deviation;
-	double *inputs = new double[1];
-	double *outputs = new double[1];
 	for(ushort i = 0; i < sword->getNumberMeanings(); i++) {
 		predicted_score = 0;
 		deviation = 0;
 		
 		if(oplev_connections[i] > max_oplev)oplev_connections[i] = max_oplev;
-		oplev_connections[i] *= 1000/max_oplev;
 		
 		predicted_score = makePredictions(nowTime-sword->getTimeLastRepetition(i), sword->getWhichRepetition(i));
 		
-		// FANN TRAINING
-		inputs[0] = 1/(double)(nowTime-sword->getTimeLastRepetition(i));
-		outputs[0] = oplev_connections[i]/1000;
-		repetitionsLevels[sword->getWhichRepetition(i)]->train(inputs, outputs);
-		// END FANN TRAINING
+		// UPDATING TRAINING FILE
+		deviation = ((oplev_connections[i]-predicted_score)*6)/predicted_score;
+		if(deviation != 0) {
+			fstream train_file;
+			train_file.open(repetition_train_file.c_str(), fstream::out | fstream::app);
+			train_file.precision(10);
+			train_file << fixed << 1/(double)(nowTime-sword->getTimeLastRepetition(i)) << "\t" << sword->getWhichRepetition(i) << endl;
+			train_file << fixed << oplev_connections[i]/6 << endl;
+			train_file.close();
+		}
+		// END UPDATING
 		
 		sword->setTimeLastRepetition(i, nowTime);	
-		deviation = ((oplev_connections[i]-predicted_score)*1000)/predicted_score;
+		
 		ushort repetition = sword->getWhichRepetition(i);
-		if(deviation > 0) {
-			repetition++;
-			if(repetition == repetitionsLevels.size()) {
-				repetitionsLevels.push_back(NULL);
-				repetitionsLevels[repetition] = new FANN::neural_net(*repetitionsLevels[repetition-1]);
-			}
-		}
+		if(deviation >= 0) repetition++;
 		sword->setWhichRepetition(i, repetition);
 	}
 	ifChangeKurs = true;
@@ -494,16 +512,15 @@ Kurs::Kurs(const string &name, const string &lang1, const string &lang2, const s
 	this->filename = filename;
 	this->qAllSingleWords = 0;
 	this->qKnownSingleWords = 0;
-	this->askQKW = askQKW;
-	this->askQNW = askQNW;
 	this->ifChangeKurs = true;
 	numberConnections = 0;
 	wordl1 = vector<SingleWord *>(0);
 	wordl2 = vector<SingleWord *>(0);
 	
-	repetitionsLevels = vector<FANN::neural_net *>(1);
-	repetitionsLevels[0] = new FANN::neural_net();
-	repetitionsLevels[0]->create_standard(3, 1, 10, 1);
+	repetition_ann = new FANN::neural_net();
+	repetition_ann->create_standard(3, 2, 1, 1);
+	
+	repetition_train_file = filename+"_train";
 
 	
 	ROE = &_ROE;
@@ -531,23 +548,15 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 		file.ignore(INT_MAX, '\n');
 		file >> numberConnections;
 		file.ignore(INT_MAX, '\n');
-		file >> askQKW;
-		file.ignore(INT_MAX, '\n');
-		file >> askQNW;
-		file.ignore(INT_MAX, '\n');
-		ushort qRepetition;
-		file >> qRepetition;
+		file >> repetition_train_file;
 		file.ignore(INT_MAX, '\n');
 		
 		string ann_filename;
-		for(int i = 0; i < qRepetition; i++) {
-			file >> ann_filename;
+		file >> ann_filename;
+		repetition_ann = new FANN::neural_net();
+		repetition_ann->create_from_file(ann_filename);
 		file.ignore(INT_MAX, '\n');
-		
-		repetitionsLevels.push_back(NULL);
-		repetitionsLevels[i] = new FANN::neural_net();
-		repetitionsLevels[i]->create_from_file(ann_filename);
-		}
+
 		filename = file_to_open;
 		qAllSingleWords = numberWordsFL + numberWordsSL;
 
@@ -556,16 +565,16 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 		qKnownSingleWords = 0;
 		ifChangeKurs = false;
 		for(ushort i = 0; i < numberWordsFL; i++) {
-		getline(file, spelling);
-		sword.setSpelling(spelling);
-		wordl1.push_back(new SingleWord(sword));
-		SingleWord::connectSingleWords(wordl1[i], emptyWord, 0, 0, 0);
+			getline(file, spelling);
+			sword.setSpelling(spelling);
+			wordl1.push_back(new SingleWord(sword));
+			SingleWord::connectSingleWords(wordl1[i], emptyWord, 0, 0, 0);
 		}
 		for(ushort i = 0; i < numberWordsSL; i++) {
-		getline(file, spelling);
-		sword.setSpelling(spelling);
+			getline(file, spelling);
+			sword.setSpelling(spelling);
 			wordl2.push_back(new SingleWord(sword));
-		SingleWord::connectSingleWords(wordl2[i], emptyWord, 0, 0, 0);
+			SingleWord::connectSingleWords(wordl2[i], emptyWord, 0, 0, 0);
 		}
 		ushort number1;
 		ushort number2;
@@ -573,107 +582,25 @@ Kurs::Kurs(const string &file_to_open,  RegisterOfErrors &_ROE)
 		ushort which_repetition2;
 		time_t last_repetition;
 		for(ushort i = 0; i < numberConnections; i++) {
-		file >> number1;
-		file >> number2;
-		file >> which_repetition;
-		file >> which_repetition2;
-		file >> last_repetition;
+			file >> number1;
+			file >> number2;
+			file >> which_repetition;
+			file >> which_repetition2;
+			file >> last_repetition;
 
-		file.ignore(INT_MAX, '\n');
-		assert(number1 < wordl1.size() && (number2 < wordl1.size()+wordl2.size() && number2 >= wordl1.size()));
-		if(emptyWord->isConnectedWith(wordl1[number1]))SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
-		if(emptyWord->isConnectedWith(wordl2[number2-wordl1.size()]))SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
-		assert(!wordl1[number1]->isConnectedWith(wordl2[number2-wordl1.size()]));
-		SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, which_repetition2, last_repetition);
-		}
-
-		for(ushort i = 0; i < numberWordsFL; i++) {
-		if(wordl1[i]->isKnown())qKnownSingleWords++;
-		}
-		for(ushort i = 0; i < numberWordsSL; i++) {
-		if(wordl2[i]->isKnown())qKnownSingleWords++;
-		}
-	}
-	else {
-		ushort numberWordsFL;
-		ushort numberWordsSL;
-		file >> name;
-		file.ignore(INT_MAX, '\n');
-		file >> numberWordsFL;
-		file.ignore(INT_MAX, '\n');
-		file >> numberWordsSL;
-		file.ignore(INT_MAX, '\n');
-		file >> numberConnections;
-		file.ignore(INT_MAX, '\n');
-		file >> askQKW;
-		file.ignore(INT_MAX, '\n');
-		file >> askQNW;
-		file.ignore(INT_MAX, '\n');
-		ushort qRepetition;
-		file >> qRepetition;
-		file.ignore(INT_MAX, '\n');
-		
-		double new_repetitionLevels;
-		time_t new_repetitionTime;
-		double new_repetitionAverageError;
-		double new_repetitionStabilization;
-		for(int i = 0; i < qRepetition; i++) {
-		for(int j = 0; j < 12; j++) {
-			file >> new_repetitionLevels;
-		}
-		file >> new_repetitionTime;
-		file >> new_repetitionAverageError;
-		file >> new_repetitionStabilization;
-		file.ignore(INT_MAX, '\n');
-			
-		repetitionsLevels.push_back(NULL);
-		repetitionsLevels[i] = new FANN::neural_net();
-		repetitionsLevels[i]->create_standard(3, 1, 10, 1);
-		}
-		filename = file_to_open;
-		qAllSingleWords = numberWordsFL + numberWordsSL;
-
-		SingleWord sword("", "");
-		string spelling;
-		qKnownSingleWords = 0;
-		ifChangeKurs = false;
-		for(ushort i = 0; i < numberWordsFL; i++) {
-		getline(file, spelling);
-		sword.setSpelling(spelling);
-		wordl1.push_back(new SingleWord(sword));
-		SingleWord::connectSingleWords(wordl1[i], emptyWord, 0, 0, 0);
-		}
-		for(ushort i = 0; i < numberWordsSL; i++) {
-		getline(file, spelling);
-		sword.setSpelling(spelling);
-			wordl2.push_back(new SingleWord(sword));
-		SingleWord::connectSingleWords(wordl2[i], emptyWord, 0, 0, 0);
-		}
-		ushort number1;
-		ushort number2;
-		ushort which_repetition;
-		ushort which_repetition2;
-		time_t last_repetition;
-		for(ushort i = 0; i < numberConnections; i++) {
-		file >> number1;
-		file >> number2;
-		file >> which_repetition;
-		file >> which_repetition2;
-		file >> last_repetition;
-
-		file.ignore(INT_MAX, '\n');
-		assert(number1 < wordl1.size() && (number2 < wordl1.size()+wordl2.size() && number2 >= wordl1.size()));
-		if(emptyWord->isConnectedWith(wordl1[number1]))SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
-		if(emptyWord->isConnectedWith(wordl2[number2-wordl1.size()]))SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
-		assert(!wordl1[number1]->isConnectedWith(wordl2[number2-wordl1.size()]));
-		SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, which_repetition2, last_repetition);
+			file.ignore(INT_MAX, '\n');
+			assert(number1 < wordl1.size() && (number2 < wordl1.size()+wordl2.size() && number2 >= wordl1.size()));
+			if(emptyWord->isConnectedWith(wordl1[number1]))SingleWord::disconnectSingleWords(wordl1[number1], emptyWord);
+			if(emptyWord->isConnectedWith(wordl2[number2-wordl1.size()]))SingleWord::disconnectSingleWords(wordl2[number2-wordl1.size()], emptyWord);
+			assert(!wordl1[number1]->isConnectedWith(wordl2[number2-wordl1.size()]));
+			SingleWord::connectSingleWords(wordl1[number1], wordl2[number2-wordl1.size()], which_repetition, which_repetition2, last_repetition);
 		}
 
 		for(ushort i = 0; i < numberWordsFL; i++) {
-		if(wordl1[i]->isKnown())qKnownSingleWords++;
+			if(wordl1[i]->isKnown())qKnownSingleWords++;
 		}
 		for(ushort i = 0; i < numberWordsSL; i++) {
-		if(wordl2[i]->isKnown())qKnownSingleWords++;
+			if(wordl2[i]->isKnown())qKnownSingleWords++;
 		}
 	}
 	file.close();
@@ -784,14 +711,6 @@ bool Kurs::isKursChanged() const
 {
 	return this->ifChangeKurs;
 }
-ushort Kurs::getAskQKW() const
-{
-	return this->askQKW;
-}
-ushort Kurs::getAskQNW() const
-{
-	return this->askQNW;
-}
 void Kurs::increaseQKnownWords(const short int &quantity)
 {
 	qKnownSingleWords += quantity;
@@ -806,14 +725,11 @@ void Kurs::saveKurs(const string &file_to_save)
 	file << wordl1.size() << endl;
 	file << wordl2.size() << endl;
 	file << numberConnections << endl;
-	file << askQKW << endl;
-	file << askQNW << endl;
-	file << repetitionsLevels.size() << endl; //dać zmienną rozmiaru
-	string ann_filename = file_to_save+"_level";
-	for(int i = 0; i < repetitionsLevels.size(); i++) {
-		file << ann_filename+char('0'+i) << endl;
-		repetitionsLevels[i]->save(ann_filename+char('0'+i));
-	}
+	file << repetition_train_file << endl;
+	file << file_to_save+"_ann" << endl;
+	
+	repetition_ann->save(file_to_save+"_ann");
+
 	for(ushort i = 0; i < wordl1.size(); i++) {
 		file << wordl1[i]->getSpelling() << endl;
 	}
@@ -860,15 +776,4 @@ void Kurs::setIfChangeKurs(const bool &_ifChangeKurs)
 {
 	ifChangeKurs = _ifChangeKurs;
 }
-void Kurs::setAskQKW(const ushort &_askQKW)
-{
-	askQKW = _askQKW;
-	ifChangeKurs = true;
-}
-void Kurs::setAskQNW(const ushort &_askQNW)
-{
-	askQNW = _askQNW;
-	ifChangeKurs = true;
-}
-
 
