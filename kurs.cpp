@@ -371,7 +371,11 @@ void Kurs::repairPredictions() {
 	train_file << whole_file;
 	train_file.close();
 	
-	repetition_ann->cascadetrain_on_file(repetition_train_file, 30, 0, 0.00001);
+	const int max_neurons = 100;
+	const int neurons_between_reports = 1;
+	const double desired_error = 0.00001;
+	
+	repetition_ann->cascadetrain_on_file(repetition_train_file, max_neurons, neurons_between_reports, desired_error);
 }
 
 void Kurs::setRepetitionData(const ushort &word_number, const time_t &czas, vector<double> &oplev_connections) {
