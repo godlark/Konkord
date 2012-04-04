@@ -375,6 +375,8 @@ void Kurs::repairPredictions() {
 	const int neurons_between_reports = 1;
 	const double desired_error = 0.00001;
 	
+	repetition_ann = new FANN::neural_net();
+	repetition_ann->create_shortcut(2, 2, 1);
 	repetition_ann->cascadetrain_on_file(repetition_train_file, max_neurons, neurons_between_reports, desired_error);
 }
 
