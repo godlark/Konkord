@@ -150,7 +150,6 @@ void ServiceOfTasks::addWords() {
 void ServiceOfTasks::repaskWords() {
 	ushort number_words;
 	time_t atime;
-	string spellingWord;
 	ushort number_connections;
 	ushort suggest_word_for_next_time;
 
@@ -477,17 +476,14 @@ void ServiceOfTasks::editWord() {
 	setStateActions();
 }
 void ServiceOfTasks::newCourse() {
-	string name, lang1, lang2, filename;
-	ushort askQKW, askQNW;
-	
-		name = (*main_interface->dialogWindow("Podaj nazwę kursu", 0)._string);
-		lang1 = (*main_interface->dialogWindow("Podaj nazwę pierwszego języka", 0)._string);
-		lang2 = (*main_interface->dialogWindow("Podaj nazwę drugiego języka", 0)._string);
-		filename = (*main_interface->dialogWindow("Podaj domyślną nazwę pliku, do którego zapisywać kurs", 0)._string);
-		askQKW = main_interface->dialogWindow("Podaj domyślną ilość słówek, z których użytkownik ma być przepytywany", 1)._ushort;
-		askQNW = main_interface->dialogWindow("Podaj domyślną ilość słówek, które użytkownik ma poznawać co każde uruchomienie programu", 1)._ushort;
+	string name, lang1, lang2, filename;	
 		
-	Kurs *course = new Kurs(name, lang1, lang2, filename, askQKW, askQNW, globalROE);
+	name = (*main_interface->dialogWindow("Podaj nazwę kursu", 0)._string);
+	lang1 = (*main_interface->dialogWindow("Podaj nazwę pierwszego języka", 0)._string);
+	lang2 = (*main_interface->dialogWindow("Podaj nazwę drugiego języka", 0)._string);
+	filename = (*main_interface->dialogWindow("Podaj domyślną nazwę pliku, do którego zapisywać kurs", 0)._string);
+		
+	Kurs *course = new Kurs(name, lang1, lang2, filename, globalROE);
 	/* Otwarcie kursu */
 	{
 		courses.push_back(course);

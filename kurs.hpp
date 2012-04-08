@@ -85,7 +85,7 @@ class Kurs
 		double makePredictions(const int &time, const ushort &which_repetition) const;
 	public:
 		Kurs(const std::string &file_to_open, RegisterOfErrors &_ROE);
-		Kurs(const std::string &name, const std::string &lang1, const std::string &lang2, const std::string &filename, const ushort &askQKW, const ushort &askQNW,  RegisterOfErrors &_ROE);
+		Kurs(const std::string &name, const std::string &lang1, const std::string &lang2, const std::string &filename, RegisterOfErrors &_ROE);
 		void addSingleWords(const std::vector<std::string> &spellings, const std::vector<std::string> &sounds, const std::vector<std::string> &meanings_spelling, const std::vector<std::string> &meanings_sound);
 		void addSingleWord(const SingleWord &singleWord, const ushort &where);
 		void connectSingleWords(const ushort &number1, const ushort &number2);

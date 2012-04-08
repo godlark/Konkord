@@ -356,19 +356,25 @@ void Kurs::repairPredictions() {
 	fstream train_file;
 	train_file.open(repetition_train_file.c_str(), fstream::in);
 	
+	const int nMaxLines = 1200;
 	int nLines = 0;
-	string line;
-	getline(train_file, line); //get the first line
-	string whole_file = "";
-	while(getline(train_file, line)) {
+	int nPreviousLines;
+	train_file >> nPreviousLines;
+	vector<string> whole_file = vector<string>();
+	getline(train_file, whole_file[0]); //get the first line
+	while(getline(train_file, whole_file[nLines])) {
 		nLines++;
-		whole_file += line+'\n';
 	}
 	train_file.close();
 	
+	nLines /= 2;
+	const int nDeletedLines = (nLines-nPreviousLines)*nLines/nMaxLines;
 	train_file.open(repetition_train_file.c_str(), fstream::out);
-	train_file << nLines/2 << "\t" << 2 << "\t" << 1 << endl;
-	train_file << whole_file;
+	train_file << nLines - nDeletedLines << "\t" << 2 << "\t" << 1 << endl;
+	for(int i = (nLines-nPreviousLines)*nLines/nMaxLines; i < nLines; i++) {
+		train_file << whole_file[i*2] << "\n";
+		train_file << whole_file[i*2+1] << "\n";
+	}
 	train_file.close();
 	
 	const int max_neurons = 100;
@@ -511,7 +517,7 @@ void Kurs::unitSingleWords(const ushort &number1, const ushort &number2) {//ulep
 	}
 	qAllSingleWords = wordl1.size() + wordl2.size();
 }
-Kurs::Kurs(const string &name, const string &lang1, const string &lang2, const string &filename, const ushort &askQKW, const ushort &askQNW,  RegisterOfErrors &_ROE) {
+Kurs::Kurs(const string &name, const string &lang1, const string &lang2, const string &filename,  RegisterOfErrors &_ROE) {
 	this->name = name;
 	this->lang1 = lang1;
 	this->lang2 = lang2;
