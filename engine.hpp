@@ -41,6 +41,7 @@ class ServiceOfTasks
 		ushort QOK; //number opened courses
 		std::vector<Kurs*> courses;
 		std::vector<bool> saved_courses;
+		std::vector<std::string> coursesFileName;
 		static const ushort numberActions = 19;
 		bool* actionActive;
 		Interface *main_interface;
@@ -61,11 +62,9 @@ class ServiceOfTasks
 		void addWords();//9
 		void newCourse();//10
 		void openCourse(std::string filename);//11
-		void printInfoCourse() const;//12
 		void printWordss() const; //13
 		void saveCourse();//14
 		void saveCourseAs(std::string filename);//15
-		void settingsCourse();//16
 		void switchCourse(std::string nr_course);//17
 		std::vector<std::string> getCoursesNames();
 		void readWordsFromFile(std::string filename);//18

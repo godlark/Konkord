@@ -72,11 +72,11 @@ void ServiceOfTasks::setStateActions() {
 		if(!saved_courses[activ_course])actionActive[13] = true;
 		if(QOK > 1)actionActive[16] = true;
 		else actionActive[16] = false;
-		if(courses[activ_course]->getQKnownSingleWords() > 0)actionActive[0] = true;
+		if(courses[activ_course]->getNKnownSingleWords() > 0)actionActive[0] = true;
 		else actionActive[0] = false;
-		if(courses[activ_course]->getQKnownSingleWords() < courses[activ_course]->getQAllSingleWords())actionActive[1] = true;
+		if(courses[activ_course]->getNKnownSingleWords() < courses[activ_course]->getNAllSingleWords())actionActive[1] = true;
 		else actionActive[1] = false;
-		if(courses[activ_course]->getQAllSingleWords() > 0) {
+		if(courses[activ_course]->getNAllSingleWords() > 0) {
 			actionActive[3] = true;
 			actionActive[4] = true;
 			actionActive[12] = true;
@@ -88,7 +88,7 @@ void ServiceOfTasks::setStateActions() {
 			actionActive[12] = false;
 			actionActive[18] = false;
 		}
-		if(courses[activ_course]->getQSingleWords_1() > 0 && courses[activ_course]->getQSingleWords_2() > 0) {
+		if(courses[activ_course]->getNSingleWords_1() > 0 && courses[activ_course]->getNSingleWords_2() > 0) {
 			actionActive[5] = true;
 			actionActive[6] = true;
 		}
@@ -276,7 +276,7 @@ void ServiceOfTasks::askUnknownWords() {
 void ServiceOfTasks::closeKurs() {
 	char znak;
 	if(!saved_courses[activ_course]) {
-		znak = main_interface->Yes_No_Cancel("Zapisać zmieniony kurs: "+ courses[activ_course]->getFilename()+" (ODPOWIEDŹ \"Nie\" SPOWODUJE UTRATĘ ZMIAN))");
+		znak = main_interface->Yes_No_Cancel("Zapisać zmieniony kurs: "+ coursesFileName[activ_course]+" (ODPOWIEDŹ \"Nie\" SPOWODUJE UTRATĘ ZMIAN))");
 		if(znak == 1) {
 			saveCourse();
 			simpleCloseCourse(activ_course);
@@ -423,9 +423,6 @@ void ServiceOfTasks::doAction(ushort number, string options) {
 		case 11:
 			openCourse(options);
 			break;
-		case 12:
-			printInfoCourse();
-			break;
 		case 13:
 			printWordss();
 			break;
@@ -434,9 +431,6 @@ void ServiceOfTasks::doAction(ushort number, string options) {
 			break;
 		case 15:
 			saveCourseAs(options);
-			break;
-		case 16:
-			settingsCourse();
 			break;
 		case 17:
 			switchCourse(options);
@@ -476,17 +470,15 @@ void ServiceOfTasks::editWord() {
 	setStateActions();
 }
 void ServiceOfTasks::newCourse() {
-	string name, lang1, lang2, filename;	
-		
-	name = (*main_interface->dialogWindow("Podaj nazwę kursu", 0)._string);
-	lang1 = (*main_interface->dialogWindow("Podaj nazwę pierwszego języka", 0)._string);
-	lang2 = (*main_interface->dialogWindow("Podaj nazwę drugiego języka", 0)._string);
+	string filename;	
+
 	filename = (*main_interface->dialogWindow("Podaj domyślną nazwę pliku, do którego zapisywać kurs", 0)._string);
 		
-	Kurs *course = new Kurs(name, lang1, lang2, filename, globalROE);
+	Kurs *course = new Kurs(globalROE);
 	/* Otwarcie kursu */
 	{
 		courses.push_back(course);
+		coursesFileName.push_back(filename);
 		saved_courses.push_back(false);
 		QOK++;
 		activ_course = QOK-1;
@@ -505,42 +497,12 @@ void ServiceOfTasks::openCourse(string filename) {
 		throw;
 	}
 	courses.push_back(course);
+	coursesFileName.push_back(filename);
 	saved_courses.push_back(false);
 	QOK++;
 	activ_course = QOK-1;
 	//courses[activ_course]->aktualizuj();
 	setStateActions();
-}
-void ServiceOfTasks::printInfoCourse() const{
-	string *descriptions = new string[7];
-	Variable *values = new Variable[7];
-	descriptions[0] = "Nazwa kursu";
-	values[0].type = 0;
-	values[0]._string = new string(courses[activ_course]->getName());
-	//values[0]._string = courses[activ_course]->getName();
-	descriptions[1] = "Nazwa pierwszego języka";
-	values[1].type = 0;
-	values[1]._string = new string(courses[activ_course]->getLang1());
-	descriptions[2] = "Nazwa drugiego języka";
-	values[2].type = 0;
-	values[2]._string = new string(courses[activ_course]->getLang2());
-	descriptions[3] = "Nazwa pliku, do którego domyślnie zapisywany jest kurs";
-	values[3].type = 0;
-	values[3]._string = new string(courses[activ_course]->getFilename());
-	descriptions[6] = "Ilość wszystkich słów w kursie";
-	values[4].type = 1;
-	values[4]._ushort = courses[activ_course]->getQAllSingleWords();
-	descriptions[7] = "Ilość poznanych słów";
-	values[5].type = 1;
-	values[5]._ushort = courses[activ_course]->getQKnownSingleWords();
-	descriptions[8] = "Czy kurs został zapisany po dokonaniu zmian";
-	values[6].type = 1;
-	values[6]._string = courses[activ_course]->isKursChanged() ? new string("NIE") : new string("TAK");
-	main_interface->infoWindow(descriptions, values, 7);
-		
-	//restore memory
-	delete [] descriptions;
-	delete [] values;
 }
 void ServiceOfTasks::printWordss() const {
 	ushort from = main_interface->dialogWindow("Podaj numer słowa, od którego zacząć pobieranie", 1)._ushort;
@@ -564,7 +526,7 @@ void ServiceOfTasks::printWordss() const {
 void ServiceOfTasks::saveCourse() {
 	try
 	{
-		courses[activ_course]->saveKurs(courses[activ_course]->getFilename());
+		courses[activ_course]->saveKurs(coursesFileName[activ_course], coursesFileName[activ_course]+"_ann", coursesFileName[activ_course]+"_train");
 	}
 	catch (Error &errorek) {
 		main_interface->printMessage("PRZECHWYCONY WYJĄTEK", errorek.toString());
@@ -576,48 +538,22 @@ void ServiceOfTasks::saveCourse() {
 void ServiceOfTasks::saveCourseAs(string filename) {
 	try
 	{
-		courses[activ_course]->saveKurs(filename);
+		courses[activ_course]->saveKurs(filename, filename+"_ann", filename+"_train");
+		coursesFileName[activ_course] = filename;
+		saved_courses[activ_course] = true;
+        actionActive[13] = false;
 	}
 	catch (Error &errorek) {
 		main_interface->printMessage("PRZECHWYCONY WYJĄTEK", errorek.toString());
 		throw;
 	}
 }
-void ServiceOfTasks::settingsCourse() {
-	string *descriptions = new string[4];
-	Variable *values = new Variable[4];
-	descriptions[0] = "Nazwa kursu";
-	values[0].type = 0;
-	values[0]._string = new string(courses[activ_course]->getName());
-	descriptions[1] = "Nazwa pierwszego języka";
-	values[1].type = 0;
-	values[1]._string = new string(courses[activ_course]->getLang1());
-	descriptions[2] = "Nazwa drugiego języka";
-	values[2].type = 0;
-	values[2]._string = new string(courses[activ_course]->getLang2());
-	descriptions[3] = "Nazwa pliku, do którego domyślnie zapisywany jest kurs";
-	values[3].type = 0;
-	values[3]._string = new string(courses[activ_course]->getFilename());
-		
-	values = main_interface->optionWindow(descriptions, values, 4).v;
-		
-	courses[activ_course]->setName(*(values[0]._string));
-	courses[activ_course]->setLang1(*(values[1]._string));
-	courses[activ_course]->setLang2(*(values[2]._string));
-	courses[activ_course]->setFilename(*(values[3]._string));
-		
-	saved_courses[activ_course] = false;
-		
-	//restore memory
-	delete [] descriptions;
-	delete [] values;
-}
 void ServiceOfTasks::simpleCloseCourse(ushort nr_course) {
-	vector<Kurs*>::iterator to_deleted = courses.begin();
-	//sprawdzić wartości
 	delete courses[nr_course];
-	courses.erase(to_deleted + nr_course);
+	courses.erase(courses.begin() + nr_course);
 	saved_courses.erase(saved_courses.begin() + nr_course);
+	coursesFileName.erase(coursesFileName.begin() + nr_course);
+	
 	QOK--;
 	if(QOK == 0)
 	{
@@ -635,7 +571,7 @@ void ServiceOfTasks::switchCourse(string nr_course) {
 vector<string> ServiceOfTasks::getCoursesNames() {
 	vector<string> coursesNames(QOK);
 	for(ushort i = 0; i < QOK; i++) {
-		coursesNames[i] = courses[i]->getName();
+		coursesNames[i] = coursesFileName[i];
 	}
 	return coursesNames;
 }

@@ -7,7 +7,8 @@ SOURCES += \
     ../kurs.cpp \
     ../engine.cpp \
     mainwindow.cpp \
-    maction.cpp
+    maction.cpp \
+    ../trainingData.cpp
 
 HEADERS += \
     ../SingleWord.hpp \
@@ -17,4 +18,6 @@ HEADERS += \
     ../interface.hpp \
     ../engine.hpp \
     mainwindow.hpp \
-    maction.hpp
+    maction.hpp \
+    ../trainData.hpp \
+    ../trainingData.hpp

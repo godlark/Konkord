@@ -24,6 +24,7 @@
 
 #include "RegisterOfErrors.hpp"
 #include "SingleWord.hpp"
+#include "trainingData.hpp"
 
 #include <boost/regex.hpp>
 #include <string>
@@ -62,22 +63,16 @@ int toInteger(std::string s_number);
 class Kurs
 {
     private:
-        std::string              lang1;
-        std::string              lang2;
-        std::string              kursFileName;
         SingleWord*              emptySingleWord;
         std::vector<SingleWord*> wordl1;
         std::vector<SingleWord*> wordl2;
         FANN::neural_net*        repetitionAnn;
-        std::string              repetitionAnnFileName;
-        std::string              repetitionAnnTrainFileName;
+        TrainingData*            repetitionAnnTrainingData;
         ushort                   nAllSingleWords;
         ushort                   nKnownSingleWords;
-        bool                     ifChangedKurs;
         RegisterOfErrors*        ROE;
         ushort                   nConnections;
         ushort                   maxOplev;
-        uhsort                   maxLinesInRepetitionAnnTrainFile;
         
         static ushort compare_words(const std::string &aa, const std::string &bb);//zwraca najkrótszą drogę pomiędzy słowami
         static std::string decodeText(const std::string &oryginalText);
@@ -85,8 +80,8 @@ class Kurs
         void increaseNKnownSingleWords(const short int &quantity);
         double makePredictions(const int &time, const ushort &nRepetitionLevel) const;
     public:
-        Kurs(const std::string &AkursFileName, RegisterOfErrors &AROE);
-        Kurs(RegisterOfErrors &AROE, const std::string &filename);
+        Kurs(RegisterOfErrors &AROE);
+        Kurs(const std::string &filename, RegisterOfErrors &AROE);
         void addSingleWords(const std::vector<std::string> &spellings, const std::vector<std::string> &sounds, const std::vector<std::string> &meanings_spelling, const std::vector<std::string> &meanings_sound);
         void addSingleWord(const SingleWord &singleWord, const ushort &where);
         void connectSingleWords(const ushort &number1, const ushort &number2);
@@ -96,19 +91,17 @@ class Kurs
         std::vector<ushort> getUnknownSingleWords(const ushort &quantityOfWords) const;
         std::vector<ushort>  getWordsToRepetition(ushort &howManyWords) const;
         void increaseNKnownWords(const short int &quantity);
-        bool isKursChanged() const;
         ushort getNAllSingleWords() const;
         ushort getNKnownSingleWords() const;
-        ushort getNSingleWords_1() const; //std::vector<SingleWord> wordl1;
-        ushort getNSingleWords_2() const; //std::vector<SingleWord> wordl1;
+        ushort getNSingleWords_1() const;
+        ushort getNSingleWords_2() const;
         SingleWord const* getSingleWord(const ushort &number) const;
         std::vector<SingleWord const*> getSingleWords(const ushort &from, ushort &to) const;
         bool isSingleWordFLorSL(const ushort &word_number) const; //first_language - true, second_language - false
         void repairPredictions();
         void setRepetitionData(const ushort &word_number, const time_t &czas, std::vector<double> &oplev_connections);
         std::string readSingleWordsFromFile(const std::string &file_to_open);
-        void saveKurs(const std::string &filename); //zrobić na consta
-        void setIfChangeKurs(const bool &_ifChangeKurs);
+        void saveKurs(const std::string &filename, const std::string &repetitionAnnFileName, const std::string &repetitionAnnTrainingDataFileName) const;
         void setWord(const ushort &number, const std::string &first, const std::string &second);
         void setSingleWord(const ushort &number, const std::string &spelling, const std::string &sound);
         void setMeaningForSingleWord(const ushort &number_word, const ushort &number_meaning, const std::string &spelling, const std::string &sound);

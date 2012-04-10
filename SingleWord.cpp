@@ -65,22 +65,17 @@ void SingleWord::setTimeLastRepetition(const ushort &number_meaning, const time_
 bool SingleWord::isKnown() const{
 	return known;
 }
-ushort SingleWord::getWhichRepetition(const ushort &number_meaning) const {
+ushort SingleWord::getRepetitionLevelNumber(const ushort &number_meaning) const {
 	if(number_meaning >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	return *repetitionsOfMeanings[number_meaning];
 }
-void SingleWord::setWhichRepetition(const ushort &number_meaning, const ushort &which_repetition) const {
+void SingleWord::setRepetitionLevelNumber(const ushort &number_meaning, const ushort &which_repetition) const {
 	if(number_meaning >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	*repetitionsOfMeanings[number_meaning] = which_repetition;
 }
 time_t SingleWord::getTimeLastRepetition(const ushort &number_meaning) const {
 	if(number_meaning >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	return *lastRepetitionsOfM[number_meaning];
-}
-time_t SingleWord::getTimeNextRepetition(const ushort &number_meaning, const vector<time_t> &repetitionsTime) const {
-	if(number_meaning >= q_meanings)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
-	if(*repetitionsOfMeanings[number_meaning] >= repetitionsTime.size())throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
-	return *lastRepetitionsOfM[number_meaning] + repetitionsTime[*repetitionsOfMeanings[number_meaning]];
 }
 void SingleWord::connectSingleWords(SingleWord *sw1, SingleWord *sw2, const ushort &which_repetition, const ushort &which_repetition2, const time_t &last_repetition) {
 	//ASSERT IN

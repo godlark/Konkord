@@ -56,9 +56,8 @@ class SingleWord {
 		SingleWord * getMeaning(const ushort &number) const;
 		ushort getNumberMeanings() const;
 		time_t getTimeLastRepetition(const ushort &number_meaning) const;
-		time_t getTimeNextRepetition(const ushort &number_meaning, const std::vector<time_t> &repetitionsTime) const;
-		ushort getWhichRepetition(const ushort &number_meaning) const;
-		void setWhichRepetition(const ushort &number_meaning, const ushort &which_repetition) const;
+		ushort getRepetitionLevelNumber(const ushort &number_meaning) const;
+		void setRepetitionLevelNumber(const ushort &number_meaning, const ushort &which_repetition) const;
 		void setTimeLastRepetition(const ushort &number_meaning, const time_t &lasttime);
 		
 		void setSound(const std::string &Asound);
