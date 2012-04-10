@@ -70,7 +70,6 @@ void TrainingData::save(const std::string &filename) const {
             file << fixed << inputss[i][j] << '\t';
         }
         file << '\n';
-        outputss[i] = new double[nOutputsInLine];
         for(int j = 0; j < nOutputsInLine; j++) {
             file << fixed << outputss[i][j] << '\t';
         }
@@ -162,4 +161,23 @@ void TrainingData::update() {
     inputss = newInputss;
     
     nLines = nLines+nNewLinesToAdd-nOldLinesToDelete;
+}
+
+TrainingData::~TrainingData() {
+    ushort nQueuedLines = queuedOutputs.size();
+    list<double*>::iterator iterQueuedOutputs = queuedOutputs.begin();
+    list<double*>::iterator iterQueuedInputs = queuedInputs.begin();
+    for(int i = 0; i < nQueuedLines; i++, iterQueuedOutputs++, iterQueuedInputs++) {
+        delete *iterQueuedOutputs;
+        delete *iterQueuedInputs;
+    }
+    queuedOutputs.clear();
+    queuedInputs.clear();
+    
+    for(int i = 0; i < nLines; i++) {
+        delete []inputss[i];
+        delete []outputss[i];
+    }
+    delete []inputss;
+    delete []outputss;
 }

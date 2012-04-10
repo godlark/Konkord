@@ -72,6 +72,7 @@ Kurs::~Kurs() {
 		delete wordl2[i];
 	}
 	delete repetitionAnn;
+	delete repetitionAnnTrainingData;
 	assert(emptySingleWord != NULL);
 	delete emptySingleWord;
 }

@@ -49,6 +49,7 @@ public:
     
     TrainingData(const std::string& filename);
     TrainingData(const ushort& AnInputsInLine, const ushort& AnOutputsInLine);
+    ~TrainingData();
 };
 
 #endif // TRAINDATA_HPP
