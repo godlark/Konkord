@@ -23,7 +23,7 @@
 #include <iostream>
 
 using namespace std;
-typedef unsigned short int ushort;
+typedef unsigned int uint;
 
 Text_Interface::~Text_Interface() {
 	delete menu2;
@@ -91,7 +91,7 @@ void Text_Interface::run() {
 	menu2->open();
 }
 
-string Text_Interface::askWord(SingleWord const *sword, ushort nr_word) {
+string Text_Interface::askWord(SingleWord const *sword, uint nr_word) {
 	system("clear");
 	cout << "Numer słowa: " << nr_word << endl;
 	cout << "Napisz znaczenia tego wyrażenia:\n\"" << sword->getSpelling() << "\"";
@@ -103,11 +103,11 @@ void Text_Interface::printMessage(string title, string something) {
 	cout << "***" << title << "***" << endl;
 	cout << something << endl;
 }
-void Text_Interface::printWords(string description, SingleWord const *swords[], ushort const *numbersWords, vector<ushort> numbersConnections, short time) {
+void Text_Interface::printWords(string description, SingleWord const *swords[], uint const *numbersWords, vector<uint> numbersConnections, short time) {
 	cout << description << endl;
 	SingleWord const *mean;
-	ushort number_connections = numbersConnections.size()/2;
-	for(ushort i = 0; i < number_connections; i++) {
+	uint number_connections = numbersConnections.size()/2;
+	for(uint i = 0; i < number_connections; i++) {
 		cout << "Numer słowa: " << numbersWords[numbersConnections[i*2]] << endl;
 		mean = swords[numbersConnections[i*2]]->getMeaning(numbersConnections[(i*2)+1]);
 		cout << swords[numbersConnections[i*2]]->getSpelling() << "\t\t" << mean->getSpelling() << endl;
@@ -117,7 +117,7 @@ void Text_Interface::printWords(string description, SingleWord const *swords[], 
 	else cin.get();
 }
 
-Variable Text_Interface::dialogWindow(string text, ushort type) {
+Variable Text_Interface::dialogWindow(string text, uint type) {
 	Variable temp;
 	temp.type = type;
 	string teemp;
@@ -130,7 +130,7 @@ Variable Text_Interface::dialogWindow(string text, ushort type) {
 				temp._string = new string(teemp);
 				break;
 			case 1:
-				cin >> temp._ushort;
+				cin >> temp._uint;
 				break;
 		}
 		if(cin.fail()) {
@@ -143,29 +143,29 @@ Variable Text_Interface::dialogWindow(string text, ushort type) {
 	return temp;
 }
 
-void Text_Interface::infoWindow(string const *descriptions, Variable *values, ushort number) {
-	for(ushort i = 0; i < number; i++) {
+void Text_Interface::infoWindow(string const *descriptions, Variable *values, uint number) {
+	for(uint i = 0; i < number; i++) {
 		cout << descriptions[i] << ": ";
 		switch(values[i].type) {
 			case 0:
 				cout << *(values[i]._string) << endl;
 				break;
 			case 1:
-				cout << values[i]._ushort << endl;
+				cout << values[i]._uint << endl;
 				break;
 		}
 	}
 }
 
-Variables Text_Interface::optionWindow(string const *descriptions, Variable *values, ushort number) {
-	ushort wybor = 0;
+Variables Text_Interface::optionWindow(string const *descriptions, Variable *values, uint number) {
+	uint wybor = 0;
 	Variables vs;
 	vs.number = number;
 	vs.v = values;
 	do {
 		string teemp;
 		cout << "Opcje kursu to: " << endl;
-		for(ushort i = 0; i < number; i++)
+		for(uint i = 0; i < number; i++)
 		{
 			cout << i+1 << ". " << descriptions[i] << endl;
 		}
@@ -182,9 +182,9 @@ Variables Text_Interface::optionWindow(string const *descriptions, Variable *val
 					values[wybor-1]._string = new string(teemp);
 					break;
 				case 1:
-					cout << values[wybor-1]._ushort << endl;
+					cout << values[wybor-1]._uint << endl;
 					cout << "Podaj nową wartość: ";
-					cin >> values[wybor-1]._ushort;
+					cin >> values[wybor-1]._uint;
 					break;
 			}
 			if(cin.fail()) {
@@ -198,15 +198,15 @@ Variables Text_Interface::optionWindow(string const *descriptions, Variable *val
 	}while(wybor != 0);
 }
 
-ushort Text_Interface::radioWindow(string description, string const *values, ushort defaultOption, ushort number) {
+uint Text_Interface::radioWindow(string description, string const *values, uint defaultOption, uint number) {
 	cout << description << endl;
 	cout << "Kurs aktywny oznaczony jest gwiazdką" << endl;
-	for(ushort i = 0; i < number; i++) {
+	for(uint i = 0; i < number; i++) {
 		if(i == defaultOption)cout << "*";
 		cout << i << ". " << values[i] << endl;
 	}
 	cout << "Wpisz numer opcji, którą wybierasz: ";
-	ushort temp;
+	uint temp;
 	bool repeat = true;
 	while(repeat){
 		cin >> temp;
@@ -252,7 +252,7 @@ void Menu::printOptions() const
 }
 short int Menu::scanfOption() const
 {
-	ushort wybor;
+	uint wybor;
 	bool repeat = true;
 	while(repeat){
 		cin >> wybor;

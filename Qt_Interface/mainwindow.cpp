@@ -206,7 +206,7 @@ void MainWindow::run() {
         cout << "dupa" << endl;
 }
 
-string MainWindow::askWord(SingleWord const *sword, ushort nr_word) {
+string MainWindow::askWord(SingleWord const *sword, uint nr_word) {
         system("clear");
         cout << "Numer słowa: " << nr_word << endl;
         cout << "Napisz znaczenia tego wyrażenia:\n\"" << sword->getSpelling() << "\"";
@@ -218,11 +218,11 @@ void MainWindow::printMessage(string title, string something) {
         cout << "***" << title << "***" << endl;
         cout << something << endl;
 }
-void MainWindow::printWords(string description, SingleWord const *swords[], ushort const *numbersWords, vector<ushort> numbersConnections, short time) {
+void MainWindow::printWords(string description, SingleWord const *swords[], uint const *numbersWords, vector<uint> numbersConnections, short time) {
         cout << description << endl;
         SingleWord const *mean;
-        ushort number_connections = numbersConnections.size()/2;
-        for(ushort i = 0; i < number_connections; i++) {
+        uint number_connections = numbersConnections.size()/2;
+        for(uint i = 0; i < number_connections; i++) {
                 cout << "Numer słowa: " << numbersWords[numbersConnections[i*2]] << endl;
                 mean = swords[numbersConnections[i*2]]->getMeaning(numbersConnections[(i*2)+1]);
                 cout << swords[numbersConnections[i*2]]->getSpelling() << "\t\t" << mean->getSpelling() << endl;
@@ -232,7 +232,7 @@ void MainWindow::printWords(string description, SingleWord const *swords[], usho
         else cin.get();
 }
 
-Variable MainWindow::dialogWindow(string text, ushort type) {
+Variable MainWindow::dialogWindow(string text, uint type) {
         Variable temp;
         temp.type = type;
         string teemp;
@@ -245,7 +245,7 @@ Variable MainWindow::dialogWindow(string text, ushort type) {
                                 temp._string = new string(teemp);
                                 break;
                         case 1:
-                                cin >> temp._ushort;
+                                cin >> temp._uint;
                                 break;
                 }
                 if(cin.fail()) {
@@ -258,29 +258,29 @@ Variable MainWindow::dialogWindow(string text, ushort type) {
         return temp;
 }
 
-void MainWindow::infoWindow(string const *descriptions, Variable *values, ushort number) {
-        for(ushort i = 0; i < number; i++) {
+void MainWindow::infoWindow(string const *descriptions, Variable *values, uint number) {
+        for(uint i = 0; i < number; i++) {
                 cout << descriptions[i] << ": ";
                 switch(values[i].type) {
                         case 0:
                                 cout << *(values[i]._string) << endl;
                                 break;
                         case 1:
-                                cout << values[i]._ushort << endl;
+                                cout << values[i]._uint << endl;
                                 break;
                 }
         }
 }
 
-Variables MainWindow::optionWindow(string const *descriptions, Variable *values, ushort number) {
-        ushort wybor = 0;
+Variables MainWindow::optionWindow(string const *descriptions, Variable *values, uint number) {
+        uint wybor = 0;
         Variables vs;
         vs.number = number;
         vs.v = values;
         do {
                 string teemp;
                 cout << "Opcje kursu to: " << endl;
-                for(ushort i = 0; i < number; i++)
+                for(uint i = 0; i < number; i++)
                 {
                         cout << i+1 << ". " << descriptions[i] << endl;
                 }
@@ -297,9 +297,9 @@ Variables MainWindow::optionWindow(string const *descriptions, Variable *values,
                                         values[wybor-1]._string = new string(teemp);
                                         break;
                                 case 1:
-                                        cout << values[wybor-1]._ushort << endl;
+                                        cout << values[wybor-1]._uint << endl;
                                         cout << "Podaj nową wartość: ";
-                                        cin >> values[wybor-1]._ushort;
+                                        cin >> values[wybor-1]._uint;
                                         break;
                         }
                         if(cin.fail()) {
@@ -313,15 +313,15 @@ Variables MainWindow::optionWindow(string const *descriptions, Variable *values,
         }while(wybor != 0);
 }
 
-ushort MainWindow::radioWindow(string description, string const *values, ushort defaultOption, ushort number) {
+uint MainWindow::radioWindow(string description, string const *values, uint defaultOption, uint number) {
         cout << description << endl;
         cout << "Kurs aktywny oznaczony jest gwiazdką" << endl;
-        for(ushort i = 0; i < number; i++) {
+        for(uint i = 0; i < number; i++) {
                 if(i == defaultOption)cout << "*";
                 cout << i << ". " << values[i] << endl;
         }
         cout << "Wpisz numer opcji, którą wybierasz: ";
-        ushort temp;
+        uint temp;
         bool repeat = true;
         while(repeat){
                 cin >> temp;

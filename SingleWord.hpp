@@ -29,7 +29,7 @@
 #include <vector>
 #include <cassert>
 
-typedef unsigned short int ushort;
+typedef unsigned int uint;
 
 class SingleWord {
 	private:
@@ -37,13 +37,13 @@ class SingleWord {
 		std::string sound;
 		std::string spelling;
 		std::vector<SingleWord*> meanings;
-		std::vector<ushort*> repetitionsOfMeanings;
+		std::vector<uint*> repetitionsOfMeanings;
 		std::vector<time_t*> lastRepetitionsOfM;
-		ushort q_meanings;
+		uint q_meanings;
 		std::vector<std::string> flag_names;
 		std::vector<std::string> flags;
 	public:
-		ushort id;
+		uint id;
 		bool isConnectedWith(SingleWord* meaning) const;
 		bool isEmpty() const; 
 		bool isKnown() const;
@@ -53,12 +53,12 @@ class SingleWord {
 		
 		std::string getSound() const;
 		std::string getSpelling() const;
-		SingleWord * getMeaning(const ushort &number) const;
-		ushort getNumberMeanings() const;
-		time_t getTimeLastRepetition(const ushort &number_meaning) const;
-		ushort getRepetitionLevelNumber(const ushort &number_meaning) const;
-		void setRepetitionLevelNumber(const ushort &number_meaning, const ushort &which_repetition) const;
-		void setTimeLastRepetition(const ushort &number_meaning, const time_t &lasttime);
+		SingleWord * getMeaning(const uint &number) const;
+		uint getNumberMeanings() const;
+		time_t getTimeLastRepetition(const uint &number_meaning) const;
+		uint getRepetitionLevelNumber(const uint &number_meaning) const;
+		void setRepetitionLevelNumber(const uint &number_meaning, const uint &which_repetition) const;
+		void setTimeLastRepetition(const uint &number_meaning, const time_t &lasttime);
 		
 		void setSound(const std::string &Asound);
 		void setSpelling(const std::string &Aspelling);
@@ -74,7 +74,7 @@ class SingleWord {
 			q_meanings = 0;
 			known = false;
 			meanings = std::vector<SingleWord *>(0);
-			repetitionsOfMeanings = std::vector<ushort*>(0);
+			repetitionsOfMeanings = std::vector<uint*>(0);
 			lastRepetitionsOfM = std::vector<time_t*>(0);
 			flag_names = std::vector<std::string>(0);
 			flags = std::vector<std::string>(0);
@@ -82,7 +82,7 @@ class SingleWord {
 		SingleWord(SingleWord const *sw);
 		~SingleWord();
 		
-		static void connectSingleWords(SingleWord *sw1, SingleWord *sw2, const ushort &which_repetition, const ushort &which_repetition2, const time_t &last_repetition);
+		static void connectSingleWords(SingleWord *sw1, SingleWord *sw2, const uint &which_repetition, const uint &which_repetition2, const time_t &last_repetition);
 		static void disconnectSingleWords(SingleWord *sw1, SingleWord *sw2);
 };
 

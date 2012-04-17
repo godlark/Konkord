@@ -28,14 +28,14 @@
 #include <string>
 #include <vector>
 
-typedef unsigned short int ushort;
+typedef unsigned int uint;
 
 class Menu
 {
 	private: 
 		ServiceOfTasks* serviceOfTasks;
 		Menu* submenus;
-		const ushort numberSubmenus;
+		const uint numberSubmenus;
 		
 		const std::vector<std::string> describesOptions;
 		const std::vector<short int> numbersOfActions;
@@ -44,10 +44,10 @@ class Menu
 		*number == 0 points to close menu
 		*number < 0 points to open submenu
 		**/
-		const ushort numberOptions;
+		const uint numberOptions;
 		bool exitMenuISexitProgram;	
 	public:
-		Menu(ushort numberO, std::vector<short int> numbersOA, std::vector<std::string> describesO, Menu* asubmenus, ushort numberS, ServiceOfTasks *aSOT, bool emisp) : numberOptions(numberO), serviceOfTasks(aSOT), submenus(asubmenus), numbersOfActions(numbersOA), describesOptions(describesO), numberSubmenus(numberS), exitMenuISexitProgram(emisp) {}
+		Menu(uint numberO, std::vector<short int> numbersOA, std::vector<std::string> describesO, Menu* asubmenus, uint numberS, ServiceOfTasks *aSOT, bool emisp) : numberOptions(numberO), serviceOfTasks(aSOT), submenus(asubmenus), numbersOfActions(numbersOA), describesOptions(describesO), numberSubmenus(numberS), exitMenuISexitProgram(emisp) {}
 		void open();
 		void printOptions() const;
 		short int scanfOption() const; //get 'n' number of option (from 0 to 'numberOptions') from user and return 'numberOfActions[n]' and 'n' is not correct return 'serviceOfTaks->freeNumber'
@@ -69,13 +69,13 @@ class Text_Interface : public Interface
 		Text_Interface();
 		~Text_Interface();
 		void run();
-		std::string askWord(SingleWord const *sword, ushort nr_word);//nr_lang = 0 lub = 1
-		void printWords(std::string description, SingleWord const **swords, ushort const *numbersWords, std::vector<ushort> numbersConnections, short time);
-		Variable dialogWindow(std::string text, ushort type);
-		void infoWindow(std::string const *descriptions, Variable *values, ushort number);
-		ushort radioWindow(std::string description, std::string const *values, ushort defaultOption, ushort number);
+		std::string askWord(SingleWord const *sword, uint nr_word);//nr_lang = 0 lub = 1
+		void printWords(std::string description, SingleWord const **swords, uint const *numbersWords, std::vector<uint> numbersConnections, short time);
+		Variable dialogWindow(std::string text, uint type);
+		void infoWindow(std::string const *descriptions, Variable *values, uint number);
+		uint radioWindow(std::string description, std::string const *values, uint defaultOption, uint number);
 		char Yes_No_Cancel(std::string description);
-		Variables optionWindow(std::string const *descriptions, Variable *values, ushort number);
+		Variables optionWindow(std::string const *descriptions, Variable *values, uint number);
 		void printMessage(std::string title, std::string something);
 };
 #endif	/* _NAKLADKA2_H */

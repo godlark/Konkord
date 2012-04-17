@@ -23,9 +23,10 @@
 #include "trainingData.hpp"
 #include <fstream>
 #include <climits>
+#include <iostream>
  
 using namespace std;
-typedef unsigned short int ushort;
+typedef unsigned int uint;
 
 TrainingData::TrainingData(const std::string &filename) {
     fstream file;
@@ -78,7 +79,7 @@ void TrainingData::save(const std::string &filename) const {
     file.close();
 }
 
-TrainingData::TrainingData(const ushort &AnInputsInLine, const ushort &AnOutputsInLine) {
+TrainingData::TrainingData(const uint &AnInputsInLine, const uint &AnOutputsInLine) {
     nInputsInLine = AnInputsInLine;
     nOutputsInLine = AnOutputsInLine;
     maxLines = nLines = 0;
@@ -88,11 +89,11 @@ TrainingData::TrainingData(const ushort &AnInputsInLine, const ushort &AnOutputs
     queuedOutputs = list<double*>();
 }
 
-ushort TrainingData::getMaxLines() const {
+uint TrainingData::getMaxLines() const {
     return maxLines;
 }
 
-void TrainingData::setMaxLines(const ushort& AmaxLines) {
+void TrainingData::setMaxLines(const uint& AmaxLines) {
     maxLines = AmaxLines;
 }
 
@@ -121,12 +122,12 @@ void TrainingData::addLine(std::initializer_list<double> Ainputs, std::initializ
 }
 
 void TrainingData::update() {
-    const ushort nNewLinesToAdd = queuedOutputs.size();
+    const uint nNewLinesToAdd = queuedOutputs.size();
     
-    ushort nOldLinesToDelete = nNewLinesToAdd+nLines;
+    uint nOldLinesToDelete = nNewLinesToAdd+nLines;
     nOldLinesToDelete *= nNewLinesToAdd;
     nOldLinesToDelete /= maxLines;
-    if(nOldLinesToDelete > maxLines)nOldLinesToDelete = maxLines;
+    if(nOldLinesToDelete > nLines)nOldLinesToDelete = nLines;
     
     list<double*>::iterator iter;
     
@@ -164,7 +165,7 @@ void TrainingData::update() {
 }
 
 TrainingData::~TrainingData() {
-    ushort nQueuedLines = queuedOutputs.size();
+    uint nQueuedLines = queuedOutputs.size();
     list<double*>::iterator iterQueuedOutputs = queuedOutputs.begin();
     list<double*>::iterator iterQueuedInputs = queuedInputs.begin();
     for(int i = 0; i < nQueuedLines; i++, iterQueuedOutputs++, iterQueuedInputs++) {

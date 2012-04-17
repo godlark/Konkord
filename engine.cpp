@@ -26,9 +26,9 @@
 #include <iostream>
 
 using namespace std;
-typedef unsigned short int ushort;
+typedef unsigned int uint;
 
-//ushort ServiceOfTasks::freeNumber = 4619;
+//uint ServiceOfTasks::freeNumber = 4619;
 
 ServiceOfTasks::ServiceOfTasks(Interface *Amain_interface) {
 			main_interface = Amain_interface;
@@ -118,7 +118,7 @@ void ServiceOfTasks::setStateActions() {
 	}
 }
 void ServiceOfTasks::addWord() {
-	const ushort numberLang = main_interface->dialogWindow("Jeśli wyrażenie jest w pierwszym języku wpisz 0, jeśli w drugim wpisz inną wartość", 1)._ushort;
+	const uint numberLang = main_interface->dialogWindow("Jeśli wyrażenie jest w pierwszym języku wpisz 0, jeśli w drugim wpisz inną wartość", 1)._uint;
 	const string spelling = *main_interface->dialogWindow("Podaj pisownię wyrażenia", 0)._string;
 	courses[activ_course]->addSingleWord(SingleWord::newSingleWord(spelling, ""), numberLang == 0 ? 0 : 1);
 	main_interface->printMessage("Dodano słowo", "");
@@ -148,28 +148,28 @@ void ServiceOfTasks::addWords() {
 	}
 }
 void ServiceOfTasks::repaskWords() {
-	ushort number_words;
+	uint number_words;
 	time_t atime;
-	ushort number_connections;
-	ushort suggest_word_for_next_time;
+	uint number_connections;
+	uint suggest_word_for_next_time;
 
-	number_words = main_interface->dialogWindow("Podaj ilość słów, z których chcesz być przepytywany", 1)._ushort;
-	vector <ushort> swords = courses[activ_course]->getWordsToRepetition(number_words);
+	number_words = main_interface->dialogWindow("Podaj ilość słów, z których chcesz być przepytywany", 1)._uint;
+	vector <uint> swords = courses[activ_course]->getWordsToRepetition(number_words);
 	number_connections = (swords.size()-number_words-1)/2;
 	suggest_word_for_next_time = swords[0];
 
 	SingleWord const *sword;
 
-	for(ushort i = 1; i <= number_words; i++) { //pomijamy pierwszy numer
+	for(uint i = 1; i <= number_words; i++) { //pomijamy pierwszy numer
 		atime = time(NULL);
 		sword = courses[activ_course]->getSingleWord(swords[i]);
-		vector<ushort> numbersConnections(2*(sword->getNumberMeanings()));
+		vector<uint> numbersConnections(2*(sword->getNumberMeanings()));
 		vector<double> oplevs(sword->getNumberMeanings());
 		char temp1[10];
 		sprintf(temp1, "%d/%d", number_words, i);
 		main_interface->printMessage("", temp1);
 		main_interface->printMessage("", "Napisz znaczenia słowa" + ((courses[activ_course]->isSingleWordFLorSL(swords[i]) ? " (poniższe wyrażenie jest w pierwszym języku):\n" : " (poniższe wyrażenie jest w drugim języku):\n") + sword->getSpelling())); //dodać jeszcze wyświetlanie numeru słowa
-		for(ushort j = 0; j < sword->getNumberMeanings(); j++) {
+		for(uint j = 0; j < sword->getNumberMeanings(); j++) {
 			 main_interface->dialogWindow("Napisz kolejne znaczenie tego słowa", 0);
 			 numbersConnections[j*2] = 0;
 			 numbersConnections[j*2+1] = j;
@@ -177,43 +177,43 @@ void ServiceOfTasks::repaskWords() {
 		atime = time(NULL) - atime;
 		main_interface->printWords("Poprawna wersja to:", &sword, &swords[i], numbersConnections, 0);
 		char temp[4];
-		for(ushort j = 0; j < sword->getNumberMeanings(); j++) {
+		for(uint j = 0; j < sword->getNumberMeanings(); j++) {
 			sprintf(temp, "%hu", j+1);
 			string temp2 = "Na ile oceniasz swoją poprawność znaczenia ";
 			temp2 += temp;
-			temp2 += " w skali od 0 do 6";
-			oplevs[j] = (double)main_interface->dialogWindow(temp2, 1)._ushort;
-			if(oplevs[j] > 6)oplevs[j] = 6;
+			temp2 += " w skali od 0 do "+toString(courses[activ_course]->getMaxOplev());
+			oplevs[j] = (double)main_interface->dialogWindow(temp2, 1)._uint;
+			if(oplevs[j] > courses[activ_course]->getMaxOplev())oplevs[j] = courses[activ_course]->getMaxOplev();
 		}
 		courses[activ_course]->setRepetitionData(swords[i], atime, oplevs);
 	}
 	courses[activ_course]->repairPredictions();
 	
 	
-	vector<ushort> connectionsToRepetition = vector<ushort> (0);
+	vector<uint> connectionsToRepetition = vector<uint> (0);
         for(unsigned int i = number_words+1; i < swords.size(); i++) {
 		connectionsToRepetition.push_back(swords[i]);
 	}
 	
 	//ten kod działa kiedyś go stworzyłem i nie wiem o co w nim chodzi
-	set<ushort> set_numbersWords;
-	vector<ushort> numbersConnections(number_connections*2);
-	for(ushort i = 0; i < number_connections; i++) {
+	set<uint> set_numbersWords;
+	vector<uint> numbersConnections(number_connections*2);
+	for(uint i = 0; i < number_connections; i++) {
 		set_numbersWords.insert(connectionsToRepetition[i*2]);
 	}
-	set<ushort>::iterator it;
-	ushort i = 0;
+	set<uint>::iterator it;
+	uint i = 0;
 	SingleWord const** aswords = new SingleWord const*[set_numbersWords.size()];
-	ushort * numbersWords = new ushort[set_numbersWords.size()];
+	uint * numbersWords = new uint[set_numbersWords.size()];
 	for(it=set_numbersWords.begin(); it!=set_numbersWords.end(); it++, i++) {
 		numbersWords[i] = *it;
 		aswords[i] = courses[activ_course]->getSingleWord(numbersWords[i]);
 	}
-	for(ushort i = 0; i < number_connections; i++) {
+	for(uint i = 0; i < number_connections; i++) {
 		numbersConnections[i*2] = (find(numbersWords, numbersWords+number_connections, connectionsToRepetition[i*2])-numbersWords);
 		numbersConnections[i*2 + 1] = connectionsToRepetition[i*2 + 1];
 	}
-	main_interface->printWords("Naciśnij 'ENTER' jeśli się nauczyłeś się słów", aswords, const_cast<ushort* const>(numbersWords), numbersConnections, -1);
+	main_interface->printWords("Naciśnij 'ENTER' jeśli się nauczyłeś się słów", aswords, const_cast<uint* const>(numbersWords), numbersConnections, -1);
 	cout << "Sugerowana liczba słów do przepytania następnym razem: " << swords[0] << endl;
 	delete [] aswords;
 	delete [] numbersWords;
@@ -222,37 +222,37 @@ void ServiceOfTasks::repaskWords() {
 	setStateActions();
 }
 void ServiceOfTasks::askUnknownWords() {
-	ushort number_words;
+	uint number_words;
 	time_t atime;
 	string spellingWord;
 		
-	number_words = main_interface->dialogWindow("Podaj ilość słów, z których chcesz być przepytywany", 1)._ushort;
-	vector <ushort> swords = courses[activ_course]->getUnknownSingleWords(number_words);
+	number_words = main_interface->dialogWindow("Podaj ilość słów, z których chcesz być przepytywany", 1)._uint;
+	vector <uint> swords = courses[activ_course]->getUnknownSingleWords(number_words);
 	number_words = swords.size();
 		
 	SingleWord const** aswords = new SingleWord const*[number_words];
-	ushort * numbers_words = new ushort[number_words];
-	vector<ushort> numbersConnections;
-	for(ushort i = 0; i < number_words; i++) {
+	uint * numbers_words = new uint[number_words];
+	vector<uint> numbersConnections;
+	for(uint i = 0; i < number_words; i++) {
 		aswords[i] = courses[activ_course]->getSingleWord(swords[i]);
 		numbers_words[i] = swords[i];
-		for(ushort j = 0; j < aswords[i]->getNumberMeanings(); j++) {
+		for(uint j = 0; j < aswords[i]->getNumberMeanings(); j++) {
 			numbersConnections.push_back(i);
 			numbersConnections.push_back(j);
 		}
 	}
-	main_interface->printWords("Naciśnij 'ENTER' jeśli się nauczyłeś się słów", aswords, const_cast<ushort* const>(numbers_words), numbersConnections, -1);
+	main_interface->printWords("Naciśnij 'ENTER' jeśli się nauczyłeś się słów", aswords, const_cast<uint* const>(numbers_words), numbersConnections, -1);
 	delete [] aswords;
 	delete [] numbers_words;
 		
 	SingleWord const *sword;
-	for(ushort i = 0; i < number_words; i++) {
+	for(uint i = 0; i < number_words; i++) {
 		atime = time(NULL);
 		sword = courses[activ_course]->getSingleWord(swords[i]);
-		vector<ushort> numbersConnections(2*sword->getNumberMeanings());
+		vector<uint> numbersConnections(2*sword->getNumberMeanings());
 		vector<double> oplevs(sword->getNumberMeanings());
 		main_interface->printMessage("", "Napisz znaczenia słowa:\n" + sword->getSpelling()); //dodać jeszcze wyświetlanie numeru słowa
-		for(ushort j = 0; j < sword->getNumberMeanings(); j++) {
+		for(uint j = 0; j < sword->getNumberMeanings(); j++) {
 			 main_interface->dialogWindow("Napisz kolejne znaczenie tego słowa", 0);
 			 numbersConnections[j*2] = 0;
 			 numbersConnections[j*2+1] = j;
@@ -260,13 +260,13 @@ void ServiceOfTasks::askUnknownWords() {
 		atime = time(NULL) - atime;
 		main_interface->printWords("Poprawna wersja to:", &sword, &swords[i], numbersConnections, 0);
 		char temp[4];
-		for(ushort j = 0; j < sword->getNumberMeanings(); j++) {
+		for(uint j = 0; j < sword->getNumberMeanings(); j++) {
 			sprintf(temp, "%hu", j);
 			string temp2 = "Na ile oceniasz swoją poprawność znaczenia ";
 			temp2 += temp;
-			temp2 += " w skali od 0 do 6";
-			oplevs[j] = (double)main_interface->dialogWindow(temp2, 1)._ushort;
-			if(oplevs[j] > 6)oplevs[j] = 6;
+			temp2 += " w skali od 0 do "+toString(courses[activ_course]->getMaxOplev());
+			oplevs[j] = (double)main_interface->dialogWindow(temp2, 1)._uint;
+			if(oplevs[j] > courses[activ_course]->getMaxOplev())oplevs[j] = courses[activ_course]->getMaxOplev();
 		}
 		courses[activ_course]->setRepetitionData(swords[i], atime, oplevs);
 	}
@@ -296,9 +296,9 @@ void ServiceOfTasks::closeKurs() {
 	}
 }
 void ServiceOfTasks::connectWords() {
-	ushort numberWord1, numberWord2;
-	numberWord1 = main_interface->dialogWindow("Podaj numer pierwszego wyrażenia, które chcesz połączyć", 1)._ushort;
-	numberWord2 = main_interface->dialogWindow("Podaj numer drugiego wyrażenia, które chcesz połączyć", 1)._ushort;
+	uint numberWord1, numberWord2;
+	numberWord1 = main_interface->dialogWindow("Podaj numer pierwszego wyrażenia, które chcesz połączyć", 1)._uint;
+	numberWord2 = main_interface->dialogWindow("Podaj numer drugiego wyrażenia, które chcesz połączyć", 1)._uint;
 	SingleWord const *sword;
 	try {
 		sword = courses[activ_course]->getSingleWord(numberWord1);
@@ -327,8 +327,8 @@ void ServiceOfTasks::connectWords() {
 	setStateActions();
 }
 void ServiceOfTasks::deleteWord() {
-	ushort numberWord;
-	numberWord = main_interface->dialogWindow("Podaj numer słowa, które chcesz usunąć", 1)._ushort;
+	uint numberWord;
+	numberWord = main_interface->dialogWindow("Podaj numer słowa, które chcesz usunąć", 1)._uint;
 	SingleWord const *sword;
 	try {
 		sword = courses[activ_course]->getSingleWord(numberWord);
@@ -337,8 +337,8 @@ void ServiceOfTasks::deleteWord() {
 		main_interface->printMessage("PRZECHWYCONY WYJĄTEK", errorek.toString());
 		throw;
 	}
-	vector<ushort> numbersConnections(sword->getNumberMeanings()*2);
-	for(ushort j = 0; j < sword->getNumberMeanings(); j++) {
+	vector<uint> numbersConnections(sword->getNumberMeanings()*2);
+	for(uint j = 0; j < sword->getNumberMeanings(); j++) {
 		numbersConnections[j*2] = 0;
 		numbersConnections[j*2 + 1] = j;
 	}
@@ -358,9 +358,9 @@ void ServiceOfTasks::deleteWord() {
 	}
 }
 void ServiceOfTasks::disconnectWords() {
-	ushort numberWord1, numberWord2;
-	numberWord1 = main_interface->dialogWindow("Podaj numer pierwszego wyrażenia, które chcesz rozłączyć", 1)._ushort;
-	numberWord2 = main_interface->dialogWindow("Podaj numer drugiego wyrażenia, które chcesz rozłączyć", 1)._ushort;
+	uint numberWord1, numberWord2;
+	numberWord1 = main_interface->dialogWindow("Podaj numer pierwszego wyrażenia, które chcesz rozłączyć", 1)._uint;
+	numberWord2 = main_interface->dialogWindow("Podaj numer drugiego wyrażenia, które chcesz rozłączyć", 1)._uint;
 	SingleWord const *sword;
 	try {
 		sword = courses[activ_course]->getSingleWord(numberWord1);
@@ -388,7 +388,7 @@ void ServiceOfTasks::disconnectWords() {
 	saved_courses[activ_course] = false;
 	setStateActions();
 }
-void ServiceOfTasks::doAction(ushort number, string options) {
+void ServiceOfTasks::doAction(uint number, string options) {
 	switch(number) {
 		case 1:
 			repaskWords();
@@ -444,8 +444,8 @@ void ServiceOfTasks::doAction(ushort number, string options) {
 	}
 }
 void ServiceOfTasks::editWord() {
-	ushort numberWord;
-	numberWord = main_interface->dialogWindow("Podaj numer słowa, które chcesz edytować", 1)._ushort;
+	uint numberWord;
+	numberWord = main_interface->dialogWindow("Podaj numer słowa, które chcesz edytować", 1)._uint;
 	SingleWord const *sword;
 	try {
 		sword = courses[activ_course]->getSingleWord(numberWord);
@@ -454,13 +454,13 @@ void ServiceOfTasks::editWord() {
 		main_interface->printMessage("PRZECHWYCONY WYJĄTEK", errorek.toString());
 		throw;
 	}
-	vector<ushort>numbersConnections;
-	for(ushort j = 0; j < sword->getNumberMeanings(); j++) {
+	vector<uint>numbersConnections;
+	for(uint j = 0; j < sword->getNumberMeanings(); j++) {
 		numbersConnections.push_back(0);
 		numbersConnections.push_back(j);
 	}
 	main_interface->printWords("Aktualnie: ", &sword, &numberWord, numbersConnections, 0);
-	ushort what = main_interface->dialogWindow("Podaj co, chcesz edytować, 0 - główne wyrażenie(po lewej stronie), 1, 2, 3… - dla kolejnych znaczeń tego wyrażenia", 1)._ushort;
+	uint what = main_interface->dialogWindow("Podaj co, chcesz edytować, 0 - główne wyrażenie(po lewej stronie), 1, 2, 3… - dla kolejnych znaczeń tego wyrażenia", 1)._uint;
 	string spelling;
 	spelling = (*main_interface->dialogWindow("Podaj pisownię wyrażenia", 0)._string);
 	if(what == 0)courses[activ_course]->setSingleWord(numberWord, spelling, "");
@@ -505,16 +505,16 @@ void ServiceOfTasks::openCourse(string filename) {
 	setStateActions();
 }
 void ServiceOfTasks::printWordss() const {
-	ushort from = main_interface->dialogWindow("Podaj numer słowa, od którego zacząć pobieranie", 1)._ushort;
-	ushort ato = main_interface->dialogWindow("Podaj numer słowa, na którym chcesz zakońćzyć pobieranie, wpisz 0 jeśli do końca", 1)._ushort;
+	uint from = main_interface->dialogWindow("Podaj numer słowa, od którego zacząć pobieranie", 1)._uint;
+	uint ato = main_interface->dialogWindow("Podaj numer słowa, na którym chcesz zakońćzyć pobieranie, wpisz 0 jeśli do końca", 1)._uint;
 	vector<SingleWord const*> sword_vector = courses[activ_course]->getSingleWords(from, ato); //coś ze wskaźnikiem na stałe
 	SingleWord const **swords = new SingleWord const*[sword_vector.size()];
-	ushort *numbers = new ushort[sword_vector.size()];
-	vector<ushort> numbersConnections;
-	for(ushort i = 0; i < sword_vector.size(); i++) {
+	uint *numbers = new uint[sword_vector.size()];
+	vector<uint> numbersConnections;
+	for(uint i = 0; i < sword_vector.size(); i++) {
 		swords[i] = sword_vector[i];
 		numbers[i] = from + i;
-		for(ushort j = 0; j < swords[i]->getNumberMeanings(); j++) {
+		for(uint j = 0; j < swords[i]->getNumberMeanings(); j++) {
 			numbersConnections.push_back(i);
 			numbersConnections.push_back(j);
 		}
@@ -548,7 +548,7 @@ void ServiceOfTasks::saveCourseAs(string filename) {
 		throw;
 	}
 }
-void ServiceOfTasks::simpleCloseCourse(ushort nr_course) {
+void ServiceOfTasks::simpleCloseCourse(uint nr_course) {
 	delete courses[nr_course];
 	courses.erase(courses.begin() + nr_course);
 	saved_courses.erase(saved_courses.begin() + nr_course);
@@ -570,7 +570,7 @@ void ServiceOfTasks::switchCourse(string nr_course) {
 }
 vector<string> ServiceOfTasks::getCoursesNames() {
 	vector<string> coursesNames(QOK);
-	for(ushort i = 0; i < QOK; i++) {
+	for(uint i = 0; i < QOK; i++) {
 		coursesNames[i] = coursesFileName[i];
 	}
 	return coursesNames;
@@ -588,10 +588,10 @@ void ServiceOfTasks::readWordsFromFile(string filename) {
 	saved_courses[activ_course] = false;
 	setStateActions();
 }
-bool ServiceOfTasks::isActionActive(ushort numberOfAction) const {
+bool ServiceOfTasks::isActionActive(uint numberOfAction) const {
 	return actionActive[numberOfAction-1];
 }
-ushort ServiceOfTasks::getNumberOpenedCourses() const {
+uint ServiceOfTasks::getNumberOpenedCourses() const {
 	return QOK;
 }
 bool ServiceOfTasks::closeProgram() {
@@ -618,19 +618,19 @@ void ServiceOfTasks::findWords() const {
 		main_interface->printMessage("PRZECHWYCONY WYJĄTEK", errorek.toString());
 		throw errorek;
 	}
-	vector<ushort> found_words = courses[activ_course]->findWord(*searched_string);
-	ushort number_words = found_words.size();
+	vector<uint> found_words = courses[activ_course]->findWord(*searched_string);
+	uint number_words = found_words.size();
 		
 	SingleWord const** aswords = new SingleWord const*[number_words];
-	ushort * numbers_words = new ushort[number_words];
-	vector<ushort> numbersConnections;
-	for(ushort i = 0; i < number_words; i++) {
+	uint * numbers_words = new uint[number_words];
+	vector<uint> numbersConnections;
+	for(uint i = 0; i < number_words; i++) {
 		aswords[i] = courses[activ_course]->getSingleWord(found_words[i]);
 		numbers_words[i] = found_words[i];
-		for(ushort j = 0; j < aswords[i]->getNumberMeanings(); j++) {
+		for(uint j = 0; j < aswords[i]->getNumberMeanings(); j++) {
 			numbersConnections.push_back(i);
 			numbersConnections.push_back(j);
 		}
 	}
-	main_interface->printWords("Aby kontynuować, naciśnij 'ENTER'", aswords, const_cast<ushort* const>(numbers_words), numbersConnections, -1);
+	main_interface->printWords("Aby kontynuować, naciśnij 'ENTER'", aswords, const_cast<uint* const>(numbers_words), numbersConnections, -1);
 }

@@ -25,30 +25,30 @@
 
 #include "SingleWord.hpp"
 
-typedef unsigned short int ushort;
+typedef unsigned int uint;
 
 struct Variable {
-	ushort type; //0- string, ushort - 1
+	uint type; //0- string, uint - 1
 	union {
-		ushort _ushort;
+		uint _uint;
 		std::string *_string;
 	};
 };
 
 struct Variables {
 	Variable *v;
-	ushort number;
+	uint number;
 };
 
 class Interface {
 	public:
-		virtual std::string askWord(SingleWord const *sword, ushort nr_word) = 0;//nr_lang = 0 lub = 1
-		virtual void printWords(std::string description, SingleWord const **swords, ushort const *numbersWords, std::vector<ushort> numbersConnections, short time) = 0;
-		virtual Variable dialogWindow(std::string text, ushort type) = 0;
-		virtual void infoWindow(std::string const *descriptions, Variable *values, ushort number) = 0;
-		virtual ushort radioWindow(std::string description, std::string const *values, ushort defaultOption, ushort number) = 0;
+		virtual std::string askWord(SingleWord const *sword, uint nr_word) = 0;//nr_lang = 0 lub = 1
+		virtual void printWords(std::string description, SingleWord const **swords, uint const *numbersWords, std::vector<uint> numbersConnections, short time) = 0;
+		virtual Variable dialogWindow(std::string text, uint type) = 0;
+		virtual void infoWindow(std::string const *descriptions, Variable *values, uint number) = 0;
+		virtual uint radioWindow(std::string description, std::string const *values, uint defaultOption, uint number) = 0;
 		virtual char Yes_No_Cancel(std::string description) = 0;
-		virtual Variables optionWindow(std::string const *descriptions, Variable *values, ushort number) = 0;
+		virtual Variables optionWindow(std::string const *descriptions, Variable *values, uint number) = 0;
 		virtual void printMessage(std::string title, std::string something) = 0;
 		virtual void run() = 0;
 	protected:

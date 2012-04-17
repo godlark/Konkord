@@ -32,16 +32,16 @@
 #include "doublefann.h"
 #include "fann_cpp.h"
 
-typedef unsigned short int ushort;
+typedef unsigned int uint;
 
 class SingleWordAndIndex {
     public:
-        ushort index;
+        uint index;
         const SingleWord *sword;
 };
 class WordToRepetition {
     public :
-        ushort nr_word;
+        uint nr_word;
         double priority;
         double parttime;
 };
@@ -68,44 +68,45 @@ class Kurs
         std::vector<SingleWord*> wordl2;
         FANN::neural_net*        repetitionAnn;
         TrainingData*            repetitionAnnTrainingData;
-        ushort                   nAllSingleWords;
-        ushort                   nKnownSingleWords;
+        uint                   nAllSingleWords;
+        uint                   nKnownSingleWords;
         RegisterOfErrors*        ROE;
-        ushort                   nConnections;
-        ushort                   maxOplev;
+        uint                   nConnections;
+        uint                   maxOplev;
         
-        static ushort compare_words(const std::string &aa, const std::string &bb);//zwraca najkrótszą drogę pomiędzy słowami
+        static uint compare_words(const std::string &aa, const std::string &bb);//zwraca najkrótszą drogę pomiędzy słowami
         static std::string decodeText(const std::string &oryginalText);
         static std::string encodeText(const std::string &oryginalText);
         void increaseNKnownSingleWords(const short int &quantity);
-        double makePredictions(const int &time, const ushort &nRepetitionLevel) const;
+        double makePredictions(const int &time, const uint &nRepetitionLevel) const;
     public:
         Kurs(RegisterOfErrors &AROE);
         Kurs(const std::string &filename, RegisterOfErrors &AROE);
         void addSingleWords(const std::vector<std::string> &spellings, const std::vector<std::string> &sounds, const std::vector<std::string> &meanings_spelling, const std::vector<std::string> &meanings_sound);
-        void addSingleWord(const SingleWord &singleWord, const ushort &where);
-        void connectSingleWords(const ushort &number1, const ushort &number2);
-        void disconnectSingleWords(const ushort &number1, const ushort &number2);
-        void delSingleWord(const ushort &number);
-        std::vector<ushort> findWord(const boost::regex &searched_string) const;
-        std::vector<ushort> getUnknownSingleWords(const ushort &quantityOfWords) const;
-        std::vector<ushort>  getWordsToRepetition(ushort &howManyWords) const;
+        void addSingleWord(const SingleWord &singleWord, const uint &where);
+        void connectSingleWords(const uint &number1, const uint &number2);
+        void disconnectSingleWords(const uint &number1, const uint &number2);
+        void delSingleWord(const uint &number);
+        std::vector<uint> findWord(const boost::regex &searched_string) const;
+        std::vector<uint> getUnknownSingleWords(const uint &quantityOfWords) const;
+        std::vector<uint>  getWordsToRepetition(uint &howManyWords) const;
         void increaseNKnownWords(const short int &quantity);
-        ushort getNAllSingleWords() const;
-        ushort getNKnownSingleWords() const;
-        ushort getNSingleWords_1() const;
-        ushort getNSingleWords_2() const;
-        SingleWord const* getSingleWord(const ushort &number) const;
-        std::vector<SingleWord const*> getSingleWords(const ushort &from, ushort &to) const;
-        bool isSingleWordFLorSL(const ushort &word_number) const; //first_language - true, second_language - false
+        uint getNAllSingleWords() const;
+        uint getNKnownSingleWords() const;
+        uint getNSingleWords_1() const;
+        uint getNSingleWords_2() const;
+        uint getMaxOplev() const;
+        SingleWord const* getSingleWord(const uint &number) const;
+        std::vector<SingleWord const*> getSingleWords(const uint &from, uint &to) const;
+        bool isSingleWordFLorSL(const uint &word_number) const; //first_language - true, second_language - false
         void repairPredictions();
-        void setRepetitionData(const ushort &word_number, const time_t &czas, std::vector<double> &oplev_connections);
+        void setRepetitionData(const uint &word_number, const time_t &czas, std::vector<double> &oplev_connections);
         std::string readSingleWordsFromFile(const std::string &file_to_open);
         void saveKurs(const std::string &filename, const std::string &repetitionAnnFileName, const std::string &repetitionAnnTrainingDataFileName) const;
-        void setWord(const ushort &number, const std::string &first, const std::string &second);
-        void setSingleWord(const ushort &number, const std::string &spelling, const std::string &sound);
-        void setMeaningForSingleWord(const ushort &number_word, const ushort &number_meaning, const std::string &spelling, const std::string &sound);
-        void unitSingleWords(const ushort &number1, const ushort &number2);
+        void setWord(const uint &number, const std::string &first, const std::string &second);
+        void setSingleWord(const uint &number, const std::string &spelling, const std::string &sound);
+        void setMeaningForSingleWord(const uint &number_word, const uint &number_meaning, const std::string &spelling, const std::string &sound);
+        void unitSingleWords(const uint &number1, const uint &number2);
         ~Kurs();
         static void takeOutSWFromLine(std::vector<std::string> &spellings, std::vector<std::string> &sounds, const std::string &rest);
 };

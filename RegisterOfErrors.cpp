@@ -24,7 +24,7 @@
 #include <cstdio>
 
 using namespace std;
-typedef unsigned short int ushort;
+typedef unsigned int uint;
 
 void Error::setDescriptionOfErrors() {
 					DescriptionOfErrors = new string[QUANTITY_OF_ERRORS];
@@ -40,7 +40,7 @@ void Error::setDescriptionOfErrors() {
 					DescriptionOfErrors[9] = "THAT'S IMPOSSIBLE";
 					DescriptionOfErrors[10] = "ACTION WAS CANCELLED";
 				}
-Error::Error(ushort _kindOfError, string _nameOfFunction, ushort _numberOfLine, string _filename) {
+Error::Error(uint _kindOfError, string _nameOfFunction, uint _numberOfLine, string _filename) {
 	kindOfError = _kindOfError;
 	nameOfFunction = _nameOfFunction;
 	numberOfLine = _numberOfLine;
@@ -49,20 +49,20 @@ Error::Error(ushort _kindOfError, string _nameOfFunction, ushort _numberOfLine, 
 string Error::getDescription() const {
 	return DescriptionOfErrors[kindOfError];
 }
-ushort Error::getKindOfError() const {
+uint Error::getKindOfError() const {
 			return kindOfError;
 }
 string Error::getNameOfFunction() const {
 			return nameOfFunction;
 }
-ushort Error::getNumberOfLine() const {
+uint Error::getNumberOfLine() const {
 			return numberOfLine;
 }
 string Error::getFilname() const {
 			return filename;
 }
 
-Error Error::newError(ushort _kindOfError, string _nameOfFunction, ushort _numberOfLine, string _filename) {
+Error Error::newError(uint _kindOfError, string _nameOfFunction, uint _numberOfLine, string _filename) {
 	Error error(_kindOfError, _nameOfFunction, _numberOfLine, _filename);
 	return error;
 }

@@ -31,22 +31,22 @@
 #include <vector>
 #include <iostream>
 
-typedef unsigned short int ushort;
+typedef unsigned int uint;
 
 class ServiceOfTasks
 {
 	private:
-		void simpleCloseCourse(ushort nr_course);
+		void simpleCloseCourse(uint nr_course);
 		short int activ_course;
-		ushort QOK; //number opened courses
+		uint QOK; //number opened courses
 		std::vector<Kurs*> courses;
 		std::vector<bool> saved_courses;
 		std::vector<std::string> coursesFileName;
-		static const ushort numberActions = 19;
+		static const uint numberActions = 19;
 		bool* actionActive;
 		Interface *main_interface;
 	public:
-		static const ushort freeNumber = 4619;
+		static const uint freeNumber = 4619;
 		
 		RegisterOfErrors globalROE;
 		
@@ -55,7 +55,7 @@ class ServiceOfTasks
 		void closeKurs();//3
 		void editWord();//4
 		void deleteWord();//5
-		void doAction(ushort number, std::string options = "");
+		void doAction(uint number, std::string options = "");
 		void connectWords();//6
 		void disconnectWords();//7
 		void addWord();//8
@@ -69,9 +69,9 @@ class ServiceOfTasks
 		std::vector<std::string> getCoursesNames();
 		void readWordsFromFile(std::string filename);//18
 		void findWords() const;//19
-		bool isActionActive(ushort numberOfAction) const; //isn't done
+		bool isActionActive(uint numberOfAction) const; //isn't done
 		void setStateActions();
-		ushort getNumberOpenedCourses() const;
+		uint getNumberOpenedCourses() const;
 		bool closeProgram();
 		ServiceOfTasks(Interface *Amain_interface);
 		~ServiceOfTasks() {

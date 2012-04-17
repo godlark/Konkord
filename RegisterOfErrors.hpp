@@ -25,38 +25,38 @@
 #include <string>
 #include <vector>
 
-typedef unsigned short int ushort;
+typedef unsigned int uint;
 
 class Error {
 	private:
-		ushort kindOfError;
+		uint kindOfError;
 		std::string nameOfFunction;
-		ushort numberOfLine;
+		uint numberOfLine;
 		std::string filename;
 	public:
-		static const ushort QUANTITY_OF_ERRORS = 11;
+		static const uint QUANTITY_OF_ERRORS = 11;
 		static std::string *DescriptionOfErrors;
-		static const ushort OTHER_ERROR = 0;
-		static const ushort ERROR_SAVE_FILE = 1;
-		static const ushort ERROR_READ_FILE = 2;
-		static const ushort ERROR_OPEN_FILE = 3;
-		static const ushort OUTPASS_ABOVE_SPACE_OF_ARRAY = 4;
-		static const ushort OUTPASS_MAX_SIZE_OF_ARRAY = 5;
-		static const ushort BAD_ARGUMENT = 6;
-		static const ushort IGNORED_LINE_IN_FILE = 7; // warning
-		static const ushort BOOST__REGEX_ERROR = 8;
-		static const ushort IMPOSSIBLE = 9;
-		static const ushort CANCELLED = 10;
+		static const uint OTHER_ERROR = 0;
+		static const uint ERROR_SAVE_FILE = 1;
+		static const uint ERROR_READ_FILE = 2;
+		static const uint ERROR_OPEN_FILE = 3;
+		static const uint OUTPASS_ABOVE_SPACE_OF_ARRAY = 4;
+		static const uint OUTPASS_MAX_SIZE_OF_ARRAY = 5;
+		static const uint BAD_ARGUMENT = 6;
+		static const uint IGNORED_LINE_IN_FILE = 7; // warning
+		static const uint BOOST__REGEX_ERROR = 8;
+		static const uint IMPOSSIBLE = 9;
+		static const uint CANCELLED = 10;
 		//przy dodaniu kolejnych błędów i ostrzeżeń trzeba zmienić funkcję "isWarning()"
-		Error(ushort _kindOfError, std::string _nameOfFunction, ushort _numberOfLine, std::string _filename);
+		Error(uint _kindOfError, std::string _nameOfFunction, uint _numberOfLine, std::string _filename);
 		std::string getDescription() const;
-		ushort getKindOfError() const;
+		uint getKindOfError() const;
 		std::string getNameOfFunction() const;
-		ushort getNumberOfLine() const;
+		uint getNumberOfLine() const;
 		std::string getFilname() const;
 		static void setDescriptionOfErrors();
 				static void eraseDerscriptionOfErros();
-		static Error newError(ushort _kindOfError, std::string _nameOfFunction, ushort _numberOfLine, std::string _filename);
+		static Error newError(uint _kindOfError, std::string _nameOfFunction, uint _numberOfLine, std::string _filename);
 		void addNextFunction(std::string _nameOfFunction);
 		bool isWarning() const;
 		std::string toString() const;

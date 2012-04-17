@@ -32,7 +32,7 @@
 #include <iostream>
 
 using namespace std;
-typedef unsigned short int ushort;
+typedef unsigned int uint;
 
 string toString(int number) {
 	//ASSERT IN
@@ -82,14 +82,14 @@ void Kurs::addSingleWords(const vector<string> &spellings, const vector<string> 
 	assert(spellings.size() != 0 && meanings_spelling.size() != 0);
 	
 	SingleWord *singleWord;
-	for(ushort i = 0; i < spellings.size(); i++) {
+	for(uint i = 0; i < spellings.size(); i++) {
 		singleWord = new SingleWord(spellings[i], sounds[i]);
 		wordl1.push_back(singleWord);
 	}
-	for(ushort i = 0; i < meanings_spelling.size(); i++) {
+	for(uint i = 0; i < meanings_spelling.size(); i++) {
 		singleWord = new SingleWord(meanings_spelling[i], meanings_sound[i]);
 		wordl2.push_back(singleWord);
-		for(ushort j = wordl1.size() - sounds.size(); j < wordl1.size(); j++) {
+		for(uint j = wordl1.size() - sounds.size(); j < wordl1.size(); j++) {
 			SingleWord::connectSingleWords(wordl2[wordl2.size()-1], wordl1[j], 0, 0, 0); //łączy ostatnio dodane słowo dodane do wordl2 z...
 			nConnections++;
 		}
@@ -105,10 +105,10 @@ void Kurs::addSingleWords(const vector<string> &spellings, const vector<string> 
 		}
 	}
 }
-void Kurs::addSingleWord(const SingleWord &singleWord, const ushort &where) {
+void Kurs::addSingleWord(const SingleWord &singleWord, const uint &where) {
 	//ASSERT IN
 	
-	ushort singleWordNo;
+	uint singleWordNo;
 	if(where == 0) {
 		wordl1.push_back(new SingleWord(&singleWord));
 		singleWordNo = wordl1.size()-1;
@@ -121,7 +121,7 @@ void Kurs::addSingleWord(const SingleWord &singleWord, const ushort &where) {
 	}
 	nAllSingleWords = wordl1.size() + wordl2.size();
 }
-void Kurs::connectSingleWords(const ushort &singleWord1No, const ushort &singleWord2No) {
+void Kurs::connectSingleWords(const uint &singleWord1No, const uint &singleWord2No) {
 	//ASSERT IN
 	assert(singleWord1No < wordl1.size() && (singleWord2No < wordl1.size()+wordl2.size() && singleWord2No > wordl1.size()));
 	
@@ -130,7 +130,7 @@ void Kurs::connectSingleWords(const ushort &singleWord1No, const ushort &singleW
 	SingleWord::connectSingleWords(wordl1[singleWord1No], wordl2[singleWord2No-wordl1.size()], 0, 0, 0);
 	nConnections++;
 }
-void Kurs::disconnectSingleWords(const ushort &singleWord1No, const ushort &singleWord2No) {
+void Kurs::disconnectSingleWords(const uint &singleWord1No, const uint &singleWord2No) {
 	//ASSERT IN
 	assert(singleWord1No < wordl1.size() && (singleWord2No < wordl1.size()+wordl2.size() && singleWord2No > wordl1.size()));
 	
@@ -139,11 +139,11 @@ void Kurs::disconnectSingleWords(const ushort &singleWord1No, const ushort &sing
 	if(wordl1[singleWord1No]->getNumberMeanings() == 0)SingleWord::connectSingleWords(wordl1[singleWord1No], emptySingleWord, 0, 0, 0);
 	if(wordl2[singleWord2No-wordl1.size()]->getNumberMeanings() == 0)SingleWord::connectSingleWords(wordl2[singleWord2No-wordl1.size()], emptySingleWord, 0, 0, 0);
 }
-void Kurs::delSingleWord(const ushort &singleWordNo) {
+void Kurs::delSingleWord(const uint &singleWordNo) {
 	//ASSERT IN
 	assert(singleWordNo < wordl1.size() || (singleWordNo < wordl1.size()+wordl2.size() && singleWordNo > wordl1.size()));
 	
-	ushort nAllMeanings;
+	uint nAllMeanings;
 	SingleWord* meaning;
 	vector<SingleWord*>::iterator position;
 	if(singleWordNo < wordl1.size()) {
@@ -174,62 +174,62 @@ void Kurs::delSingleWord(const ushort &singleWordNo) {
 	}
 	nAllSingleWords = wordl1.size() + wordl2.size();
 }
-vector<ushort> Kurs::findWord(const boost::regex &searchedString) const {
-	vector<ushort> found_words;
-	for(ushort i = 0; i < wordl1.size(); i++) {   
+vector<uint> Kurs::findWord(const boost::regex &searchedString) const {
+	vector<uint> found_words;
+	for(uint i = 0; i < wordl1.size(); i++) {   
 		if(regex_match(wordl1[i]->getSpelling(), searchedString)) {
 			found_words.push_back(i);
 		}
 	}
-	for(ushort i = 0; i < wordl2.size(); i++) {
+	for(uint i = 0; i < wordl2.size(); i++) {
 		if(regex_match(wordl2[i]->getSpelling(), searchedString)) {
 			found_words.push_back(i+wordl1.size());
 		}
 	}
 	return found_words;
 }
-vector<ushort> Kurs::getWordsToRepetition(ushort &nWords) const{
+vector<uint> Kurs::getWordsToRepetition(uint &nWords) const{
 	//howManyWords jest liczbą słów do przepytania, rozmiar zwracanego vectora to liczba słów do przepytania i liczba połączeń do powtórzenia
 	if(nWords > wordl1.size() + wordl2.size())nWords = wordl1.size() + wordl2.size();
-	ushort tNWords = 0;
+	uint tNWords = 0;
 	priority_queue<WordToRepetition, vector<WordToRepetition>, compareWords>Q;
 	WordToRepetition wtr;
 	time_t nowTime = time(NULL);
 	//pobieranie słów z tablic i dodawanie ich do kolejki priorytetowej sortującej według zmiennej priority
 	
-	for(ushort i = 0; i < wordl1.size(); i++) {
+	for(uint i = 0; i < wordl1.size(); i++) {
 		if(wordl1[i]->isConnectedWith(emptySingleWord) || !wordl1[i]->isKnown())continue; //ze słów pustych i nie poznanych nie można przeptywać
 		
-		ushort countConnections = wordl1[i]->getNumberMeanings();
+		uint countConnections = wordl1[i]->getNumberMeanings();
 		wtr.priority = 0;
 		wtr.parttime = 0;
-		for(ushort j = 0; j < countConnections; j++) {;
+		for(uint j = 0; j < countConnections; j++) {;
 			wtr.parttime += nowTime-wordl1[i]->getTimeLastRepetition(j);
 			wtr.priority += makePredictions(nowTime-wordl1[i]->getTimeLastRepetition(j), wordl1[i]->getRepetitionLevelNumber(j));
 		}
 		wtr.priority /= countConnections;
 		wtr.parttime /= countConnections;
 		wtr.nr_word = i;
-		if(wtr.priority < 700) {
+		if(wtr.priority < 0.7*(double)maxOplev) {
 			tNWords++;
 		}
 		Q.push(wtr);
 		
 	}
-	for(ushort i = 0; i < wordl2.size(); i++) {
+	for(uint i = 0; i < wordl2.size(); i++) {
 		if(wordl2[i]->isConnectedWith(emptySingleWord) || !wordl2[i]->isKnown())continue; //ze słów pustych i nie poznanych nie można przeptywać
 		
-		ushort countConnections = wordl2[i]->getNumberMeanings();
+		uint countConnections = wordl2[i]->getNumberMeanings();
 		wtr.priority = 0;
 		wtr.parttime = 0;
-		for(ushort j = 0; j < countConnections; j++) {
+		for(uint j = 0; j < countConnections; j++) {
 			wtr.parttime += nowTime-wordl2[i]->getTimeLastRepetition(j);
 			wtr.priority += makePredictions(nowTime-wordl2[i]->getTimeLastRepetition(j), wordl2[i]->getRepetitionLevelNumber(j));
 		}
 		wtr.priority /= countConnections;
 		wtr.parttime /= countConnections;
 		wtr.nr_word = i+wordl1.size();
-		if(wtr.priority < 700) {
+		if(wtr.priority < 0.7*(double)maxOplev) {
 			tNWords++;
 		}
 		Q.push(wtr);
@@ -237,23 +237,23 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &nWords) const{
 	//koniec pobieranie słów z tablicy
 
 	//1 liczba to ilość sugerowanych na następny dzień słów do przepytania
-	vector<ushort> WordsToRepetition = vector<ushort>(0);
+	vector<uint> WordsToRepetition = vector<uint>(0);
 	WordsToRepetition.push_back(tNWords);
 	//słowa do przepytania i połączenia do powtórzenia
-	vector<ushort> ConnectionsToRepetition = vector<ushort>(0);
+	vector<uint> ConnectionsToRepetition = vector<uint>(0);
 	
 
 	//pobieranie górnych słów z kolejki priorytetowej i dodawanie ich do WordsToRepetition
 	//dodawanie połączeń tych słów do ConnectionsToRepetition
 	SingleWord *sword;
-	for(ushort i = 0; i < nWords; i++) {
+	for(uint i = 0; i < nWords; i++) {
 		WordsToRepetition.push_back(Q.top().nr_word);//dodaje słowo do przepytania
 		
 		if(Q.top().nr_word < wordl1.size())sword = wordl1[Q.top().nr_word];
 		else sword = wordl2[Q.top().nr_word-wordl1.size()];
 		
 		int whereInOther;
-		for(ushort j = 0; j < sword->getNumberMeanings(); j++) {
+		for(uint j = 0; j < sword->getNumberMeanings(); j++) {
 			string _j = toString(j);
 			if(sword->getFlag(_j) == "use") {//jeśli połączenie zostało już dodanie do ConnectionsToRepetition to pomiń i usuń z przepytywanych
 				WordsToRepetition.erase(WordsToRepetition.end()-1);
@@ -276,16 +276,16 @@ vector<ushort> Kurs::getWordsToRepetition(ushort &nWords) const{
 	}
 	return WordsToRepetition;
 }
-vector<ushort> Kurs::getUnknownSingleWords(const ushort &nWords) const {
+vector<uint> Kurs::getUnknownSingleWords(const uint &nWords) const {
 	//if(quantityOfWords > qAllWords - qKnownWords)quantityOfWords = qAllWords - qKnownWords;
-	vector<ushort> wordsToAsk;
+	vector<uint> wordsToAsk;
 	time_t lasttime = time(NULL);
-	for(ushort i = 0, j = 0; i < nAllSingleWords && j < nWords; i++) {
+	for(uint i = 0, j = 0; i < nAllSingleWords && j < nWords; i++) {
 		if(i < wordl1.size()) {
 			if(!wordl1[i]->isKnown() && !wordl1[i]->isConnectedWith(emptySingleWord)) {
 				wordsToAsk.push_back(i);
-				ushort number_connections = wordl1[i]->getNumberMeanings();
-				for(ushort k = 0; k < number_connections; k++) {
+				uint number_connections = wordl1[i]->getNumberMeanings();
+				for(uint k = 0; k < number_connections; k++) {
 					wordl1[i]->setTimeLastRepetition(k, lasttime);
 				}
 		j++;
@@ -294,8 +294,8 @@ vector<ushort> Kurs::getUnknownSingleWords(const ushort &nWords) const {
 		else {
 			if(!wordl2[i-wordl1.size()]->isKnown() && !wordl2[i-wordl1.size()]->isConnectedWith(emptySingleWord)) {
 				wordsToAsk.push_back(i);
-				ushort number_connections = wordl2[i-wordl1.size()]->getNumberMeanings();
-				for(ushort k = 0; k < number_connections; k++) {
+				uint number_connections = wordl2[i-wordl1.size()]->getNumberMeanings();
+				for(uint k = 0; k < number_connections; k++) {
 					wordl2[i-wordl1.size()]->setTimeLastRepetition(k, lasttime);
 				}
 		j++;
@@ -304,23 +304,26 @@ vector<ushort> Kurs::getUnknownSingleWords(const ushort &nWords) const {
 	}
 	return wordsToAsk;
 }
-ushort Kurs::getNAllSingleWords() const {
+uint Kurs::getNAllSingleWords() const {
 	return nAllSingleWords;
 }
-ushort Kurs::getNKnownSingleWords() const {
+uint Kurs::getNKnownSingleWords() const {
 	return nKnownSingleWords;
 }
-ushort Kurs::getNSingleWords_1() const {
+uint Kurs::getNSingleWords_1() const {
 	return wordl1.size();
 }
-ushort Kurs::getNSingleWords_2() const {
+uint Kurs::getNSingleWords_2() const {
 	return wordl2.size();
 }
-SingleWord const* Kurs::getSingleWord(const ushort &singleWordNo) const {
+uint Kurs::getMaxOplev() const {
+    return maxOplev;
+}
+SingleWord const* Kurs::getSingleWord(const uint &singleWordNo) const {
 	if(singleWordNo >= nAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	return singleWordNo < wordl1.size() ? wordl1[singleWordNo] : wordl2[singleWordNo-wordl1.size()];
 }
-vector<SingleWord const*> Kurs::getSingleWords(const ushort &from, ushort &_to) const {
+vector<SingleWord const*> Kurs::getSingleWords(const uint &from, uint &_to) const {
 	vector<SingleWord const*> _words;
 	if(from >= nAllSingleWords || _to >= nAllSingleWords)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
 	else if(_to < from && _to != 0)throw Error::newError(Error::BAD_ARGUMENT, "", __LINE__, __FILE__);
@@ -337,10 +340,10 @@ vector<SingleWord const*> Kurs::getSingleWords(const ushort &from, ushort &_to) 
 	}
 	return _words;
 }
-bool Kurs::isSingleWordFLorSL(const ushort &singleWordNo) const {
+bool Kurs::isSingleWordFLorSL(const uint &singleWordNo) const {
 	return singleWordNo < wordl1.size() ? true : false; //not sesne ist throw Error for word_number > nAllSingleWords
 }
-double Kurs::makePredictions(const int &time, const ushort &repetitionLevelNo) const {
+double Kurs::makePredictions(const int &time, const uint &repetitionLevelNo) const {
 	double *inputs = new double[2];
 	inputs[0] = 1/(double)time;
 	inputs[1] = repetitionLevelNo;
@@ -355,11 +358,11 @@ void Kurs::repairPredictions() {
 	const double desired_error = 0.00001;
 	
 	repetitionAnn = new FANN::neural_net();
-	repetitionAnn->create_shortcut(2, 2, 1);
+	repetitionAnn->create_shortcut(2, 3, 1);
 	repetitionAnn->cascadetrain_on_data(repetitionAnnTrainingData->getData(), max_neurons, neurons_between_reports, desired_error);
 }
 
-void Kurs::setRepetitionData(const ushort &singleWordNo, const time_t &czas, vector<double> &connectionsOplev) {
+void Kurs::setRepetitionData(const uint &singleWordNo, const time_t &czas, vector<double> &connectionsOplev) {
 	//ASSERT IN
 	assert(singleWordNo < wordl1.size()+wordl2.size());
 	SingleWord *sword = singleWordNo < wordl1.size() ? wordl1[singleWordNo] : wordl2[singleWordNo-wordl1.size()];
@@ -368,7 +371,7 @@ void Kurs::setRepetitionData(const ushort &singleWordNo, const time_t &czas, vec
 	time_t nowTime = time(NULL);
 	double predicted_score;
 	double deviation;
-	for(ushort i = 0; i < sword->getNumberMeanings(); i++) {
+	for(uint i = 0; i < sword->getNumberMeanings(); i++) {
 		predicted_score = 0;
 		deviation = 0;
 		
@@ -379,20 +382,20 @@ void Kurs::setRepetitionData(const ushort &singleWordNo, const time_t &czas, vec
 		// UPDATING TRAINING FILE
 		deviation = ((connectionsOplev[i]-predicted_score)*maxOplev)/predicted_score;
 		if(deviation != 0) {
-            repetitionAnnTrainingData->addLine({1/(double)(nowTime-sword->getTimeLastRepetition(i)), (double)sword->getRepetitionLevelNumber(i)}, {connectionsOplev[i]/maxOplev});
+            repetitionAnnTrainingData->addLine({1/(double)(nowTime-sword->getTimeLastRepetition(i)), (double)sword->getRepetitionLevelNumber(i), (double)(singleWordNo < wordl1.size() ? -1 : 1)}, {connectionsOplev[i]/maxOplev});
 		}
 		// END UPDATING
 		
 		sword->setTimeLastRepetition(i, nowTime);	
 		
-		ushort repetition = sword->getRepetitionLevelNumber(i);
+		uint repetition = sword->getRepetitionLevelNumber(i);
 		if(deviation >= 0) repetition++;
 		sword->setRepetitionLevelNumber(i, repetition);
 	}
 	
 	//ASSERT OUT
 }
-void Kurs::setSingleWord(const ushort &singleWordNo, const string &spelling, const string &sound) {
+void Kurs::setSingleWord(const uint &singleWordNo, const string &spelling, const string &sound) {
 	//ASSERT IN
 	assert(singleWordNo < wordl1.size()+wordl2.size());
 	
@@ -400,7 +403,7 @@ void Kurs::setSingleWord(const ushort &singleWordNo, const string &spelling, con
 	sword->setSpelling(spelling);
 	sword->setSound(sound);
 }
-void Kurs::setMeaningForSingleWord(const ushort &singleWordNo, const ushort &singleWordMeaningNo, const string &spelling, const string &sound) {
+void Kurs::setMeaningForSingleWord(const uint &singleWordNo, const uint &singleWordMeaningNo, const string &spelling, const string &sound) {
 	//ASSERT IN
 	assert(singleWordNo < wordl1.size()+wordl2.size());
 	SingleWord *sword = singleWordNo < wordl1.size() ? wordl1[singleWordNo] : wordl2[singleWordNo-wordl1.size()];
@@ -432,12 +435,12 @@ string Kurs::readSingleWordsFromFile(const string &filename)
 	file.open(filename.c_str(), ios::binary);
 	if(!file.is_open())throw Error::newError(Error::ERROR_OPEN_FILE, "", __LINE__, __FILE__);
 	string message;
-	ushort number_of_words;
+	uint number_of_words;
 	file >> number_of_words;
 	string clear_buf; //zostaje biały znak po ilości słów
 	getline(file, clear_buf);
 	string line;
-	for(ushort i = 0; i < number_of_words; i++) {
+	for(uint i = 0; i < number_of_words; i++) {
         getline(file, line);
         if(file.eof())throw Error::newError(Error::ERROR_READ_FILE, "", __LINE__, __FILE__);
         size_t found=line.find('\t');
@@ -462,7 +465,7 @@ string Kurs::readSingleWordsFromFile(const string &filename)
 	file.close();
 	return message;
 }
-void Kurs::unitSingleWords(const ushort &singleWord1No, const ushort &singleWord2No) {//ulepszyć
+void Kurs::unitSingleWords(const uint &singleWord1No, const uint &singleWord2No) {//ulepszyć
 	//ASSERT IN
 	assert(singleWord1No < wordl1.size() + wordl2.size() && singleWord2No < wordl1.size() + wordl2.size());
 	assert(singleWord1No != singleWord2No);
@@ -487,12 +490,12 @@ Kurs::Kurs(RegisterOfErrors &AROE) {
 	nAllSingleWords = 0;
 	nKnownSingleWords = 0;
 	nConnections = 0;
-	maxOplev = 0;
+	maxOplev = 12;
 	wordl1 = vector<SingleWord *>(0);
 	wordl2 = vector<SingleWord *>(0);
 	repetitionAnn = new FANN::neural_net();
-	repetitionAnn->create_standard(3, 2, 1, 1);
-	repetitionAnnTrainingData = new TrainingData(2, 1);
+	repetitionAnn->create_standard(3, 3, 1, 1);
+	repetitionAnnTrainingData = new TrainingData(3, 1);
 	repetitionAnnTrainingData->setMaxLines(1200);
 	ROE = &AROE;
 	emptySingleWord = new SingleWord("BRAK ZNACZENIA", "");
@@ -509,8 +512,8 @@ Kurs::Kurs(const string &filename, RegisterOfErrors &_ROE) {
 	getline(file, firstline);
 	
 	if(firstline == "new version") {
-		ushort numberWordsFL;
-		ushort numberWordsSL;
+		uint numberWordsFL;
+		uint numberWordsSL;
 		file >> numberWordsFL;
 		file.ignore(INT_MAX, '\n');
 		file >> numberWordsSL;
@@ -531,7 +534,7 @@ Kurs::Kurs(const string &filename, RegisterOfErrors &_ROE) {
 		repetitionAnnTrainingData = new TrainingData(repetitionAnnTrainingDataFileName);
 		file.ignore(INT_MAX, '\n');
 		
-		ushort maxLinesInRepetitionAnnTrainingData;
+		uint maxLinesInRepetitionAnnTrainingData;
 		file >> maxLinesInRepetitionAnnTrainingData;
 		repetitionAnnTrainingData->setMaxLines(maxLinesInRepetitionAnnTrainingData);
 		file.ignore(INT_MAX, '\n');
@@ -541,24 +544,24 @@ Kurs::Kurs(const string &filename, RegisterOfErrors &_ROE) {
 		SingleWord sword("", "");
 		string spelling;
 		nKnownSingleWords = 0;
-		for(ushort i = 0; i < numberWordsFL; i++) {
+		for(uint i = 0; i < numberWordsFL; i++) {
 			getline(file, spelling);
 			sword.setSpelling(spelling);
 			wordl1.push_back(new SingleWord(sword));
 			SingleWord::connectSingleWords(wordl1[i], emptySingleWord, 0, 0, 0);
 		}
-		for(ushort i = 0; i < numberWordsSL; i++) {
+		for(uint i = 0; i < numberWordsSL; i++) {
 			getline(file, spelling);
 			sword.setSpelling(spelling);
 			wordl2.push_back(new SingleWord(sword));
 			SingleWord::connectSingleWords(wordl2[i], emptySingleWord, 0, 0, 0);
 		}
-		ushort singleWord1No;
-		ushort singleWord2No;
-		ushort repetitionLevel1No;
-		ushort repetitionLevel2No;
+		uint singleWord1No;
+		uint singleWord2No;
+		uint repetitionLevel1No;
+		uint repetitionLevel2No;
 		time_t timeLastRepetition;
-		for(ushort i = 0; i < nConnections; i++) {
+		for(uint i = 0; i < nConnections; i++) {
 			file >> singleWord1No;
 			file >> singleWord2No;
 			file >> repetitionLevel1No;
@@ -573,26 +576,26 @@ Kurs::Kurs(const string &filename, RegisterOfErrors &_ROE) {
 			SingleWord::connectSingleWords(wordl1[singleWord1No], wordl2[singleWord2No-wordl1.size()], repetitionLevel1No, repetitionLevel2No, timeLastRepetition);
 		}
 
-		for(ushort i = 0; i < numberWordsFL; i++) {
+		for(uint i = 0; i < numberWordsFL; i++) {
 			if(wordl1[i]->isKnown())nKnownSingleWords++;
 		}
-		for(ushort i = 0; i < numberWordsSL; i++) {
+		for(uint i = 0; i < numberWordsSL; i++) {
 			if(wordl2[i]->isKnown())nKnownSingleWords++;
 		}
 	}
 	file.close();
 }
-ushort Kurs::compare_words(const string &aa, const string &bb)
+uint Kurs::compare_words(const string &aa, const string &bb)
 {
-	ushort a = aa.length();
-	ushort b = bb.length();
+	uint a = aa.length();
+	uint b = bb.length();
 				
-	ushort **tablice = new ushort*[2];
-	tablice[0] = new ushort[a+1];
-	tablice[1] = new ushort[a+1];
+	uint **tablice = new uint*[2];
+	tablice[0] = new uint[a+1];
+	tablice[1] = new uint[a+1];
 
 	tablice[0][0] = 1;
-	for(ushort i = 1; i <= a; i++)
+	for(uint i = 1; i <= a; i++)
 	{
 		if(bb[0] == aa[i-1])
 		{
@@ -604,11 +607,11 @@ ushort Kurs::compare_words(const string &aa, const string &bb)
 			else tablice[0][i] = i;
 		}
 	}
-	ushort *temp;
-	for(ushort i = 1; i < b; i++)
+	uint *temp;
+	for(uint i = 1; i < b; i++)
 	{
 		tablice[1][0] = i+1;
-		for(ushort j = 1; j <= a; j++)
+		for(uint j = 1; j <= a; j++)
 		{
 			if(bb[i] == aa[j-1])
 			{
@@ -626,7 +629,7 @@ ushort Kurs::compare_words(const string &aa, const string &bb)
 		tablice[1] = temp;
 	}
 		//restore memory
-		ushort wynik = tablice[0][a];
+		uint wynik = tablice[0][a];
 		delete [] tablice[0];
 		delete [] tablice[1];
 		
@@ -689,16 +692,16 @@ void Kurs::saveKurs(const string &filename, const string &repetitionAnnFileName,
 	repetitionAnn->save(repetitionAnnFileName);
 	repetitionAnnTrainingData->save(repetitionAnnTrainingDataFileName);
 
-	for(ushort i = 0; i < wordl1.size(); i++) {
+	for(uint i = 0; i < wordl1.size(); i++) {
 		file << wordl1[i]->getSpelling() << endl;
 	}
-	for(ushort i = 0; i < wordl2.size(); i++) {
+	for(uint i = 0; i < wordl2.size(); i++) {
 		file << wordl2[i]->getSpelling() << endl;
 		wordl2[i]->id = i+wordl1.size();
 	}
 	int inSecondWord;
-	for(ushort i = 0; i < wordl1.size(); i++) {
-        for(ushort j = 0; j < wordl1[i]->getNumberMeanings(); j++) {
+	for(uint i = 0; i < wordl1.size(); i++) {
+        for(uint j = 0; j < wordl1[i]->getNumberMeanings(); j++) {
             if(wordl1[i]->getMeaning(j) != emptySingleWord) {
                 file << i << "\t";
                 file << wordl1[i]->getMeaning(j)->id << "\t";

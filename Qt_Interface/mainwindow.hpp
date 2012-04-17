@@ -48,13 +48,13 @@ private:
 public:
     MainWindow();
 
-    std::string askWord(SingleWord const *sword, ushort nr_word);//nr_lang = 0 lub = 1
-    void printWords(std::string description, SingleWord const **swords, ushort const *numbersWords, std::vector<ushort> numbersConnections, short time);
-    Variable dialogWindow(std::string text, ushort type);
-    void infoWindow(std::string const *descriptions, Variable *values, ushort number);
-    ushort radioWindow(std::string description, std::string const *values, ushort defaultOption, ushort number);
+    std::string askWord(SingleWord const *sword, uint nr_word);//nr_lang = 0 lub = 1
+    void printWords(std::string description, SingleWord const **swords, uint const *numbersWords, std::vector<uint> numbersConnections, short time);
+    Variable dialogWindow(std::string text, uint type);
+    void infoWindow(std::string const *descriptions, Variable *values, uint number);
+    uint radioWindow(std::string description, std::string const *values, uint defaultOption, uint number);
     char Yes_No_Cancel(std::string description);
-    Variables optionWindow(std::string const *descriptions, Variable *values, ushort number);
+    Variables optionWindow(std::string const *descriptions, Variable *values, uint number);
     void printMessage(std::string title, std::string something);
     void reloadListCourses();
     void run();

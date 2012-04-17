@@ -28,27 +28,27 @@
 #include "doublefann.h"
 #include "fann_cpp.h"
 
-typedef unsigned short int ushort;
+typedef unsigned int uint;
 
 class TrainingData {
     double**            outputss;
     double**            inputss;
-    ushort              nLines;
-    ushort              nOutputsInLine;
-    ushort              nInputsInLine;
+    uint              nLines;
+    uint              nOutputsInLine;
+    uint              nInputsInLine;
     std::list<double*>  queuedOutputs;
     std::list<double*>  queuedInputs;
-    ushort              maxLines;
+    uint              maxLines;
 public:
     void addLine(std::initializer_list<double> Ainputs, std::initializer_list<double> Aoutputs);
     FANN::training_data getData() const;
-    ushort getMaxLines() const;
+    uint getMaxLines() const;
     void save(const std::string& filename) const;
-    void setMaxLines(const ushort& AmaxLines);
+    void setMaxLines(const uint& AmaxLines);
     void update();
     
     TrainingData(const std::string& filename);
-    TrainingData(const ushort& AnInputsInLine, const ushort& AnOutputsInLine);
+    TrainingData(const uint& AnInputsInLine, const uint& AnOutputsInLine);
     ~TrainingData();
 };
 
