@@ -205,7 +205,7 @@ vector<uint> Kurs::getWordsToRepetition(uint &nWords) const{
 		wtr.parttime = 0;
 		for(uint j = 0; j < countConnections; j++) {;
 			wtr.parttime += nowTime-wordl1[i]->getTimeLastRepetition(j);
-			wtr.priority += makePredictions(nowTime-wordl1[i]->getTimeLastRepetition(j), wordl1[i]->getRepetitionLevelNumber(j));
+			wtr.priority += makePredictions(nowTime-wordl1[i]->getTimeLastRepetition(j), wordl1[i]->getRepetitionLevelNumber(j), true);
 		}
 		wtr.priority /= countConnections;
 		wtr.parttime /= countConnections;
@@ -224,7 +224,7 @@ vector<uint> Kurs::getWordsToRepetition(uint &nWords) const{
 		wtr.parttime = 0;
 		for(uint j = 0; j < countConnections; j++) {
 			wtr.parttime += nowTime-wordl2[i]->getTimeLastRepetition(j);
-			wtr.priority += makePredictions(nowTime-wordl2[i]->getTimeLastRepetition(j), wordl2[i]->getRepetitionLevelNumber(j));
+			wtr.priority += makePredictions(nowTime-wordl2[i]->getTimeLastRepetition(j), wordl2[i]->getRepetitionLevelNumber(j), false);
 		}
 		wtr.priority /= countConnections;
 		wtr.parttime /= countConnections;
@@ -343,10 +343,11 @@ vector<SingleWord const*> Kurs::getSingleWords(const uint &from, uint &_to) cons
 bool Kurs::isSingleWordFLorSL(const uint &singleWordNo) const {
 	return singleWordNo < wordl1.size() ? true : false; //not sesne ist throw Error for word_number > nAllSingleWords
 }
-double Kurs::makePredictions(const int &time, const uint &repetitionLevelNo) const {
-	double *inputs = new double[2];
+double Kurs::makePredictions(const int &time, const uint &repetitionLevelNo, const bool& isFromFirstLanguage) const {
+	double *inputs = new double[3];
 	inputs[0] = 1/(double)time;
 	inputs[1] = repetitionLevelNo;
+	inputs[2] = (uint)(!isFromFirstLanguage)*2-1;
 	double *outputs = repetitionAnn->run(inputs);
 	if(outputs[0]*maxOplev < 0.0001)return 0.0001;
 	else return outputs[0]*maxOplev;
@@ -377,7 +378,7 @@ void Kurs::setRepetitionData(const uint &singleWordNo, const time_t &czas, vecto
 		
 		if(connectionsOplev[i] > maxOplev)connectionsOplev[i] = maxOplev;
 		
-		predicted_score = makePredictions(nowTime-sword->getTimeLastRepetition(i), sword->getRepetitionLevelNumber(i));
+		predicted_score = makePredictions(nowTime-sword->getTimeLastRepetition(i), sword->getRepetitionLevelNumber(i), singleWordNo < wordl1.size());
 		
 		// UPDATING TRAINING FILE
 		deviation = ((connectionsOplev[i]-predicted_score)*maxOplev)/predicted_score;

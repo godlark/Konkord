@@ -78,7 +78,7 @@ class Kurs
         static std::string decodeText(const std::string &oryginalText);
         static std::string encodeText(const std::string &oryginalText);
         void increaseNKnownSingleWords(const short int &quantity);
-        double makePredictions(const int &time, const uint &nRepetitionLevel) const;
+        double makePredictions(const int &time, const uint &nRepetitionLevel, const bool& isFromFirstLanguage) const;
     public:
         Kurs(RegisterOfErrors &AROE);
         Kurs(const std::string &filename, RegisterOfErrors &AROE);
