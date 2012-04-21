@@ -356,7 +356,8 @@ void Kurs::repairPredictions() {
     repetitionAnnTrainingData->update();
     const int max_neurons = 100;
 	const int neurons_between_reports = 1;
-	const double desired_error = 0.00001;
+	//Odchylenie standardowe dla nieskończonej ilości liczb równomiernie rozłożonych w przedziale <0; 1/maxOplev>
+	const double desired_error = sqrt(3)/(double)(6*maxOplev);
 	
 	repetitionAnn = new FANN::neural_net();
 	repetitionAnn->create_shortcut(2, 3, 1);
