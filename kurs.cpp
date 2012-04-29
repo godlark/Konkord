@@ -361,6 +361,7 @@ void Kurs::repairPredictions() {
 	
 	repetitionAnn = new FANN::neural_net();
 	repetitionAnn->create_shortcut(2, 3, 1);
+	repetitionAnn->set_train_error_function(FANN::ERRORFUNC_LINEAR);
 	repetitionAnn->cascadetrain_on_data(repetitionAnnTrainingData->getData(), max_neurons, neurons_between_reports, desired_error);
 }
 
